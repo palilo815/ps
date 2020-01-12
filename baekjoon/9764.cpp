@@ -11,13 +11,12 @@ int main()
 
     int T; cin >> T;
 
-    // 1ºÎÅÍ i±îÁöÀÇ ¼ö·Î¸¸ Ç¥ÇöÇÑ´Ù.
+    // 1ë¶€í„° iê¹Œì§€ì˜ ìˆ˜ë¡œë§Œ í‘œí˜„í•œë‹¤.
     for (int i = 1; i <= 2000; ++i) {
-        // j¸¦ Ç¥Çö °¡´ÉÇÏ¸é j+iµµ Ç¥Çö °¡´É
+        // jë¥¼ í‘œí˜„ ê°€ëŠ¥í•˜ë©´ j+ië„ í‘œí˜„ ê°€ëŠ¥
         for (int j = 2000 - i; j > 0; --j)
             DP[j + i] = (DP[j + i] + DP[j]) % MOD;
-
-        // i = i·Î ³ªÅ¸³»´Â °æ¿ì
+        // i = ië¡œ ë‚˜íƒ€ë‚´ëŠ” ê²½ìš°
         DP[i] += 1;
         DP[i] %= MOD;
     }
