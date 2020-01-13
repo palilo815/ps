@@ -5,7 +5,7 @@ public class Main {
             return true;
         int d1 = num % 100;
         int d2 = d1 / 10;
-        d1 %= 10;	//d1 : Ã¹ ÀÚ¸´¼ö, d2 = µÎ ¹øÂ° ÀÚ¸´¼ö
+        d1 %= 10;	//d1 : ì²« ìžë¦¿ìˆ˜, d2 : ë‘ ë²ˆì§¸ ìžë¦¿ìˆ˜
         int gap = d2 - d1;
         num /= 10;
         while(num >= 10) {
