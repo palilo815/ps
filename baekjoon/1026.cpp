@@ -12,8 +12,8 @@ int main()
     vector<int> A(N), B(N);
     loop(i, N) cin >> A[i];
     loop(i, N) cin >> B[i];
-    sort(A, A + N);
-    sort(B, B + N, greater<int>());
+    sort(A.begin(), A.end());
+    sort(B.begin(), B.end(), greater<int>());
     loop(i, N) sum += A[i] * B[i];
     cout << sum;
     return 0;
