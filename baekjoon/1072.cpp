@@ -18,7 +18,7 @@ int main()
     while (cin >> x >> y) {
         z = 100 * y / x;
 
-        // 99% -> 100%는 될 수 없다.
+        // impossible : 99% -> 100%
         if (z >= 99) {
             cout << "-1\n";
             continue;
@@ -36,5 +36,6 @@ int main()
         }
         cout << ans << '\n';
     }
+
     return 0;
 }
