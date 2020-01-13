@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "iostream": "cpp"
+    },
+    "C_Cpp.clang_format_fallbackStyle": "{
+        BasedOnStyle: LLVM
+}"
+}
