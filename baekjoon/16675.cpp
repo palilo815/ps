@@ -32,6 +32,7 @@ int main() {
                 cout << s[0];
         }
     }
+
     // 위의 경우와 반대
     else {
         if (A == B) {
