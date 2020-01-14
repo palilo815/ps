@@ -38,6 +38,7 @@ int main()
     loop(i, m) cin >> plan[i];
     loop(i, m) plan[i] = Dset.Find(plan[i]);
 
+    // i와 i+1이 연결되어 있어야 한다.
     loop(i, m - 1)
         if (plan[i] != plan[i + 1]) {
             cout << "NO";
