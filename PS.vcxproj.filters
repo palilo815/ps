@@ -15,11 +15,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Baekjoon\1000.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
+    <None Include=".editorconfig" />
   </ItemGroup>
   <ItemGroup>
-    <None Include=".editorconfig" />
+    <ClCompile Include="Baekjoon\2096.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

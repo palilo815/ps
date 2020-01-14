@@ -393,3 +393,5 @@ MigrationBackup/
 *.vcxproj
 *.vcxproj
 *.filters
+PS.vcxproj
+PS.vcxproj.filters

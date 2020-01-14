@@ -19,10 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Baekjoon\1000.cpp" />
+    <None Include=".editorconfig" />
   </ItemGroup>
   <ItemGroup>
-    <None Include=".editorconfig" />
+    <ClCompile Include="Baekjoon\2096.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
