@@ -10,5 +10,5 @@ int main()
         // n으로 나누면 몫이 i이고 나머지도 i
         ans += n * i + i;
     cout << ans;
-    return 0:
+    return 0;
 }
