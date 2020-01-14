@@ -14,29 +14,29 @@ int main()
     // 단 1은 곱하지 않고 따로 더하는 것이 이득이다.
     // 단 0은 음수가 1개 남았을 경우, 여기에 곱해서 0으로 만들어주고
     // 남은 음수가 없을 경우, 따로 더해준다.
-    vector<ll> pos, neg;
+    vector<int> pos, neg;
     int n, Z = 0, O = 0; // Zero, One은 따로 세준다.
     cin >> n;
     while (n--) {
-        ll x; cin >> x;
+        int x; cin >> x;
         if (x == 0) ++Z;
         else if (x == 1) ++O;
         else if (x < 0) neg.push_back(x);
         else pos.push_back(x);
     }
 
-    sort(neg.begin(), neg.end(), greater<ll>());
+    sort(neg.begin(), neg.end(), greater<int>());
     sort(pos.begin(), pos.end());
 
     ll score = 0;
     while (neg.size() >= 2) {
         ll tmp = neg.back(); neg.pop_back();
-        tmp *= neg.back(); neg.pop_back();
+        tmp *= (ll)neg.back(); neg.pop_back();
         score += tmp;
     }
     while (pos.size() >= 2) {
         ll tmp = pos.back(); pos.pop_back();
-        tmp *= pos.back(); pos.pop_back();
+        tmp *= (ll)pos.back(); pos.pop_back();
         score += tmp;
     }
 
