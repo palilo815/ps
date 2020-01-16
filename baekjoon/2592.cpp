@@ -1,7 +1,7 @@
 #include<iostream>
 using namespace std;
 
-int arr[101];
+int a[101];
 int main()
 {
     int sum = 0, x, M = 10;
