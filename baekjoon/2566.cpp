@@ -1,4 +1,4 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
 #define loop(i,n) for(int i=0;i<n;++i)
 
@@ -8,7 +8,7 @@ int main()
     ios::sync_with_stdio(false);
 
     int max = 0, m_i, m_j, n;
-    loop(i, 10) loop(j, 10) {
+    loop(i, 9) loop(j, 9) {
         cin >> n;
         if (n > max) {
             max = n;
