@@ -12,12 +12,13 @@ int main()
     bool update = true;
     while (update) {
         update = false;
-        if (arr[i] > arr[i + 1]) {
-            update = true;
-            swap(arr[i], arr[i + 1]);
-            loop(j, 5) cout << arr[j] << ' ';
-            cout << '\n';
-        }
+        loop(i, 4)
+            if (arr[i] > arr[i + 1]) {
+                update = true;
+                swap(arr[i], arr[i + 1]);
+                loop(j, 5) cout << arr[j] << ' ';
+                cout << '\n';
+            }
     }
     return 0;
 }
