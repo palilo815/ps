@@ -8,7 +8,7 @@ int main()
     ios::sync_with_stdio(false);
 
     int T; cin >> T;
-    while (T-- > 0) {
+    while (T--) {
         int n; cin >> n;
         int pos = 0;
         while (n) {
