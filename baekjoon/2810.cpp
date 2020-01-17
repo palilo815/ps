@@ -2,7 +2,7 @@
 #define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
 
-int seat[50];
+char seat[50];
 int main()
 {
     int N, ans = 0;
