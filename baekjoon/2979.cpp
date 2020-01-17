@@ -21,6 +21,7 @@ int main()
         if (truck[i] == 1) cost += a;
         else if (truck[i] == 2) cost += 2 * b;
         else if (truck[i] == 3) cost += 3 * c;
+    }
     cout << cost;
     return 0;
 }
