@@ -13,8 +13,7 @@ int main()
     while (N--) {
         cin >> s;
         stack<char> stk;
-        loop(i, s.size()) {
-            c = s[i];
+        for (char c : s) {
             if (stk.empty() || stk.top() != c)
                 stk.push(c);
             else
