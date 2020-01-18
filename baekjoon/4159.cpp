@@ -10,17 +10,18 @@ int main()
     int n;
     while (cin >> n) {
         if (!n) break;
-        vector<int> st(n + 1);
+        vector<int> st(n);
         loop(i, n) cin >> st[i];
-        st[n] = 1422;
         sort(st.begin(), st.end());
 
         bool possible = true;
-        loop(i,n)
+        loop(i, n - 1)
             if (st[i + 1] - st[i] > 200) {
                 possible = false;
                 break;
             }
+        if (1422 - st[n - 1] > 100) possible = false;
+
         if (possible) cout << "POSSIBLE\n";
         else cout << "IMPOSSIBLE\n";
     }
