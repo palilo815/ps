@@ -20,7 +20,6 @@ int main()
         if (a[0] == 0) break;
         int ans = 0;
         while (!cvg(a)) {
-            int tmp[4];
             loop(i, 4) tmp[i] = abs(a[i] - a[(i + 1) % 4]);
             loop(i, 4) a[i] = tmp[i];
             ++ans;
