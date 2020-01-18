@@ -36,7 +36,7 @@ int main()
                 else if (submit[i] == submit[me] && last[i] < last[me]) ++better;
             }
         }
-        // ³ªº¸´Ù ÀßÇÑ ÆÀ ¼ö + 1 == µî¼ö
+        // ë‚˜ë³´ë‹¤ ì˜í•œ íŒ€ ìˆ˜ + 1 == ë“±ìˆ˜
         cout << better + 1 << '\n';
     }
     return 0;
