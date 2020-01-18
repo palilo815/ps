@@ -16,8 +16,8 @@ int main()
         if (A == B)
             cout << A.replace(0, 1, "2");
         else {
-            string L = (A.size() > B.size()) ? A : B;
-            string S = (A.size() > B.size()) ? B : A;
+            string L = (A.size() > B.size()) ? A : B; // large str
+            string S = (A.size() > B.size()) ? B : A; // small str
             cout << L.replace(L.size() - S.size(), 1, "1");
         }
     }
