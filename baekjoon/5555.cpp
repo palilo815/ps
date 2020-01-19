@@ -13,7 +13,8 @@ int main()
     while (N--) {
         cin >> ring;
         ring += ring;
-        if (ring.find(key)) ++ans;
+        cout << "ring : " << ring << '\n';
+        if (ring.find(key) != string::npos) ++ans;
     }
     cout << ans;
     return 0;
