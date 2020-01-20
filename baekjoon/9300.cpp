@@ -1,4 +1,5 @@
-#include <stdio.h>
+#include<bits/stdc++.h>
+using namespace std;
 #define PI 3.14159265358979323846
 
 int main()
