@@ -8,7 +8,7 @@ int main()
     double price[3];
     loop(i, 3) {
         int c, w; cin >> c >> w;
-        if (c >= 5000) c -= 500;
+        if (c >= 500) c -= 50;
         price[i] = 1.0 * w / c;
     }
 
