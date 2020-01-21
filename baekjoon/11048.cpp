@@ -9,9 +9,11 @@ int main()
     cin.tie(NULL), cout.tie(NULL);
     ios::sync_with_stdio(false);
 
+    // ** initialize ** 
     int row, col; cin >> row >> col;
     LOOP(i, row) LOOP(j, col) cin >> candy[i][j];
-    DP[0][0] = candy[0][0];
+
+    // ** dynamic programming **
     LOOP(i, row) LOOP(j, col) {
         int tmp = max(DP[i - 1][j], DP[i][j - 1]);
         tmp = max(tmp, DP[i - 1][j - 1]);
