@@ -21,9 +21,6 @@
   <ItemGroup>
     <None Include=".editorconfig" />
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Baekjoon\15813.cpp" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{F7EE8114-96EE-480B-BEA2-9EFBCA2D48B3}</ProjectGuid>
