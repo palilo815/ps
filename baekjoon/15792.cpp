@@ -6,7 +6,7 @@ int main()
     printf("%d", a / b);
     putchar('.');
     a %= b;
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < 1010; ++i) {
         a *= 10;
         printf("%d", a / b);
         a %= b;
