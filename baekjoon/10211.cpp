@@ -13,7 +13,7 @@ int main()
         int psum = 0, ans = INT_MIN;
         while (N--) {
             cin >> num;
-            psum += num;
+            psum = max(num, psum + num);
             ans = max(ans, psum);
         }
         cout << ans << '\n';
