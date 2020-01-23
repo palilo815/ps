@@ -9,8 +9,9 @@ int main()
         scanf("%d", &n);
         ++cnt[n];
     }
-    for (int i = 1;i < 10001;++i)
-        while (cnt[i]--)
-            printf("%d\n", i);
+    for (int i = 1;i < 10001;++i) {
+        int t = cnt[i];
+        while (t--) printf("%d\n", i);
+    }
     return 0;
 }
