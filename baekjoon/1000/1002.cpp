@@ -1,52 +1,51 @@
 #include<bits/stdc++.h>
 using namespace std;
 #define loop(i,n) for(int i=0;i<n;++i)
-#define eps 1e-9	// À¯È¿ ¿ÀÂ÷
+#define eps 1e-9	// ìœ íš¨ ì˜¤ì°¨
 
 int main()
 {
-	cin.tie(NULL), cout.tie(NULL);
-	ios::sync_with_stdio(false);
+    cin.tie(NULL), cout.tie(NULL);
+    ios::sync_with_stdio(false);
 
-	int t;
-	cin >> t;
-	double x1, x2, y1, y2, r1, r2;
-	while (t-- > 0) {
-		cin >> x1 >> y1 >> r1 >> x2 >> y2 >> r2;
-		// case 1 : ¿ÏÀü ÀÏÄ¡
-		if (x1 == x2 && y1 == y2 && r1 == r2) {
-			cout << "-1" << '\n';
-			continue;
-		}
+    int t; cin >> t;
+    double x1, x2, y1, y2, r1, r2;
+    while (t--) {
+        cin >> x1 >> y1 >> r1 >> x2 >> y2 >> r2;
+        // case 1 : ì™„ì „ ì¼ì¹˜
+        if (x1 == x2 && y1 == y2 && r1 == r2) {
+            cout << "-1" << '\n';
+            continue;
+        }
 
-		// d : (x1,y1) ~ (d2,y2) distance
-		// small_r, large_r
-		double d = sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-		double s_r = min(r1, r2), l_r = max(r1, r2);
-		int ans;
+        // d : (x1,y1) ~ (d2,y2) distance
+        // small_r, large_r
+        double d = sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+        double s_r = min(r1, r2), l_r = max(r1, r2);
+        int ans;
 
-		// case 2 : ÇÑ ¿øÀÌ ´Ù¸¥ ¿øÀÇ ³»ºÎ
-		if (d + s_r - l_r < eps) {
-			// Á¢ÇÑ´Ù
-			if (d + s_r - l_r > -eps)
-				ans = 1;
-			// Á¢ÇÏÁö ¾ÊÀ¸¸é ¸¸³ªÁö ¾ÊÀ½
-			else
-				ans = 0;
-		}
-		// case 3 : ´Ù¸¥ ¿ø ¹Û
-		else {
-			// Á¢ÇÑ´Ù
-			if (fabs(s_r + l_r - d) < eps)
-				ans = 1;
-			// ¸¸³ªÁö ¾ÊÀ½
-			else if (d - s_r - l_r > eps)
-				ans = 0;
-			// ±× ÀÌ¿Ü : µÎ Á¡¿¡¼­ ±³Â÷
-			else
-				ans = 2;
-		}
-		cout << ans << '\n';
-	}
-	return 0;
+        // case 2 : í•œ ì›ì´ ë‹¤ë¥¸ ì›ì˜ ë‚´ë¶€
+        if (d + s_r - l_r < eps) {
+            // ì ‘í•œë‹¤
+            if (d + s_r - l_r > -eps)
+                ans = 1;
+            // ì ‘í•˜ì§€ ì•Šìœ¼ë©´ ë§Œë‚˜ì§€ ì•ŠìŒ
+            else
+                ans = 0;
+        }
+        // case 3 : ë‹¤ë¥¸ ì› ë°–
+        else {
+            // ì ‘í•œë‹¤
+            if (fabs(s_r + l_r - d) < eps)
+                ans = 1;
+            // ë§Œë‚˜ì§€ ì•ŠìŒ
+            else if (d - s_r - l_r > eps)
+                ans = 0;
+            // ê·¸ ì´ì™¸ : ë‘ ì ì—ì„œ êµì°¨
+            else
+                ans = 2;
+        }
+        cout << ans << '\n';
+    }
+    return 0;
 }
