@@ -27,6 +27,6 @@ int main()
     }
     std::sort(arr, arr + n);
     loop(i, n)
-        printf("%d\n", arr[i]);
+        printf("%lld\n", arr[i]);
     return 0;
 }
