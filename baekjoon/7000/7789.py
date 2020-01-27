@@ -7,7 +7,9 @@ def is_prime(num):
     return True
 
 
-a, b = map(int, input().split())
+a, b = input().split()
+b = int(b + a)
+a = int(a)
 prime = is_prime(a)
 if prime:
     prime = is_prime(b)
