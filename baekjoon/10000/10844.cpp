@@ -3,12 +3,14 @@
 #define scanf scanf_s
 
 const int MOD = 1000000000;
-int DP[2][10];
+int DP[2][10]; // 소중한 메모리 아끼쟈
 int main()
 {
     for (int i = 0;i < 10;++i)
         DP[0][i] = 1;
     int N; scanf("%d", &N);
+
+    // DP[i][j] : j로 시작하는 계단수
     for (int i = 1; i < N; ++i) {
         int idx = i % 2;
         for (int j = 1;j < 9;++j)
