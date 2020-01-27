@@ -1,19 +1,20 @@
-#include <stdio.h>
+#include<iostream>
+using namespace std;
 
 int main()
 {
     int ans, n;
     char c;
-    scanf("%d", &ans);
+    cin >> ans;
     while (1) {
-        scanf("%c", &c);
+        cin >> c;
         if (c == '=') break;
-        scanf("%d", &n);
+        cin >> n;
         if (c == '+') ans += n;
         else if (c == '-') ans -= n;
         else if (c == '*') ans *= n;
         else ans /= n;
     }
-    printf("%d", ans);
+    cout << ans;
     return 0;
 }
