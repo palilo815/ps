@@ -1,4 +1,4 @@
-arr = [int(x) for x in input().split()]
+arr = list(map(int, input().split()))
 for i in range(len(arr)):
     arr[i] -= 11
 Time = arr[0] * 60 * 24 + arr[1] * 60 + arr[2]
