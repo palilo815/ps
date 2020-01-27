@@ -6,7 +6,7 @@ const int max_N = 10000;
 int ROW[max_N + 1], COL[max_N + 1];
 int B_srch(int arr[], int e)
 {
-    int s = 1, sum = INT_MAX, ret;
+    int s = 1, ret;
     while (s <= e) {
         int m = s + (e - s) / 2;
         int left = 0, right = 0;
