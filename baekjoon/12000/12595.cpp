@@ -10,7 +10,7 @@ int main()
         scanf("%d", &n);
         set<int> st;
         set<int>::iterator it;
-        while (n-- > 0) {
+        while (n--) {
             scanf("%d", &x);
             it = st.find(x);
             if (it == st.end()) st.insert(x);
