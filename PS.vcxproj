@@ -22,7 +22,7 @@
     <None Include=".editorconfig" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Baekjoon\11000\11531.cpp" />
+    <ClCompile Include="Baekjoon\11000\11562.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
