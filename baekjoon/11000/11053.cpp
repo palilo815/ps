@@ -25,7 +25,7 @@ int main()
     int len = 1;
     T[0] = arr[0];
 
-    for (int i = 1;i < max_N;++i) {
+    for (int i = 1;i < N;++i) {
         if (arr[i] < T[0])
             T[0] = arr[i];
         else if (arr[i] > T[len - 1])
