@@ -5,7 +5,7 @@ using namespace std;
 int pre[100001];
 void go(queue<int>& q, int u, int v)
 {
-    if (v < 0 || v > 10000 || pre[v] != -1) return;
+    if (v < 0 || v > 100000 || pre[v] != -1) return;
     pre[v] = u;
     q.push(v);
 }
