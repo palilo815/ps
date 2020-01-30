@@ -1,0 +1,5 @@
+A = list(map(int, input().split()))
+B = list(map(int, input().split()))
+w = max(A[2], B[2]) - min(A[0], B[0])
+h = max(A[3], B[3]) - min(A[1], B[1])
+print(pow(max(w, h), 2))
