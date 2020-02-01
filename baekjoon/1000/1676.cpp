@@ -1,23 +1,14 @@
-#include<bits/stdc++.h>
+#include <iostream>
 using namespace std;
-#define loop(i,n) for(int i=0;i<n;++i)
 
 int main()
 {
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
-
-    int n, two = 0, five = 0;
-    cin >> n;
-    for (int i = 1; i <= n; ++i) {
-        int tmp = i;
-        while (tmp % 2 == 0)
-            tmp /= 2, ++two;
-        while (tmp % 5 == 0)
-            tmp /= 5, ++five;
+    int n; cin >> n;
+    int ans = 0, x = 5;
+    while (n >= x) {
+        ans += n / x;
+        x *= 5;
     }
-    // n!를 소인수분해 했을 때 
-    // two : 2의 개수, five : 5의 개수
-    cout << min(two, five);
+    cout << ans;
     return 0;
 }
