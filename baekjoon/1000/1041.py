@@ -9,7 +9,7 @@ else:
     min_1 = min(A, B, C, D, E, F)
     min_2 = min(sum_2)
     min_3 = min(sum_3)
-    
+
     # 윗 면의 꼭짓점 4개
     ans = 4 * min_3
     # 8개의 모서리 + 4개의 아랫면 꼭짓점
