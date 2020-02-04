@@ -19,7 +19,7 @@ int main()
         }
         ll tmp = num * 2;
         if (tmp <= b) q.push(tmp);
-        tmp = num * 10 + 1;
+        tmp = ll(num) * 10 + 1;
         if (tmp <= b) q.push(tmp);
     }
     cout << ans;
