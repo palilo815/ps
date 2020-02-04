@@ -12,6 +12,9 @@ int main()
     int row, col, Q;
     cin >> row >> col >> Q;
 
+    // psum[][][0] : J 등장 횟수
+    // psum[][][1] : O 등장 횟수
+    // psum[][][2] : I 등장 횟수
     char x;
     for (int i = 1; i <= row; ++i)
         for (int j = 1; j <= col; ++j) {
