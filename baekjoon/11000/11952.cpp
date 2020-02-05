@@ -15,6 +15,7 @@ int main()
     int N, M, K, S, pay_s, pay_d;
     cin >> N >> M >> K >> S >> pay_s >> pay_d;
 
+    // 점령당한 K개의 도시는 -1로 표시한다.
     queue<int> q;
     while (K--) {
         int idx; cin >> idx;
@@ -30,7 +31,7 @@ int main()
 
     q.push(-1);
     int dist = 0;
-    // dist <= S인 도시는 위험한 도시다.
+    // dist <= S인 도시는 위험한 도시다. 1로 표시한다.
     // dist == S-1일 때 dist == S인 도시를 전부 체크해주므로
     // while(dist < S)라고 해야한다.
     while (dist < S) {
