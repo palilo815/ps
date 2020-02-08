@@ -1,9 +1,7 @@
 def mov(pos, wall):
-    while pos < 0 or pos > wall:
-        if pos < 0:
-            pos = -pos
-        else:
-            pos = 2 * wall - pos
+    pos %= (2 * wall)
+    if pos > wall:
+        pos = 2 * wall - pos
     return pos
 
 
