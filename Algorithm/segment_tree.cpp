@@ -3,8 +3,12 @@
 using namespace std;
 
 int arr[100];
+// idx는 [l,r]구간을 나타낸다.
 int construct_segT(vector<int>& segT, int l, int r, int idx)
 {
+    // left child  : 2i + 1
+    // right child : 2i + 2
+    // parent : (i - 1) / 2
     if (l == r)
         return segT[idx] = arr[l];
 
