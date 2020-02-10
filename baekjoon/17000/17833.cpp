@@ -19,6 +19,7 @@ int main()
     ios::sync_with_stdio(false);
 
     // Dijkstra로 풀었으나 DP로 접근하는게 더 나은 듯
+    // DP로 풀었으나 틀렸는데, 아마 같은 건물을 여러번 쓸 수 있는 케이스에서 오류가 있었던 것 같다.
 
     int N, src, dst, M;
     cin >> N >> src >> dst >> M;
