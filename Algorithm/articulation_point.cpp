@@ -18,7 +18,7 @@ int DFS_AP(int u, int p) {
         if (!disc[v]) { // if V has not been discovered before
             children++;
             DFS_AP(v, u); // recursive DFS call
-            if (disc[u] <= low[v]) // condition #1
+            if (p != -1 && disc[u] <= low[v]) // condition #1
                 ap[u] = true;
             low[u] = min(low[u], low[v]); // low[v] might be an ancestor of u
         }
