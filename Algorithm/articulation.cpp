@@ -1,3 +1,7 @@
+/*
+    https://codeforces.com/blog/entry/71146
+    By "searleser97"
+*/
 #include <bits/stdc++.h>
 using namespace std;
 typedef pair<int, int> p;
