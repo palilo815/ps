@@ -6,6 +6,7 @@ const int max_N = 100000;
 int arr[max_N + 1];
 int lazy[131072 * 2 - 1];
 
+// [ql,qr] 구간에 전부 + qv
 void update(int ql, int qr, int qv, int l, int r, int idx)
 {
     if (lazy[idx]) {
@@ -25,6 +26,7 @@ void update(int ql, int qr, int qv, int l, int r, int idx)
     update(ql, qr, qv, l, m, 2 * idx + 1);
     update(ql, qr, qv, m + 1, r, 2 * idx + 2);
 }
+// return arr[qi]
 int query(int qi, int l, int r, int idx)
 {
     if (lazy[idx]) {
