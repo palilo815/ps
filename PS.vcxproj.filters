@@ -18,7 +18,7 @@
     <None Include=".editorconfig" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Baekjoon\11000\11378.cpp">
+    <ClCompile Include="Baekjoon\8000\8217.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
