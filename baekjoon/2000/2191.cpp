@@ -21,7 +21,7 @@ bool DFS(int u)
 {
     if (visited[u]) return false;
     visited[u] = true;
-    for(int v : adj[u])
+    for (int v : adj[u])
         if (!M_match[v] || DFS(M_match[v])) {
             N_match[u] = v;
             M_match[v] = u;
