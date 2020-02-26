@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
+typedef long long ll;
 
 int main() {
     cin.tie(NULL), cout.tie(NULL);
@@ -14,7 +15,8 @@ int main() {
         q.push(x);
         cache.insert(x);
     }
-    int dist = 0, ans = 0;
+    int dist = 0;
+    ll ans = 0;
     while (1) {
         int q_size = q.size();
         while (q_size--) {
