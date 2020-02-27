@@ -2,25 +2,24 @@
 #include<algorithm>
 using namespace std;
 
-bool MySort(string s1, string s2)
-{
-    if (s1.length() == s2.length())
-        return s1 < s2;
-    else
-        return (s1.length() < s2.length()) ? true : false;
+const int max_N = 20000;
+
+string arr[max_N];
+
+bool cmp(const string& a, const string& b) {
+    if (a.size() == b.size()) return a < b;
+    return a.size() < b.size();
 }
-int main()
-{
-    int n;
-    cin >> n;
-    string* arr = new string[n];
-    string s;
-    for (int i = 0; i < n; i++)
-        cin >> arr[i];
-    sort(arr, arr + n, MySort);
-    cout << arr[0] << endl;
-    for (int i = 1; i < n; i++)
+int main() {
+    cin.tie(NULL), cout.tie(NULL);
+    ios::sync_with_stdio(false);
+
+    int N; cin >> N;
+    for (int i = 0; i < N; ++i) cin >> arr[i];
+    sort(arr, arr + N, cmp);
+    cout << arr[0];
+    for (int i = 1; i < N; i++)
         if (arr[i] != arr[i - 1])
-            cout << arr[i] << endl;
+            cout << '\n' << arr[i];
     return 0;
 }
