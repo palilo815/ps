@@ -19,6 +19,8 @@ int main() {
     int N; cin >> N;
     loop(i, N) cin >> arr[i];
     sort(arr, arr + N, cmp);
+    // ... 이딴 tc는 왜 있는걸까
+    if (arr[0] == "0") { cout << 0; return 0; }
     loop(i, N) cout << arr[i];
     return 0;
 }
