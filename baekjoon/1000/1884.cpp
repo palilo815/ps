@@ -36,6 +36,7 @@ int main() {
             }
         }
     }
+
     int ans = INT_MAX;
     for (int i = 0; i <= K; ++i) ans = min(ans, DP[N][i]);
     cout << (ans == INT_MAX ? -1 : ans);
