@@ -1,31 +1,30 @@
-#include<iostream>
-#include<set>
-#include<iterator>
+#include <bits/stdc++.h>
 using namespace std;
 
 int main()
 {
-    cin.tie(NULL);
-    std::ios::sync_with_stdio(false);
+    cin.tie(NULL), cout.tie(NULL);
+    ios::sync_with_stdio(false);
 
+    vector<string> vt;
+    vector<string> ans;
+    
     string s;
-    set<string>::iterator it;
-    set<string> NoHear;
-    set<string> ans;
-    int n, m;
-    cin >> n >> m;
-    while (n-- > 0) {
+    int N, M; cin >> N >> M;
+    while (N--) {
         cin >> s;
-        NoHear.insert(s);
+        vt.emplace_back(s);
     }
-    while (m-- > 0) {
+    sort(vt.begin(), vt.end());
+
+    while (M--) {
         cin >> s;
-        it = NoHear.find(s);
-        if (it != NoHear.end())
-            ans.insert(*it);
+        if (binary_search(vt.begin(), vt.end(), s))
+            ans.emplace_back(s);
     }
+    sort(ans.begin(), ans.end());
+
     cout << ans.size() << '\n';
-    for (it = ans.begin();it != ans.end();it++)
-        cout << *it << '\n';
+    for (string x : ans) cout << x << '\n';
     return 0;
 }
