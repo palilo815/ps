@@ -2,8 +2,7 @@
 #define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
 
-int main()
-{
+int main() {
     cin.tie(NULL), cout.tie(NULL);
     ios::sync_with_stdio(false);
 
@@ -21,10 +20,8 @@ int main()
 
     // 가장 먼 곳을 방문할 때, 그 이전 M-1군데를 동시에 방문해야 최소값이 나온다.
     int ans = 0;
-    loop(i, len_L)
-        if (i % M == 0) ans += L[i];
-    loop(i, len_R)
-        if (i % M == 0) ans += R[i];
+    for (int i = 0; i < len_L; i += M) ans += L[i];
+    for (int i = 0; i < len_R; i += M) ans += R[i];
 
     // 책을 가지러 되돌아와야 하므로 ans*2를 해준다.
     // 그러나 맨 마지막에 놓을 때는 되돌아올 필요가 없다.
