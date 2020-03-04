@@ -1,14 +1,14 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef pair<int, int> p;
+typedef tuple<int, int, int> tup;
 
 const int max_N = 1000;
 
-int dist[max_N + 2];
+int dist[max_N + 2][101];
 vector<p> adj[max_N + 2];
 
-int main()
-{
+int main() {
     cin.tie(NULL), cout.tie(NULL);
     ios::sync_with_stdio(false);
 
@@ -16,28 +16,32 @@ int main()
     while (M--) {
         int u, v, w; cin >> u >> v >> w;
         if (w > 100) continue;
-        adj[u].push_back({ w,v });
-        adj[v].push_back({ w,u });
+        adj[u].emplace_back(w, v);
+        adj[v].emplace_back(w, u);
     }
 
-    for (int i = 1; i <= N + 1; ++i)
-        dist[i] = INT_MAX;
+    fill(&dist[0][0], &dist[N + 2][0], INT_MAX);
+    dist[0][0] = 0;
 
-    priority_queue<p, vector<p>, greater<p>> pq;
-    pq.push({ 0,0 });
+    priority_queue<tup, vector<tup>, greater<tup>> pq;
+    pq.emplace(0, 0, 0);
     while (1) {
-        auto [d, u] = pq.top(); pq.pop();
-        if (u == N + 1) break;
-        if (dist[u] < d) continue;
+        auto [d, dust, u] = pq.top(); pq.pop();
+        if (dist[u][dust] < d) continue;
+        if (u == N + 1) { cout << d; break; }
+
         for (auto [w, v] : adj[u]) {
-            int D = w + d;
-            if (v != N + 1) D += 5;
-            if (dist[v] > D) {
-                dist[v] = D;
-                pq.push({ D,v });
+            int D = d + w;
+            if (dust + w <= 100 && dist[v][dust + w] > D) {
+                dist[v][dust + w] = D;
+                pq.emplace(D, dust + w, v);
+            }
+            D += 5;
+            if (dist[v][w] > D) {
+                dist[v][w] = D;
+                pq.emplace(D, w, v);
             }
         }
     }
-    cout << dist[N + 1];
     return 0;
 }
