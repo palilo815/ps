@@ -16,6 +16,7 @@ int main() {
     cin >> N >> S;
     for (int i = 0; i < N; ++i) cin >> arr[i];
     solve(0, 0);
+    // 아무 것도 고르지 않는 경우를 빼줘야 한다.
     if (S == 0) --ans;
     cout << ans;
     return 0;
