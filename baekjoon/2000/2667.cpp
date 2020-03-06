@@ -1,46 +1,38 @@
-#include<iostream>
-#include<vector>
-#include<algorithm>
+#include <bits/stdc++.h>
+#define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
 
-char map[25][25];
-bool visited[25][25]{};
-int mov_i[4] = { 0,0,-1,1 };
-int mov_j[4] = { 1,-1,0,0 };
-int n;
+const int mov[4][2] = { -1,0,0,-1,0,1,1,0 };
+const int max_N = 25;
 
-int dfs(int a, int b)
-{
-    int count = 1;
-    visited[a][b] = true;
-    for (int i = 0; i < 4; i++) {
-        int y = a + mov_i[i];
-        if (y == -1 || y == n) continue;
-        int x = b + mov_j[i];
-        if (x == -1 || x == n) continue;
-        if (map[y][x] == '1' && !visited[y][x])
-            count += dfs(y, x);
+int N;
+char mat[max_N][max_N];
+bool visited[max_N][max_N];
+
+int DFS(int r, int c) {
+    int ret = 1;
+    visited[r][c] = true;
+
+    loop(i, 4) {
+        int R = r + mov[i][0], C = c + mov[i][1];
+        if (R < 0 || R >= N || C < 0 || C >= N || mat[R][C] == '0' || visited[R][C]) continue;
+        ret += DFS(R, C);
     }
-    return count;
+    return ret;
 }
 
-int main()
-{
-    cin.tie(NULL);
-    std::ios::sync_with_stdio(false);
+int main() {
+    cin.tie(NULL), cout.tie(NULL);
+    ios::sync_with_stdio(false);
+
     vector<int> ans;
-    cin >> n;
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < n; j++)
-            cin >> map[i][j];
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < n; j++)
-            if (map[i][j] == '1' && !visited[i][j])
-                ans.push_back(dfs(i, j));
+    cin >> N;
+    loop(i, N) loop(j, N) cin >> mat[i][j];
+    loop(i, N) loop(j, N) if (mat[i][j] == '1' && !visited[i][j])
+        ans.emplace_back(DFS(i, j));
 
     sort(ans.begin(), ans.end());
-    cout << ans.size() << '\n';
-    for (int i = 0; i < ans.size(); i++)
-        cout << ans[i] << '\n';
+    cout << ans.size();
+    for (int x : ans) cout << '\n' << x;
     return 0;
 }
