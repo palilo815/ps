@@ -1,38 +1,22 @@
-#include<iostream>
-#include<string>
+#include <iostream>
+#define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
 
-int main()
-{
-    cin.tie(NULL);
-    std::ios::sync_with_stdio(false);
+char arr[50][50];
+int main() {
+    int row, col; cin >> row >> col;
+    loop(i, row) loop(j, col) cin >> arr[i][j];
 
-    int N, M, max = 1;
-    cin >> N >> M;
-    char** arr = new char* [N];
-
-    for (int i = 0; i < N;i++)
-        arr[i] = new char[M];
-    for (int i = 0; i < N;i++)
-        for (int j = 0;j < M;j++)
-            cin >> arr[i][j];
-
-    for (int i = 0;i < N;i++) {
-        for (int j = 0; j < M - 1; j++) {
-            for (int k = j + 1; k < M; k++) {
-                if (arr[i][j] == arr[i][k]) {
-                    int len = k - j + 1;
-                    if (len <= max) continue;
-                    char check = arr[i][j];
-                    if (i + len - 1 < N)
-                        if (arr[i + len - 1][j] == check && arr[i + len - 1][k] == check)
-                            max = len;
-
-                }
-            }
+    int ans = 0;
+    loop(i, row - 1) loop(j, col - 1) for (int k = j + 1; k < col; ++k)
+        if (arr[i][j] == arr[i][k]) {
+            int dist = k - j;
+            if (i + dist >= row || dist <= ans) continue;
+            if (arr[i + dist][j] == arr[i][j] && arr[i + dist][k] == arr[i][j])
+                ans = dist;
         }
-    }
-    cout << max * max;
 
+    ++ans;
+    cout << ans * ans;
     return 0;
 }
