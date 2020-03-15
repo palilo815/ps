@@ -1,43 +1,43 @@
 #include<bits/stdc++.h>
 using namespace std;
-#define loop(i,n) for(int i=0;i<n;++i)
-#define P pair<int,int>
+typedef pair<int, int> p;
 
-vector<P> adj[20000];
-void Dijkstra(int V, int src)
-{
-    vector<int> dist(V, INT32_MAX);
-    dist[src] = 0;
-    priority_queue<P, vector<P>, greater<P>> pq;
-    pq.push(make_pair(0, src));
-    while (!pq.empty()) {
-        int cost = pq.top().first, here = pq.top().second; pq.pop();
-        if (dist[here] < cost) continue;
-        loop(i, adj[here].size()) {
-            int there = adj[here][i].second;
-            int nextDist = cost + adj[here][i].first;
-            if (dist[there] > nextDist) {
-                dist[there] = nextDist;
-                pq.push({ nextDist, there });
-            }
-        }
-    }
-    for (int x : dist) {
-        if (x == INT32_MAX) cout << "INF";
-        else cout << x;
-        cout << '\n';
-    }
-}
-int main()
-{
+const int max_V = 20000;
+
+vector<p> adj[max_V + 1];
+int dist[max_V + 1];
+
+int main() {
     cin.tie(NULL), cout.tie(NULL);
     ios::sync_with_stdio(false);
 
-    int V, E, k; cin >> V >> E >> k;
+    int V, E, src; cin >> V >> E >> src;
     while (E--) {
         int u, v, w; cin >> u >> v >> w;
-        adj[u - 1].push_back({ w, v - 1 });
+        adj[u].emplace_back(w, v);
     }
-    Dijkstra(V, k - 1);
+    
+    fill(dist + 1, dist + V + 1, INT_MAX);
+    dist[src] = 0;
+
+    priority_queue<p, vector<p>, greater<p>> pq;
+    pq.emplace(0, src);
+
+    while (!pq.empty()) {
+        auto [d, u] = pq.top(); pq.pop();
+        if (dist[u] < d) continue;
+
+        for (auto [w, v] : adj[u]) {
+            int D = d + w;
+            if (dist[v] > D) {
+                dist[v] = D;
+                pq.emplace(D, v);
+            }
+        }
+    }
+
+    for (int i = 1; i <= V; ++i)
+        if (dist[i] == INT_MAX) cout << "INF\n";
+        else cout << dist[i] << '\n';
     return 0;
 }
