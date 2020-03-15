@@ -1,29 +1,21 @@
-#include<iostream>
-#include<algorithm>
-#include<set>
-#include<iterator>
+#include <iostream>
+#include <algorithm>
 using namespace std;
 
-int main()
-{
-    cin.tie(NULL);
-    std::ios::sync_with_stdio(false);
+int arr[100000];
 
-    set<int> st;
-    int n, m, num;
+int main() {
+    cin.tie(NULL), cout.tie(NULL);
+    ios::sync_with_stdio(false);
 
-    cin >> n;
-    while (n-- > 0) {
-        cin >> num;
-        st.insert(num);
-    }
-    cin >> m;
-    while (m-- > 0) {
-        cin >> num;
-        if (st.find(num) == st.end())
-            cout << "0\n";
-        else
-            cout << "1\n";
+    int N; cin >> N;
+    for (int i = 0; i < N; ++i) cin >> arr[i];
+    sort(arr, arr + N);
+
+    int M; cin >> M;
+    while (M--) {
+        int x; cin >> x;
+        cout << binary_search(arr, arr + N, x) << '\n';
     }
     return 0;
 }
