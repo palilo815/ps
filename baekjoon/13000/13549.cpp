@@ -6,7 +6,7 @@ const int range = 100000;
 bool visited[range + 1];
 deque<int> dq;
 
-inline void go(int v, bool f) {
+inline void go(int v, int f) {
     if (v < 0 || v > range || visited[v]) return;
     visited[v] = true;
     f ? dq.emplace_front(v) : dq.emplace_back(v);
@@ -30,9 +30,9 @@ int main() {
         }
         if (u == dst) break;
 
-        go(u * 2, true);
-        go(u - 1, false);
-        go(u + 1, false);
+        go(u * 2, 1);
+        go(u - 1, 0);
+        go(u + 1, 0);
     }
     cout << ans;
     return 0;
