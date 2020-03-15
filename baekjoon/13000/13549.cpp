@@ -16,13 +16,9 @@ int main() {
     ios::sync_with_stdio(false);
 
     int src, dst; cin >> src >> dst;
-    dq.emplace_back(src);
     visited[src] = true;
 
-    if (src && src * 2 <= range) {
-        dq.emplace_back(2 * src);
-        visited[2 * src] = true;
-    }
+    dq.emplace_back(src);
     dq.emplace_back(-1);
 
     int ans = 0;
@@ -33,7 +29,7 @@ int main() {
             continue;
         }
         if (u == dst) break;
-        
+
         go(u * 2, true);
         go(u - 1, false);
         go(u + 1, false);
