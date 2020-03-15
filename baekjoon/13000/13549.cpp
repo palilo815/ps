@@ -1,43 +1,42 @@
 #include <bits/stdc++.h>
-#define loop(i,n) for(int i=0;i<n;++i)
-#define P pair<int,int>
 using namespace std;
 
-bool visited[100001];
-int main()
-{
+const int range = 100000;
+
+bool visited[range + 1];
+deque<int> dq;
+
+inline void go(int v, bool f) {
+    if (v < 0 || v > range || visited[v]) return;
+    visited[v] = true;
+    f ? dq.emplace_front(v) : dq.emplace_back(v);
+}
+int main() {
     cin.tie(NULL), cout.tie(NULL);
     ios::sync_with_stdio(false);
 
-    deque<int> dq;
-    int u, v; cin >> u >> v;
-    dq.push_back(u);
-    visited[u] = true;
-    if (u && u * 2 < 100001) {
-        dq.push_back(2 * u);
-        visited[2 * u] = true;
+    int src, dst; cin >> src >> dst;
+    dq.emplace_back(src);
+    visited[src] = true;
+
+    if (src && src * 2 <= range) {
+        dq.emplace_back(2 * src);
+        visited[2 * src] = true;
     }
-    dq.push_back(-1);
+    dq.emplace_back(-1);
+
     int ans = 0;
     while (1) {
-        int here = dq.front(); dq.pop_front();
-        if (here == -1) {
-            ++ans; dq.push_back(here);
+        int u = dq.front(); dq.pop_front();
+        if (u == -1) {
+            ++ans; dq.emplace_back(u);
             continue;
         }
-        if (here == v) break;
-        if (here * 2 < 100001 && !visited[here * 2]) {
-            dq.push_front(here * 2);
-            visited[here * 2] = true;
-        }
-        if (here + 1 < 100001 && !visited[here + 1]) {
-            dq.push_back(here + 1);
-            visited[here + 1] = true;
-        }
-        if (here - 1 >= 0 && !visited[here - 1]) {
-            dq.push_back(here - 1);
-            visited[here - 1] = true;
-        }
+        if (u == dst) break;
+        
+        go(u * 2, true);
+        go(u - 1, false);
+        go(u + 1, false);
     }
     cout << ans;
     return 0;
