@@ -49,8 +49,8 @@ int main() {
     ll ans = 0;
     LOOP(i, N) {
         auto [d, u] = dist[i];
-        int c = cow[u];
-        ans = max(ans, ll(d - T) * c);
+        ll c = cow[u];
+        ans = max(ans, (d - T) * c);
         cow[parent[u]] += c;
     }
     cout << ans;
