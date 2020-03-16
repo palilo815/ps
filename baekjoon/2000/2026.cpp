@@ -4,7 +4,6 @@ using namespace std;
 const int max_N = 900;
 
 int K, N;
-int cnt[max_N + 1];
 vector<int> adj[max_N + 1];
 vector<int> ans;
 
@@ -31,7 +30,6 @@ int main() {
     int F; cin >> K >> N >> F;
     while (F--) {
         int u, v; cin >> u >> v;
-        ++cnt[u], ++cnt[v];
         adj[u].emplace_back(v);
         adj[v].emplace_back(u);
     }
