@@ -1,66 +1,43 @@
 #include<bits/stdc++.h>
 using namespace std;
-#define loop(i,n) for(int i=0;i<n;++i)
-#define P pair<int,int>
+typedef pair<int, int> p;
 
-int CeilingTo2(int n)
-{
-    --n;
-    int pos = 0;
-    while (n) {
-        n = n >> 1;
-        ++pos;
-    }
-    return 1 << pos;
+const int max_N = 100000;
+
+int arr[max_N];
+p segT[131072 * 2 - 1];
+
+inline p min_max(p a, p b) {
+    return { min(a.first,b.first),max(a.second,b.second) };
 }
-
-struct RMQ {
-    int n;
-    vector<int> rangeMin, rangeMax;
-    RMQ(const vector<int>& arr) {
-        n = arr.size();
-        int ST_size = 2 * CeilingTo2(n);
-        rangeMin.resize(ST_size);
-        rangeMax.resize(ST_size);
-        init(arr, 0, n - 1, 1);
-    }
-    P init(const vector<int>& arr, int left, int right, int node) {
-        if (left == right)
-            return make_pair(rangeMin[node] = arr[left], rangeMax[node] = arr[left]);
-        int mid = (left + right) / 2;
-        P L = init(arr, left, mid, 2 * node);
-        int leftMin = L.first, leftMax = L.second;
-        P R = init(arr, mid + 1, right, 2 * node + 1);
-        int rightMin = R.first, rightMax = R.second;
-        return make_pair(rangeMin[node] = min(leftMin, rightMin), rangeMax[node] = max(leftMax, rightMax));
-    }
-    P query(int left, int right, int node, int nodeleft, int noderight) {
-        if (right < nodeleft || noderight < left) return make_pair(INT32_MAX, INT32_MIN);
-        if (left <= nodeleft && noderight <= right) return make_pair(rangeMin[node], rangeMax[node]);
-        int mid = (nodeleft + noderight) / 2;
-        P L = query(left, right, node * 2, nodeleft, mid);
-        P R = query(left, right, node * 2 + 1, mid + 1, noderight);
-        return make_pair(min(L.first, R.first), max(L.second, R.second));
-    }
-    P query(int left, int right) {
-        return query(left, right, 1, 0, n - 1);
-    }
-};
-int main()
-{
+p build_segT(int l, int r, int idx) {
+    if (l == r) return segT[idx] = { arr[l],arr[l] };
+    int m = l + (r - l) / 2;
+    int c1 = 2 * idx + 1, c2 = 2 * idx + 2;
+    build_segT(l, m, c1);
+    build_segT(m + 1, r, c2);
+    return segT[idx] = min_max(segT[c1], segT[c2]);
+}
+p query(int ql, int qr, int l, int r, int idx) {
+    if (ql <= l && r <= qr) return segT[idx];
+    if (qr < l || r < ql) return { INT_MAX,INT_MIN };
+    int m = l + (r - l) / 2;
+    int c1 = 2 * idx + 1, c2 = 2 * idx + 2;
+    return min_max(query(ql, qr, l, m, c1), query(ql, qr, m + 1, r, c2));
+}
+int main() {
     cin.tie(NULL), cout.tie(NULL);
     ios::sync_with_stdio(false);
 
-    int n, m; cin >> n >> m;
-    vector<int> vt(n);
-    vt.reserve(n);
-    loop(i, n) cin >> vt[i];
+    int N, M; cin >> N >> M;
+    for (int i = 0; i < N; ++i)
+        cin >> arr[i];
 
-    RMQ Query(vt);
-    int l, r;
-    while (m--) {
-        cin >> l >> r;
-       P ans = Query.query(l - 1, r - 1);
+    build_segT(0, N - 1, 0);
+
+    while (M--) {
+        int ql, qr; cin >> ql >> qr;
+        p ans = query(ql - 1, qr - 1, 0, N - 1, 0);
         cout << ans.first << ' ' << ans.second << '\n';
     }
     return 0;
