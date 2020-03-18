@@ -1,53 +1,51 @@
 #include <bits/stdc++.h>
-#define loop(i,n) for(int i=0;i<n;++i)
-#define P pair<int,int>
 using namespace std;
+typedef pair<int, int> p;
 
-vector<P> adj[1001];
-int max_scr[1001], cache[1001];
-int main()
-{
+vector<p> adj[1001];
+int score[1001], cache[1001];
+
+int main() {
     cin.tie(NULL), cout.tie(NULL);
     ios::sync_with_stdio(false);
 
     int N, M; cin >> N >> M;
     while (M--) {
-        int u, v, scr; cin >> u >> v >> scr;
-        adj[u].push_back({ v,scr });
+        int u, v, w; cin >> u >> v >> w;
+        adj[u].emplace_back(w, v);
     }
 
-    queue<P> q;
-    loop(i, adj[1].size()) {
-        int v = adj[1][i].first, scr = adj[1][i].second;
-        max_scr[v] = scr;
+    queue<p> q;
+    for (auto [w, v] : adj[1]) {
+        score[v] = w;
         cache[v] = 1;
-        q.push({ v,scr });
+        q.emplace(w, v);
     }
 
     while (!q.empty()) {
-        int u = q.front().first, scr = q.front().second; q.pop();
-        if (u == 1 || max_scr[u] > scr) continue;
-        loop(i, adj[u].size()) {
-            int v = adj[u][i].first, v_scr = scr + adj[u][i].second;
-            if (max_scr[v] < v_scr) {
-                max_scr[v] = v_scr;
+        auto [s, u] = q.front(); q.pop();
+        if (u == 1 || score[u] > s) continue;
+
+        for (auto [w, v] : adj[u]) {
+            int S = s + w;
+            if (score[v] < S) {
+                score[v] = S;
                 cache[v] = u;
-                q.push({ v,v_scr });
+                q.emplace(S, v);
             }
         }
     }
-    cout << max_scr[1] << '\n';
-    stack<int> path;
-    path.push(1);
-    int pos = cache[1];
-    while (pos != 1) {
-        path.push(pos);
-        pos = cache[pos];
-    }
-    cout << 1;
-    while (!path.empty()) {
-        cout << ' ' << path.top();
-        path.pop();
-    }
+
+    vector<int> path;
+    path.emplace_back(1);
+    int u = 1;
+    do {
+        u = cache[u];
+        path.emplace_back(u);
+    } while (u != 1);
+
+    cout << score[1] << '\n';
+    for (auto it = path.rbegin(); it != path.rend(); ++it)
+        cout << *it << ' ';
     return 0;
 }
