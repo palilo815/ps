@@ -22,7 +22,7 @@ int main() {
     }
     LOOP(i, N) cin >> cost[i];
 
-    for (int i = 1; i <= N + 1; ++i) {
+    LOOP(i, N + 1) {
         int tmp = INF;
         for (int j = i - 1; j >= 0 && psum[i] - psum[j] <= T; --j) {
             if (DP[j] + cost[i] < tmp) {
