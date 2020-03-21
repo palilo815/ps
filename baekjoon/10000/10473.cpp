@@ -35,7 +35,6 @@ int main() {
         loop(i, N) if (!v[i] && (k == -1 || dist[i] < dist[k]))
             k = i;
 
-        assert(k >= 0);
         if (k == N - 1) {
             cout << fixed << setprecision(5) << dist[k];
             return 0;
