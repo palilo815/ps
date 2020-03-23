@@ -1,52 +1,27 @@
-#include<bits/stdc++.h>
-using namespace std;
-#define loop(i,n) for(int i=0;i<n;++i)
+#include <stdio.h>
 
-int Bingo(int Board[][5], int r, int c)
-{
-    int ret = 0;
-    if (r == c)
-        loop(i, 5) {
-        if (Board[i][i]) break;
-        if (i == 4) ++ret;
+int row[5], col[5], dia[2];
+int main() {
+    int pos[26];
+    for (int i = 0; i < 25; ++i) {
+        int num; scanf("%d", &num);
+        pos[num] = i;
     }
-    if (r + c == 4)
-        loop(i, 5) {
-        if (Board[i][4 - i]) break;
-        if (i == 4) ++ret;
-    }
-    loop(i, 5) {
-        if (Board[r][i]) break;
-        if (i == 4) ++ret;
-    }
-    loop(i, 5) {
-        if (Board[i][c]) break;
-        if (i == 4) ++ret;
-    }
-    return ret;
-}
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
 
-    int Board[5][5], Num[25];
-    loop(i, 5) loop(j, 5)
-        cin >> Board[i][j];
-    loop(i, 25) cin >> Num[i];
+    int bingo = 0;
+    for (int i = 1; i <= 25; ++i) {
+        int num; scanf("%d", &num);
+        int r = pos[num] / 5, c = pos[num] % 5;
 
-    int Count = 0;
-    loop(k, 25) {
-        int x = Num[k];
-        loop(i, 5) loop(j, 5) {
-            if (Board[i][j] == x) {
-                Board[i][j] = 0;
-                Count += Bingo(Board, i, j);
-                if (Count >= 3) { cout << k + 1; return 0; }
-                goto OUT;
-            }
+        if (++row[r] == 5) ++bingo;
+        if (++col[c] == 5) ++bingo;
+        if (r == c && ++dia[0] == 5) ++bingo;
+        if (r + c == 4 && ++dia[1] == 5) ++bingo;
+
+        if (bingo >= 3) {
+            printf("%d", i);
+            return 0;
         }
-    OUT:;
     }
     return 0;
 }
