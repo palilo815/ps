@@ -1,56 +1,45 @@
-#include<iostream>
-#include<math.h>
-#include<algorithm>
-#include<queue>
-using namespace std;
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
 
-int arr[8001] = {};
-int main()
-{
-    cin.tie(NULL);
-    std::ios::sync_with_stdio(false);
+int arr[8001];
 
-    int n, x, sum = 0;
-    cin >> n;
-    for (int i = 0; i < n; i++) {
-        cin >> x;
+int main() {
+    int N; scanf("%d", &N);
+    int sum = 0;
+    for (int i = 0; i < N; ++i) {
+        int x; scanf("%d", &x);
         sum += x;
-        arr[x + 4000]++;
+        ++arr[x + 4000];
     }
-    cout << round((double)sum / n) << '\n';
 
-    int left = 0, right = n - 1, count = 0;
-    for (int i = 0; i < 8001; i++)
-        if (arr[i] != 0) {
-            left = i;
-            break;
+    if (sum > 0) sum = 1.0 * sum / N + 0.5;
+    else if (sum < 0) sum = 1.0 * sum / N - 0.5;
+
+    int l = 0, r = 8000;
+    while (!arr[l]) ++l;
+    while (!arr[r]) --r;
+
+    int rep = -1, mid = 0, cnt = 0;;
+    bool is_second = false, find_mid = false;
+
+    for (int i = l; i <= r; ++i) {
+        cnt += arr[i];
+
+        if (rep == -1 || arr[i] > arr[rep]) {
+            rep = i;
+            is_second = false;
         }
-    for (int i = 8000; i >= 0; i--)
-        if (arr[i] != 0) {
-            right = i;
-            break;
+        else if (arr[i] == arr[rep] && !is_second) {
+            rep = i;
+            is_second = true;
         }
 
-    int max_repeated = 0, MidVal = 0;
-    bool IsItSecond = false, FindMidVal = false;
-
-    for (int i = left; i <= right; i++) {
-        count += arr[i];
-        if (arr[i] > arr[max_repeated]) {
-            max_repeated = i;
-            IsItSecond = false;
-        }
-        else if (arr[i] == arr[max_repeated]) {
-            if (!IsItSecond) {
-                max_repeated = i;
-                IsItSecond = true;
-            }
-        }
-        if (count >= (n + 1) / 2 && !FindMidVal) {
-            FindMidVal = true;
-            MidVal = i;
+        if (cnt >= (N + 1) / 2 && !find_mid) {
+            mid = i;
+            find_mid = true;
         }
     }
-    cout << MidVal - 4000 << '\n' << max_repeated - 4000 << '\n' << right - left;
+    
+    printf("%d\n%d\n%d\n%d", sum, mid - 4000, rep - 4000, r - l);
     return 0;
 }
