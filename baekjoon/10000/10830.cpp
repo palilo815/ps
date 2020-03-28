@@ -1,8 +1,8 @@
 #include <stdio.h>
 #define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
+
 const int MOD = 1000;
-#define scanf scanf_s
 int N;
 void multiply(int A[][5], int B[][5])
 {
