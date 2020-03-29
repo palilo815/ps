@@ -16,7 +16,7 @@ int main()
     loop(i, n) loop(j, n) {
         ll d = board[i][j];
         if (d == 0) continue;
-        // 각각 아래로 점프, 오른쪽으로 점프
+
         if (i + d < n) DP[i + d][j] += DP[i][j];
         if (j + d < n) DP[i][j + d] += DP[i][j];
     }
