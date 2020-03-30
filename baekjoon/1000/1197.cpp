@@ -1,46 +1,41 @@
-#include<bits/stdc++.h>
-using namespace std;
+#include <bits/stdc++.h>
 #define loop(i,n) for(int i=0;i<n;++i)
-#define P pair<int,int>
-#define ll long long
+using namespace std;
+typedef pair<int, int> p;
 
-int V, E;
-vector<P> adj[10001];
-ll Prim() {
-    vector<bool> added(V + 1);
-    vector<int> min_weight(V + 1, INT32_MAX);
-    ll ret = 0;
-    min_weight[1] = 0;
+const int max_V = 10000;
 
-    for (int iter = 1;iter <= V;++iter) {
-        int u = -1;
-        for (int v = 1;v <= V;++v)
-            if (!added[v] && (u == -1 || min_weight[u] > min_weight[v]))
-                u = v;
+vector<p> adj[max_V + 1];
+bool added[max_V + 1];
+int dist[max_V + 1];
 
-        ret += (ll)min_weight[u];
-        added[u] = true;
-
-        int len = adj[u].size();
-        loop(i, len) {
-            int v = adj[u][i].first, weight = adj[u][i].second;
-            if (!added[v] && min_weight[v] > weight)
-                min_weight[v] = weight;
-        }
-    }
-    return ret;
-}
-int main()
-{
+int main() {
     cin.tie(NULL), cout.tie(NULL);
     ios::sync_with_stdio(false);
 
-    cin >> V >> E;
-    loop(i, E) {
+    int V, E; cin >> V >> E;
+    while (E--) {
         int u, v, w; cin >> u >> v >> w;
-        adj[u].push_back(make_pair(v, w));
-        adj[v].push_back(make_pair(u, w));
+        adj[u].emplace_back(w, v);
+        adj[v].emplace_back(w, u);
     }
-    cout << Prim();
+
+    fill_n(dist + 1, V, INT_MAX);
+    dist[1] = 0;
+    long long ans = 0;
+    int cnt = V;
+
+    while (cnt--) {
+        int u = -1;
+        for (int i = 1; i <= V; ++i) if (!added[i] && (u == -1 || dist[i] < dist[u]))
+            u = i;
+
+        ans += dist[u];
+        added[u] = true;
+
+        for (auto [w, v] : adj[u]) if (!added[v] && dist[v] > w)
+            dist[v] = w;
+    }
+    cout << ans;
     return 0;
 }
