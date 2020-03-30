@@ -1,41 +1,31 @@
 #include<bits/stdc++.h>
-using namespace std;
 #define loop(i,n) for(int i=0;i<n;++i)
+using namespace std;
 
-int mov[4][2] = { -1,0,0,-1,0,1,1,0 };
+const int mov[4][2] = { -1,0,0,-1,0,1,1,0 };
+
 char board[20][20];
-bool visited[20][20], selected[26];
-int row, col;
+int row, col, ans;
 
-int DFS(int y, int x, int cnt)
-{
-    int ret = cnt;
+void DFS(int y, int x, int select) {
+    ans = max(ans, __builtin_popcount(select));
     loop(i, 4) {
         int Y = y + mov[i][0], X = x + mov[i][1];
         if (Y < 0 || Y >= row || X < 0 || X >= col) continue;
 
-        int alph = board[Y][X] - 'A';
-        // 방문도 안했고, 해당 알파벳고 안골랐으면 DFS 전진
-        if (!visited[Y][X] && !selected[alph]) {
-            selected[alph] = visited[Y][X] = true;
-            ret = max(ret, DFS(Y, X, cnt + 1));
-            selected[alph] = visited[Y][X] = false;
-        }
+        int v = 1 << (board[Y][X] - 'A');
+        if (!(select & v))
+            DFS(Y, X, select | v);
     }
-    return ret;
 }
-int main()
-{
+int main() {
     cin.tie(NULL), cout.tie(NULL);
     ios::sync_with_stdio(false);
 
     cin >> row >> col;
     loop(i, row) loop(j, col) cin >> board[i][j];
 
-    // 시작점은 먼저 체크
-    selected[board[0][0] - 'A'] = true;
-    visited[0][0] = true;
-
-    cout << DFS(0, 0, 1);
+    DFS(0, 0, 1 << (board[0][0] - 'A'));
+    cout << ans;
     return 0;
 }
