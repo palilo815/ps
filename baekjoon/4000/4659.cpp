@@ -3,9 +3,8 @@
 
 char pw[21];
 int accept() {
-    int moum = 0;
-    int len = strlen(pw), cnt = 0;
-    for (int i = 0; i < len; ++i) switch (pw[i]) {
+    int moum = 0, cnt = 0;
+    for (int i = 0; pw[i]; ++i) switch (pw[i]) {
     case 'a':
     case 'i':
     case 'u':
