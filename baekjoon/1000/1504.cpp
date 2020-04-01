@@ -1,69 +1,77 @@
-#include<bits/stdc++.h>
-using namespace std;
+#include <bits/stdc++.h>
 #define loop(i,n) for(int i=0;i<n;++i)
-#define P pair<int,int>
-int V;
-int adj[801][801], ans[2];
+using namespace std;
+typedef pair<int, int> p;
 
-// src에서 m1으로 가는 최단경로를 ans[0]에
-// m2로 가는 최단경로를 ans[1]에 저장한다.
-void Dijkstra(int src, int m1, int m2)
-{
-    vector<int> dist(V + 1, INT32_MAX);
-    dist[src] = 0;
-    priority_queue<P, vector<P>, greater<P>> pq;
-    pq.push(make_pair(0, src));
-    while (!pq.empty() && (ans[0] == -1 || ans[1] == -1)) {
-        int cost = pq.top().first, here = pq.top().second;
-        pq.pop();
-        if ((here == m1) && (ans[0] == -1)) ans[0] = cost;
-        if ((here == m2) && (ans[1] == -1)) ans[1] = cost;
-        if (dist[here] < cost) continue;
-        for (int i = 1; i <= V; ++i)
-            if (adj[here][i]) {
-                int nextDist = cost + adj[here][i];
-                if (dist[i] > nextDist) {
-                    dist[i] = nextDist;
-                    pq.push(make_pair(nextDist, i));
-                }
+const int max_N = 800;
+
+int N;
+int adj[max_N][max_N];
+int dist[max_N];
+
+p Dijkstra(int s, int d1, int d2) {
+    memset(dist, 0x3f, sizeof(int) * N);
+    dist[s] = 0;
+
+    priority_queue<p, vector<p>, greater<p>> pq;
+    pq.emplace(0, s);
+
+    p ret = { -1,-1 };
+    while (!pq.empty()) {
+        auto [d, u] = pq.top(); pq.pop();
+        if (dist[u] < d) continue;
+        if (u == d1) {
+            ret.first = d;
+            if (ret.second != -1) break;
+        }
+        if (u == d2) {
+            ret.second = d;
+            if (ret.first != -1) break;
+        }
+
+        loop(v, N) if (adj[u][v]) {
+            int D = d + adj[u][v];
+            if (dist[v] > D) {
+                dist[v] = D;
+                pq.emplace(D, v);
             }
+        }
     }
+    return ret;
 }
-int main()
-{
+int main() {
     cin.tie(NULL), cout.tie(NULL);
     ios::sync_with_stdio(false);
 
-    int E, m1, m2;
-    cin >> V >> E;
+    int E; cin >> N >> E;
     while (E--) {
-        int u, v, w;
-        cin >> u >> v >> w;
+        int u, v, w; cin >> u >> v >> w;
+        --u, --v;
         adj[u][v] = adj[v][u] = w;
     }
-    cin >> m1 >> m2;
+    int m1, m2; cin >> m1 >> m2;
+    --m1, --m2;
 
-    // 먼저 m1 -> m2의 길이를 찾아 M에 저장한다.
-    ans[0] = ans[1] = -1;
-    Dijkstra(m1, m1, m2);
-    int M = ans[1], A = 0, B = 0;
-    if (M == -1) { cout << "-1"; return 0; }
+    // M = dist( m1 <-> m2 )
+    int M = Dijkstra(m1, m1, m2).second;
+    if (M == -1) { cout << -1; return 0; }
 
-    // 1부터 m1까지의 거리를 A에
-    // 1부터 m2까지의 거리를 B에 저장
-    ans[0] = ans[1] = -1;
-    Dijkstra(1, m1, m2);
-    if (ans[0] == -1 || ans[1] == -1) { cout << -1; return 0; }
-    A += ans[0], B += ans[1];
+    // A = dist( 0 -> m1 -> m2 -> N )
+    // B = dist( 0 -> m2 -> m1 -> N )
+    int A = 0, B = 0;
 
-    // V부터 m1까지의 거리를 A에 더하고
-    // V부터 m2까지의 거리를 B에 더한다.
-    ans[0] = ans[1] = -1;
-    Dijkstra(V, m1, m2);
-    if (ans[0] == -1 || ans[1] == -1) { cout << -1; return 0; }
-    A += ans[1], B += ans[0];
+    // a = dist( 0 -> m1 )
+    // b = dist( 0 -> m2 )
+    auto [a, b] = Dijkstra(0, m1, m2);
+    if (a == -1 || b == -1) { cout << -1; return 0; }
+    A += a, B += b;
 
-    // A,B중 작은 값 + (m1~m2까지의 거리)가 정답이다. 
+    // c = dist( N-1 -> m1 )
+    // d = dist( N-1 -> m2 )
+    auto [c, d] = Dijkstra(N - 1, m1, m2);
+    if (c == -1 || d == -1) { cout << -1; return 0; }
+    A += d, B += c;
+
     cout << (min(A, B) + M);
     return 0;
 }
