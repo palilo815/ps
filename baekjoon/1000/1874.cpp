@@ -1,48 +1,39 @@
-#include<iostream>
-#include<stack>
-#include<queue>
+#include <bits/stdc++.h>
 using namespace std;
 
-int main()
-{
-    cin.tie(NULL);
-    std::ios::sync_with_stdio(false);
+int main() {
+    cin.tie(NULL), cout.tie(NULL);
+    ios::sync_with_stdio(false);
 
-    int n, x, i = 1;
     stack<int> stk;
-    queue<char> ans;
-    bool flag = true;
-    cin >> n;
-    while (n-- > 0) {
-        cin >> x;
+    vector<char> ans;
+    int i = 1;
+    bool valid = true;
+    int N; cin >> N;
+    while (N--) {
+        int x; cin >> x;
         if (x < i) {
             if (stk.top() == x) {
                 stk.pop();
-                ans.push('-');
+                ans.emplace_back('-');
             }
             else {
-                flag = false;
-                while (n-- >= 0) cin.ignore();
+                valid = false;
+                break;
             }
         }
-        if (x > i) {
-            while (x != i) {
-                stk.push(i++);
-                ans.push('+');
-            }
+        if (x > i) while (x != i) {
+            stk.emplace(i++);
+            ans.emplace_back('+');
         }
         if (x == i) {
-            i++;
-            ans.push('+');
-            ans.push('-');
+            ++i;
+            ans.emplace_back('+');
+            ans.emplace_back('-');
         }
     }
-    if (flag) {
-        while (!ans.empty()) {
-            cout << ans.front() << '\n';
-            ans.pop();
-        }
-    }
+    if (valid) for (char c : ans)
+        cout << c << '\n';
     else cout << "NO";
     return 0;
 }
