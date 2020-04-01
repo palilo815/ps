@@ -1,28 +1,27 @@
-#include <iostream>
-using namespace std;
+#include <cstdio>
+#include <cstring>
 
-string s;
-bool accept() {
-    bool moum = false;
-    int len = s.size(), cnt = 0;
-    s += '?';
-    for (int i = 0; i < len; ++i) switch (s[i]) {
+char pw[21];
+int accept() {
+    int moum = 0;
+    int len = strlen(pw), cnt = 0;
+    for (int i = 0; i < len; ++i) switch (pw[i]) {
     case 'a':
     case 'i':
     case 'u':
-        if (s[i + 1] == s[i]) return false;
+        if (pw[i + 1] == pw[i]) return 0;
     case 'e':
     case 'o':
-        moum = true;
+        moum = 1;
         if (cnt > 0) {
-            if (++cnt >= 3) return false;
+            if (++cnt >= 3) return 0;
         }
         else cnt = 1;
         break;
     default:
-        if (s[i + 1] == s[i]) return false;
+        if (pw[i + 1] == pw[i]) return 0;
         if (cnt < 0) {
-            if (--cnt <= -3) return false;
+            if (--cnt <= -3) return 0;
         }
         else cnt = -1;
     }
@@ -30,11 +29,9 @@ bool accept() {
 }
 int main() {
     while (1) {
-        cin >> s;
-        if (s == "end") break;
-        cout << '<' << s << "> is ";
-        if (!accept()) cout << "not ";
-        cout << "acceptable.\n";
+        scanf("%s", pw);
+        if (!strcmp(pw, "end")) break;
+        printf("<%s> is %sacceptable.\n", pw, (accept() ? "" : "not "));
     }
     return 0;
 }
