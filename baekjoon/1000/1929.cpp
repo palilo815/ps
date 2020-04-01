@@ -1,27 +1,14 @@
-#include<iostream>
-using namespace std;
-bool PrimeCheck(int* prime, int val)
-{
-    for (int i = 0; prime[i] * prime[i] <= val; i++)
-        if (val % prime[i] == 0)
-            return false;
-    return true;
-}
+#include <stdio.h>
 
-int main()
-{
-    int A, B, i;
-    cin >> A >> B;
-    int count = 1;
-    int prime[80000] = { 2, };
-    for (i = 3; i <= B;i += 2) {
-        if (PrimeCheck(prime, i)) {
-            prime[count++] = i;
-        }
-    }
-    for (i = 0; prime[i] < A;i++) {}
-    for (i; i < count; i++)
-        printf("%d\n", prime[i]);
-
+bool sieve[1000001];
+int main() {
+    int a, b; scanf("%d %d", &a, &b);
+    sieve[0] = sieve[1] = true;
+    for (int i = 2; i * i <= b; ++i)
+        if (!sieve[i])
+            for (int j = i * i; j <= b; j += i)
+                sieve[j] = true;
+    for (int i = a; i <= b; ++i) if (!sieve[i])
+        printf("%d\n", i);
     return 0;
 }
