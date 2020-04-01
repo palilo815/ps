@@ -1,15 +1,16 @@
 #include <iostream>
 using namespace std;
 
-bool accept(string& s) {
+string s;
+bool accept() {
     bool moum = false;
     int len = s.size(), cnt = 0;
+    s += '?';
     for (int i = 0; i < len; ++i) switch (s[i]) {
     case 'a':
     case 'i':
     case 'u':
-        if (i + 1 < len && s[i + 1] == s[i])
-            return false;
+        if (s[i + 1] == s[i]) return false;
     case 'e':
     case 'o':
         moum = true;
@@ -19,8 +20,7 @@ bool accept(string& s) {
         else cnt = 1;
         break;
     default:
-        if (i + 1 < len && s[i + 1] == s[i])
-            return false;
+        if (s[i + 1] == s[i]) return false;
         if (cnt < 0) {
             if (--cnt <= -3) return false;
         }
@@ -29,12 +29,11 @@ bool accept(string& s) {
     return moum;
 }
 int main() {
-    string pw;
     while (1) {
-        cin >> pw;
-        if (pw == "end") break;
-        cout << '<' << pw << "> is ";
-        if (!accept(pw)) cout << "not ";
+        cin >> s;
+        if (s == "end") break;
+        cout << '<' << s << "> is ";
+        if (!accept()) cout << "not ";
         cout << "acceptable.\n";
     }
     return 0;
