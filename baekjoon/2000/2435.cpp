@@ -1,4 +1,3 @@
-#define _CRT_SECURE_NO_WARNINGS
 #include <cstdio>
 #include <climits>
 #define loop(i,n) for(int i=0;i<n;++i)
