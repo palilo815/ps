@@ -1,8 +1,10 @@
 #include <cstdio>
-#define scanf scanf_s
+
 const int max_N = 1000;
 const int mod = 1234567;
+
 int DP[max_N + 1][10];
+
 int main() {
     for (int i = 0; i < 10; ++i)
         DP[1][i] = 1;
