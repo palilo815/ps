@@ -1,22 +1,19 @@
-#include<bits/stdc++.h>
-using namespace std;
+#define _CRT_SECURE_NO_WARNINGS
+#include <cstdio>
+#include <climits>
 #define loop(i,n) for(int i=0;i<n;++i)
 
 int T[100];
-int main()
-{
-    cin.tie(NULL); cout.tie(NULL);
-    ios::sync_with_stdio(false);
+int main() {
+    int N, K; scanf("%d %d", &N, &K);
+    loop(i, N) scanf("%d", &T[i]);
 
-    int n, k; cin >> n >> k;
-    loop(i, n) cin >> T[i];
-
-    int ans = INT32_MIN;
-    loop(i, n - k + 1) {
+    int ans = INT_MIN;
+    loop(i, N - K + 1) {
         int sum = 0;
-        loop(j, k) sum += T[i + j];
-        ans = max(ans, sum);
+        loop(j, K) sum += T[i + j];
+        if (sum > ans) ans = sum;
     }
-    cout << ans;
+    printf("%d", ans);
     return 0;
 }
