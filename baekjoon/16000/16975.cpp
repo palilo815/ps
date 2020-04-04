@@ -1,66 +1,48 @@
 #include <bits/stdc++.h>
 using namespace std;
+typedef long long ll;
 
 const int max_N = 100000;
 
-int arr[max_N + 1];
-int lazy[131072 * 2 - 1];
+int N;
+ll fenwick[max_N + 1];
 
-// [ql,qr] 구간에 전부 + qv
-void update(int ql, int qr, int qv, int l, int r, int idx)
-{
-    if (lazy[idx]) {
-        if (l == r) arr[l] += lazy[idx];
-        else {
-            lazy[2 * idx + 1] += lazy[idx];
-            lazy[2 * idx + 2] += lazy[idx];
-        }
-        lazy[idx] = 0;
+void update(int idx, int val) {
+    while (idx <= N) {
+        fenwick[idx] += val;
+        idx += (idx & -idx);
     }
-    if (ql <= l && r <= qr) {
-        lazy[idx] += qv;
-        return;
-    }
-    if (qr < l || r < ql) return;
-    int m = l + (r - l) / 2;
-    update(ql, qr, qv, l, m, 2 * idx + 1);
-    update(ql, qr, qv, m + 1, r, 2 * idx + 2);
 }
-// return arr[qi]
-int query(int qi, int l, int r, int idx)
-{
-    if (lazy[idx]) {
-        if (l == r) arr[l] += lazy[idx];
-        else {
-            lazy[2 * idx + 1] += lazy[idx];
-            lazy[2 * idx + 2] += lazy[idx];
-        }
-        lazy[idx] = 0;
+ll read(int idx) {
+    ll ret = 0;
+    while (idx) {
+        ret += fenwick[idx];
+        idx -= (idx & -idx);
     }
-    if (l == r) return arr[l];
-    int m = l + (r - l) / 2;
-    if (qi <= m) return query(qi, l, m, 2 * idx + 1);
-    else return query(qi, m + 1, r, 2 * idx + 2);
+    return ret;
 }
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
-    int N; cin >> N;
-    for (int i = 0; i < N; ++i)
-        cin >> arr[i];
+    cin >> N;
+    for (int i = 1; i <= N; ++i) {
+        int x; cin >> x;
+        update(i, x);
+        update(i + 1, -x);
+    }
 
     int Q; cin >> Q;
     while (Q--) {
         int q; cin >> q;
         if (q == 1) {
             int ql, qr, qv; cin >> ql >> qr >> qv;
-            update(ql - 1, qr - 1, qv, 0, N - 1, 0);
+            update(ql, qv);
+            update(qr + 1, -qv);
         }
         else {
             int qi; cin >> qi;
-            cout << query(qi - 1, 0, N - 1, 0) << '\n';
+            cout << read(qi) << '\n';
         }
     }
     return 0;
