@@ -1,27 +1,24 @@
-#include <iostream>
-using namespace std;
+#include <cstdio>
+
 const int max_N = 1000000;
 
 bool sieve[max_N];
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
 
-    for (int i = 2;i < max_N;++i)
+int main() {
+    sieve[0] = sieve[1] = true;
+    for (int i = 2; i * i <= max_N; ++i)
         if (!sieve[i])
-            for (int j = 3 * i;j < max_N;j += 2 * i)
+            for (int j = i * i; j <= max_N; j += i)
                 sieve[j] = true;
 
-    int T; cin >> T;
-    int n;
+    int T; scanf("%d", &T);
     while (T--) {
-        int ans = 0;
-        cin >> n;
-        for (int i = 3;i <= n / 2;i += 2)
-            if (!sieve[i] && !sieve[n - i])
+        int N; scanf("%d", &N);
+        int ans = (N == 4 ? 1 : 0);
+        for (int i = 3; i <= N / 2; i += 2)
+            if (!sieve[i] && !sieve[N - i])
                 ++ans;
-        cout << ans << '\n';
+        printf("%d\n", ans);
     }
     return 0;
 }
