@@ -6,7 +6,7 @@ psum = [[0, 0, 0]]
 while N:
     N -= 1
     x = int(input())
-    psum.append(psum[-1].copy())
+    psum.append(psum[-1][:])
     psum[-1][x - 1] += 1
 while Q:
     Q -= 1
