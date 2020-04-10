@@ -1,5 +1,5 @@
 N = int(input())
-three = 1
+three = N and 1 or 0
 while N:
     if N % 3 > 1:
         three = 0
