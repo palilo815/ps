@@ -8,12 +8,10 @@ while T:
     price = list(map(int, input().split()))
     price.append(0)
 
-    stock, earn = 0, 0
-    for i in range(N):
-        if price[i] < price[i + 1]:
-            stock += 1
-            earn -= price[i]
+    earn, max_p = 0, 0
+    for i in range(N - 1, -1, -1):
+        if price[i] > max_p:
+            max_p = price[i]
         else:
-            earn += stock * price[i]
-            stock = 0
+            earn += max_p - price[i]
     print(earn)
