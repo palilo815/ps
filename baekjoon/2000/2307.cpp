@@ -3,16 +3,19 @@ using namespace std;
 typedef pair<int, int> p;
 
 const int max_N = 1000;
+const int INF = 0x3f3f3f3f;
 
-int N;
 vector<p> adj[max_N + 1];
 int dist[max_N + 1];
 int parent[max_N + 1];
 
-int Dijkstra(bool flag) {
-    fill(dist + 1, dist + N + 1, INT_MAX);
+int Dijkstra(int N, int record) {
+    memset(dist, 0x3f, sizeof(int) * (N + 1));
+    dist[1] = 0;
+
     priority_queue<p, vector<p>, greater<p>> pq;
     pq.emplace(0, 1);
+
     while (!pq.empty()) {
         auto [d, u] = pq.top(); pq.pop();
         if (dist[u] < d) continue;
@@ -23,47 +26,43 @@ int Dijkstra(bool flag) {
             if (dist[v] > D) {
                 dist[v] = D;
                 pq.emplace(D, v);
-                if (flag) parent[v] = u;
+                if (record) parent[v] = u;
             }
         }
     }
-    return -1;
+    return INF;
 }
 int main() {
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
-    int M; cin >> N >> M;
+    int N, M; cin >> N >> M;
     while (M--) {
         int u, v, w; cin >> u >> v >> w;
         adj[u].emplace_back(w, v);
         adj[v].emplace_back(w, u);
     }
 
-    Dijkstra(true);
-    int min_dist = dist[N];
+    Dijkstra(N, 1);
 
-    int v = N, delay = 0;
-    while (v != 1) {
+    int ans = dist[N], delay = 0;
+    for (int v = N; parent[v]; v = parent[v]) {
         int u = parent[v];
-        p* e1 = NULL, * e2 = NULL;
-        for(auto& edge : adj[u])
-            if (edge.second == v) {
-                e1 = &edge;
-                break;
+        for (auto& [w1, n1] : adj[u]) if (n1 == v) {
+            for (auto& [w2, n2] : adj[v]) if (n2 == u) {
+                int tmp1 = w1, tmp2 = w2;
+                w1 = w2 = INF;
+
+                int d = Dijkstra(N, 0);
+                if (d == INF) { cout << -1; return 0; }
+                delay = max(delay, d - ans);
+
+                w1 = tmp1, w2 = tmp2;
+                goto OUT;
             }
-        for (auto& edge : adj[v])
-            if (edge.second == u) {
-                e2 = &edge;
-                break;
-            }
-        e1->second = -1, e2->second = -1;
-        int d = Dijkstra(false);
-        if (d == -1) { cout << -1; return 0; }
-        else delay = max(delay, d);
-        e1->second = v, e2->second = u;
-        v = u;
+        }
+    OUT:;
     }
-    cout << delay - min_dist;
+    cout << delay;
     return 0;
 }
