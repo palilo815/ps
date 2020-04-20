@@ -1,14 +1,12 @@
 #include<bits/stdc++.h>
 using namespace std;
-#define loop(i,n) for(int i=0;i<n;++i)
-#define ll long long
+typedef long long ll;
 
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
-    loop(T, 3) {
+    for (int t = 0; t < 3; ++t) {
         int n, bucket = 0;
         ll tmp, sum = 0, Num;
         cin >> n;
@@ -20,7 +18,7 @@ int main()
             // 바가지가 넘쳤다
             if (sum > 0 && Num > 0 && tmp < 0) ++bucket;
             // 바가지가 없어졌다(?)
-            if (sum < 0 && Num < 0 && tmp>0) --bucket;
+            if (sum < 0 && Num < 0 && tmp > 0) --bucket;
             sum = tmp;
         }
         // overflow가 일어난 경우
