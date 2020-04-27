@@ -10,27 +10,26 @@ int adj[max_N][max_N];
 int happy[max_N];
 
 int main() {
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
     int N; cin >> N;
     loop(i, N) loop(j, N) cin >> adj[i][j];
-    fill(happy, happy + N, INT_MIN);
-
     int src, dst; cin >> src >> dst;
+
+    fill(happy, happy + N, INT_MIN);
     while (src--) {
         int idx, val; cin >> idx >> val;
         happy[idx - 1] = val;
     }
 
-    vector<p> vt(dst);
-    loop(i, dst) cin >> vt[i].first >> vt[i].second;
+    vector<p> hotel(dst);
+    loop(i, dst) cin >> hotel[i].first >> hotel[i].second;
 
     while (1) {
         int u = -1;
-        loop(i, N) if (!visited[i])
-            if (u == -1 || (happy[i] > happy[u]))
-                u = i;
+        loop(i, N) if (!visited[i] && (u == -1 || happy[i] > happy[u]))
+            u = i;
         if (u == -1) break;
 
         visited[u] = true;
@@ -39,7 +38,7 @@ int main() {
     }
 
     int ans = INT_MIN;
-    for (auto [idx, val] : vt)
+    for (auto [idx, val] : hotel)
         ans = max(ans, happy[idx - 1] + val);
     cout << ans;
     return 0;
