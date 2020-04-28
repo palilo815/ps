@@ -12,21 +12,15 @@ char board[max_N][max_N];
 int dist[max_N][max_N][2];
 int warp[max_N][max_N][4];
 
-inline bool in_range(int r, int c) {
-    return (0 <= r && r < N && 0 <= c && c < N);
-}
+inline bool in_range(int r, int c) { return (0 <= r && r < N && 0 <= c && c < N); }
 int main() {
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
     int T, dr, dc; cin >> N >> T >> dr >> dc;
     loop(i, N) loop(j, N) cin >> board[i][j];
     --dr, --dc;
 
-    // initialize "warp" array
-    // if warp[r][c][i] == d:
-    //     (r,c) * mov[i] * d = (R,C)
-    //     board[R][C] == '#'
     loop(i, N) loop(j, N) if (board[i][j] == '#') {
         loop(k, 4) {
             int r = i, c = j, cnt = 0;
@@ -38,12 +32,12 @@ int main() {
         }
     }
 
-    fill(&dist[0][0][1], &dist[N][0][0], INT_MAX);
+    memset(dist, 0x3f, sizeof(dist));
+    dist[0][0][0] = 0;
 
     priority_queue<p, vector<p>, greater<p>> pq;
     pq.emplace(0, 0);
 
-    // Dijkstra
     while (1) {
         auto [d, mode] = pq.top(); pq.pop();
         int c = mode % x; mode /= x;
