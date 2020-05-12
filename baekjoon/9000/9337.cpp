@@ -42,7 +42,7 @@ int main() {
         ++hubo[board[0][0] - '1'];
         --ans[board[0][0] - '1'];
 
-        while (!all_of(hubo, hubo + 6, [](int i) {return !i;})) {
+        while (any_of(hubo, hubo + 6, [](int i) {return i;})) {
             int target = max_element(hubo, hubo + 6) - hubo;
             hubo[target] = 0;
             ++ans[target];
