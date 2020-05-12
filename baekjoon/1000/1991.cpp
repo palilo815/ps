@@ -1,86 +1,29 @@
-#include<iostream>
+#include <iostream>
 using namespace std;
 
-typedef struct node {
-    char name;
-    struct node* left;
-    struct node* right;
-} Node;
+int child[26][2];
 
-char arr[78];
+void solve(int u, int order) {
+    if (u == -1) return;
+    if (order == 0) cout << (char)(u + 'A');
+    solve(child[u][0], order);
+    if (order == 1) cout << (char)(u + 'A');
+    solve(child[u][1], order);
+    if (order == 2) cout << (char)(u + 'A');
+}
+int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
-void MakeTree(Node* root);
-int FindIndex(char name);
-Node* NewNode(char name);
-void PreOrder(Node* root);
-void InOrder(Node* root);
-void PostOrder(Node* root);
-
-int main()
-{
-    cin.tie(NULL);
-    std::ios::sync_with_stdio(false);
-
-    int n;
-    cin >> n;
-    for (int i = 0; i < 3 * n; i++)
-        cin >> arr[i];
-    Node root;
-    root.name = 'A';
-    MakeTree(&root);
-
-    PreOrder(&root);
-    cout << '\n';
-    InOrder(&root);
-    cout << '\n';
-    PostOrder(&root);
+    int N; cin >> N;
+    while (N--) {
+        char p, l, r; cin >> p >> l >> r;
+        child[p - 'A'][0] = (l == '.' ? -1 : l - 'A');
+        child[p - 'A'][1] = (r == '.' ? -1 : r - 'A');
+    }
+    for (int i = 0; i < 3; ++i) {
+        solve(0, i);
+        cout << '\n';
+    }
     return 0;
-}
-void MakeTree(Node* root)
-{
-    if (root == NULL) return;
-    else {
-        int index = FindIndex(root->name);
-        root->left = NewNode(arr[index + 1]);
-        root->right = NewNode(arr[index + 2]);
-        MakeTree(root->left);
-        MakeTree(root->right);
-    }
-}
-int FindIndex(char name)
-{
-    for (int i = 0; i < 78; i += 3)
-        if (arr[i] == name)
-            return i;
-    return -1;
-}
-Node* NewNode(char name)
-{
-    if (name == '.') return NULL;
-    else {
-        Node* tmp = new Node;
-        tmp->name = name;
-        return tmp;
-    }
-}
-void PreOrder(Node* root)
-{
-    if (root == NULL) return;
-    cout << root->name;
-    PreOrder(root->left);
-    PreOrder(root->right);
-}
-void InOrder(Node* root)
-{
-    if (root == NULL) return;
-    InOrder(root->left);
-    cout << root->name;
-    InOrder(root->right);
-}
-void PostOrder(Node* root)
-{
-    if (root == NULL) return;
-    PostOrder(root->left);
-    PostOrder(root->right);
-    cout << root->name;
 }
