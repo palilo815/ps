@@ -7,15 +7,14 @@ const int max_N = 100000;
 int money[max_N];
 
 int main() {
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
     int T; cin >> T;
     while (T--) {
         int N, M, K; cin >> N >> M >> K;
         loop(i, N) cin >> money[i];
-        int sum = 0;
-        loop(i, M) sum += money[i];
+        int sum = accumulate(money, money + M, 0);
 
         if (N == M) { cout << (sum < K) << '\n'; continue; }
 
