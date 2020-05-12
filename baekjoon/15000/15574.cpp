@@ -6,7 +6,7 @@ typedef pair<int, int> p;
 const int max_N = 1000;
 
 p arr[max_N];
-double DP[max_N + 1];
+double DP[max_N];
 
 double dist(int u, int v) {
     double dx = arr[u].first - arr[v].first;
@@ -26,6 +26,7 @@ int main() {
         for (auto nxt = upper_bound(arr + i + 1, arr + N, make_pair(x, INT_MAX)) - arr; nxt < N; ++nxt)
             DP[nxt] = max(DP[nxt], DP[i] + dist(i, nxt));
     }
+
     cout << fixed << setprecision(9)
          << *max_element(DP, DP + N);
     return 0;
