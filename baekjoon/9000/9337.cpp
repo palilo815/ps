@@ -33,7 +33,6 @@ int main() {
     while (T--) {
         cin >> N;
         loop(i, N) loop(j, N) cin >> board[i][j];
-        if (N == 1) { cout << "0\n0 0 0 0 0 0\n"; continue; }
 
         memset(ans, 0, sizeof(ans));
         memset(hubo, 0, sizeof(hubo));
@@ -43,7 +42,7 @@ int main() {
         ++hubo[board[0][0] - '1'];
         --ans[board[0][0] - '1'];
 
-        while (accumulate(hubo, hubo + 6, 0)) {
+        while (!all_of(hubo, hubo + 6, [](int i) {return !i;})) {
             int target = max_element(hubo, hubo + 6) - hubo;
             hubo[target] = 0;
             ++ans[target];
