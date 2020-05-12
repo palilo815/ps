@@ -6,7 +6,6 @@ const int M = 401;
 const int mov[4][2] = { -1,0,0,-1,0,1,1,0 };
 const int mod = 1000000007;
 
-bool wall[M][M];
 int cnt[M][M];
 
 int dist(int x1, int y1, int x2, int y2) {
@@ -20,22 +19,20 @@ int main() {
     cin >> sx >> sy >> T >> dx >> dy >> N;
     
     int f_x = 200 - sx, f_y = 200 - sy;
+    sx = sy = 200;
     dx += f_x, dy += f_y;
-    if (dist(dx, dy, 200, 200) > T) {
-        cout << 0;
-        return 0;
-    }
+    if (dist(dx, dy, sx, sy) > T) { cout << 0; return 0; }
 
     while (N--) {
         int x, y; cin >> x >> y;
         x += f_x, y += f_y;
         if (x < 0 || x > 400 || y < 0 || y > 400) continue;
-        wall[x][y] = true;
+        cnt[x][y] = -1;
     }
 
     queue<pair<int, int>> q;
-    q.emplace(200, 200), q.emplace(-1, -1);
-    cnt[200][200] = 1;
+    q.emplace(sx, sy), q.emplace(-1, -1);
+    cnt[sx][sy] = 1;
 
     int ans = 0;
     while (1) {
@@ -48,7 +45,7 @@ int main() {
 
         loop(i, 4) {
             int X = x + mov[i][0], Y = y + mov[i][1];
-            if (wall[X][Y] || dist(X, Y, dx, dy) >= T) continue;
+            if (cnt[X][Y] == -1 || dist(X, Y, dx, dy) >= T) continue;
             if (X == dx && Y == dy) ans = (ans + cnt[x][y]) % mod;
             else {
                 if (!cnt[X][Y]) q.emplace(X, Y);
