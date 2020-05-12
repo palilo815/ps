@@ -1,21 +1,19 @@
-#include <iostream>
-using namespace std;
-typedef long long ll;
+#include <cstdio>
 
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
-
-    ll N; cin >> N;
-    ll ans = N * (N - 1) / 2, psum = 0;
-    while (N--) {
-        int x; cin >> x;
-        psum += x;
+int main() {
+    int N; scanf("%d", &N);
+    int ans;
+    switch ((N - 1) & 3) {
+    case 0: ans = N - 1; break;
+    case 1: ans = 1; break;
+    case 2: ans = N; break;
+    case 3: ans = 0;
     }
 
-    // ans : sum([1, n-1])
-    // psum : sum([1, n-1]) + 어떤 숫자
-    cout << psum - ans;
+    while (N--) {
+        int x; scanf("%d", &x);
+        ans ^= x;
+    }
+    printf("%d", ans);
     return 0;
 }
