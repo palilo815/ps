@@ -1,54 +1,53 @@
 #include <bits/stdc++.h>
 #define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
+typedef tuple<int, int, int> tup;
 
-struct hero {
-    int y;
-    int x;
-    int sword;
-};
+const int M = 100;
+const int mov[4][2] = { -1,0,0,-1,0,1,1,0 };
 
-int castle[100][100];
-bool visited[2][100][100];
-int mov[4][2] = { -1,0,0,-1,0,1,1,0 };
-queue<hero> q;
-void Insert(int y, int x, int sword) {
-    hero tmp;
-    tmp.y = y;
-    tmp.x = x;
-    tmp.sword = sword;
-    q.push(tmp);
-}
-int main()
-{
+int castle[M][M];
+bool visited[M][M][2];
+
+int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
+
     int row, col, T;
     cin >> row >> col >> T;
     loop(i, row) loop(j, col)
         cin >> castle[i][j];
 
-    Insert(0, 0, 0);
-    Insert(-1, -1, 0);
-    int ans = 0;
+    visited[0][0][0] = true;
+    
+    queue<tup> q;
+    q.emplace(0, 0, 0);
+    q.emplace(-1, -1, -1);
 
-    while (ans <= T) {
-        hero curr = q.front(); q.pop();
-        if (curr.y == -1) {
-            ++ans; q.push(curr);
+    int ans = 0;
+    while (1) {
+        auto [r, c, sword] = q.front(); q.pop();
+        if (r == -1) {
+            if (q.empty() || ++ans > T) {
+                ans = -1;
+                break;
+            }
+            q.emplace(-1, -1, -1);
             continue;
         }
-        if (curr.y == row - 1 && curr.x == col - 1) break;
-        if (castle[curr.y][curr.x] == 2)
-            curr.sword = true;
+        if (r == row - 1 && c == col - 1) break;
+        if (castle[r][c] == 2) sword = 1;
+
         loop(i, 4) {
-            int Y = curr.y + mov[i][0], X = curr.x + mov[i][1];
-            if (Y < 0 || Y == row || X < 0 || X == col || visited[curr.sword][Y][X]) continue;
-            if (!visited[curr.sword][Y][X] && (castle[Y][X] != 1 || (castle[Y][X] == 1 && curr.sword))) {
-                visited[curr.sword][Y][X] = true;
-                Insert(Y, X, curr.sword);
+            int R = r + mov[i][0], C = c + mov[i][1];
+            if (R < 0 || R >= row || C < 0 || C >= col || visited[R][C][sword]) continue;
+            if (castle[R][C] != 1 || sword) {
+                visited[R][C][sword] = true;
+                q.emplace(R, C, sword);
             }
         }
     }
-    if (ans > T) cout << "Fail";
+    if (ans == -1) cout << "Fail";
     else cout << ans;
     return 0;
 }
