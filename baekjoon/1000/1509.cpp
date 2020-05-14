@@ -1,28 +1,35 @@
 #include <bits/stdc++.h>
+#define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
 
 const int max_N = 2500;
 
-string s;
 int DP[max_N + 1];
+bool pallin[max_N][max_N];
 
-bool pallin(int l, int r) {
-    while (l < r) if (s[l++] != s[r--]) return false;
-    return true;
-}
 int main() {
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
-    cin >> s;
+    string s; cin >> s;
     int N = s.size();
 
-    fill(DP + 1, DP + N + 1, INT_MAX);
-    DP[0] = 0;
+    loop(i, N) {
+        pallin[i][i] = true;
+        int l = i - 1, r = i + 1;
+        while (0 <= l && r < N && s[l] == s[r])
+            pallin[l--][r++] = true;
+    }
+    loop(i, N - 1) {
+        int l = i, r = i + 1;
+        while (0 <= l && r < N && s[l] == s[r])
+            pallin[l--][r++] = true;
+    }
 
-    for (int i = 1; i <= N; ++i) for (int j = i; j <= N; ++j)
-        if (pallin(i - 1, j - 1))
-            DP[j] = min(DP[j], DP[i - 1] + 1);
+    memset(DP + 1, 0x3f, sizeof(int) * N);
+    loop(i, N) for (int j = i; j < N; ++j)
+        if (pallin[i][j])
+            DP[j + 1] = min(DP[j + 1], DP[i] + 1);
     cout << DP[N];
     return 0;
 }
