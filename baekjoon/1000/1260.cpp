@@ -1,57 +1,50 @@
-#include<iostream>
-#include<algorithm>
-#include<queue>
+#include <bits/stdc++.h>
 using namespace std;
 
-int** mat;
-int mat_size;
-bool* visited;
-void DFS(int start)
-{
-    visited[start] = true;
-    cout << start << ' ';
-    for (int i = 1; i < mat_size; i++)
-        if (mat[start][i] == 1 && !visited[i])
-            DFS(i);
+const int max_N = 1001;
+
+vector<int> adj[max_N];
+bool visited[max_N];
+
+void DFS(int u) {
+    visited[u] = true;
+    cout << u << ' ';
+    for (int v : adj[u]) if (!visited[v])
+        DFS(v);
 }
-void BFS(int start)
-{
-    queue<int> q;
-    q.push(start);
-    visited[start] = true;
-    while (!q.empty()) {
-        int here = q.front();
-        q.pop();
-        cout << here << ' ';
-        for (int i = 1; i < mat_size; i++)
-            if (mat[here][i] == 1 && !visited[i]) {
-                q.push(i);
-                visited[i] = true;
-            }
-    }
-}
-
-int main()
-{
-    cin.tie(NULL);
-    std::ios::sync_with_stdio(false);
-
-    int m, v, x, y;
-    cin >> mat_size >> m >> v;
-    mat_size++;
-    mat = new int* [mat_size];
-    for (int i = 0; i < mat_size;i++)
-        mat[i] = new int [mat_size] {};
-
-    while (m-- > 0) {
-        cin >> x >> y;
-        mat[x][y] = 1, mat[y][x] = 1;
-    }
-    visited = new bool[mat_size] {};
-    DFS(v);
+void BFS(int src) {
     cout << '\n';
-    delete(visited);
-    visited = new bool[mat_size] {};
-    BFS(v);
+    memset(visited, 0, sizeof(visited));
+    visited[src] = true;
+
+    queue<int> q;
+    q.emplace(src);
+
+    while (!q.empty()) {
+        int u = q.front(); q.pop();
+        cout << u << ' ';
+
+        for (int v : adj[u]) if (!visited[v]) {
+            visited[v] = true;
+            q.emplace(v);
+        }
+    }
+}
+int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
+
+    int N, M, src; cin >> N >> M >> src;
+    while (M--) {
+        int u, v; cin >> u >> v;
+        adj[u].emplace_back(v);
+        adj[v].emplace_back(u);
+    }
+
+    for (int i = 1; i <= N; ++i)
+        sort(adj[i].begin(), adj[i].end());
+    
+    DFS(src);
+    BFS(src);
     return 0;
 }
