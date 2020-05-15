@@ -10,8 +10,8 @@ int main() {
     for (int i = 0; s[i]; ++i) {
         if (s[i] == '(') ++stack;
         else {
-            if (stack == 0) ++stack, ++ans;
-            else --stack;
+            if (stack) --stack;
+            else ++stack, ++ans;
         }
     }
     printf("%d", ans + stack / 2);
