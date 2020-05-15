@@ -1,46 +1,49 @@
 #include <bits/stdc++.h>
-#define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
 
-vector<int> tele[300001];
-bool visited[300001];
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+const int max_N = 300001;
 
-    int V, E, s, e;
-    cin >> V >> E >> s >> e;
-    while (E--) {
+vector<int> tele[max_N];
+bool visited[max_N];
+
+int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
+
+    int N, M, S, E; cin >> N >> M >> S >> E;
+    while (M--) {
         int u, v; cin >> u >> v;
-        tele[u].push_back(v);
-        tele[v].push_back(u);
+        tele[u].emplace_back(v);
+        tele[v].emplace_back(u);
     }
 
-    int ans = 0;
+    visited[S] = true;
+
     queue<int> q;
-    q.push(s), q.push(-1);
-    visited[s] = true;
+    q.emplace(S);
+    q.emplace(-1);
+
+    int ans = 0;
     while (1) {
-        int curr = q.front(); q.pop();
-        if (curr == -1) {
-            ++ans; q.push(curr);
+        int u = q.front(); q.pop();
+        if (u == -1) {
+            ++ans; q.emplace(-1);
             continue;
         }
-        if (curr == e) break;
-        if (curr - 1 > 0 && !visited[curr - 1]) {
-            visited[curr - 1] = true;
-            q.push(curr - 1);
+        if (u == E) break;
+
+        if (u - 1 > 0 && !visited[u - 1]) {
+            visited[u - 1] = true;
+            q.emplace(u - 1);
         }
-        if (curr + 1 <= V && !visited[curr + 1]) {
-            visited[curr + 1] = true;
-            q.push(curr + 1);
+        if (u + 1 <= N && !visited[u + 1]) {
+            visited[u + 1] = true;
+            q.emplace(u + 1);
         }
-        for (int x : tele[curr])
-            if (!visited[x]) {
-                visited[x] = true;
-                q.push(x);
-            }
+        for (int v : tele[u]) if (!visited[v]) {
+            visited[v] = true;
+            q.emplace(v);
+        }
     }
     cout << ans;
     return 0;
