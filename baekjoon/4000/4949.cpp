@@ -1,45 +1,38 @@
 #include <bits/stdc++.h>
-#define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
 
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
     string s;
     while (1) {
         getline(cin, s);
         if (s == ".") break;
 
-        bool balanced = true;
+        int invalid = 0;
         stack<char> stk;
-        loop(i, s.size()) {
-            // 왼쪽 괄호를 stack에 넣음
-            if (s[i] == '(' || s[i] == '[')
-                stk.push(s[i]);
-
-            // 오른쪽 괄호가 나오면, stack 위에 짝이 맞는 괄호가 있어야 한다.
-            else if (s[i] == ')') {
+        for (char c : s) {
+            if (c == '(' || c == '[')
+                stk.push(c);
+            else if (c == ')') {
                 if (stk.empty() || stk.top() != '(') {
-                    balanced = false;
+                    invalid = 1;
                     break;
                 }
                 stk.pop();
             }
-            else if (s[i] == ']') {
+            else if (c == ']') {
                 if (stk.empty() || stk.top() != '[') {
-                    balanced = false;
+                    invalid = 1;
                     break;
                 }
                 stk.pop();
             }
         }
-        // 왼쪽 괄호가 남아있을 경우 false
-        if (!stk.empty()) balanced = false;
+        if (!stk.empty()) invalid = 1;
 
-        if (balanced) cout << "yes\n";
-        else cout << "no\n";
+        cout << (invalid ? "no" : "yes") << '\n';
     }
     return 0;
 }
