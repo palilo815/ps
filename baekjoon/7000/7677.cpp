@@ -4,7 +4,7 @@
 const int mod = 10000;
 
 int A[2][2];
-int B[2][2]; // temporal matrix
+int B[2][2];
 int res[2][2];
 
 void multiply(int x[][2], int y[][2]) {
