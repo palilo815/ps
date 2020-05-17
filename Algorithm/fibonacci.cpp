@@ -1,3 +1,11 @@
+/*
+    sum(Fibo[i])     = Fibo[n+2] - 1       {1<=i<=n} 
+    sum(Fibo[2i])    = Fibo[2n+1] - 1      {1<=i<=n} 
+    sum(Fibo[2i+1])  = Fibo[2n]            {0<=i<=n} 
+    sum(Fibo[i] ^ 2) = Fibo[n] * Fibo[n+1] {1<=i<=n} 
+
+    gcd(Fibo[n], Fibo[m]) = Fibo[gcd(n,m)]
+*/
 #define loop(i,n) for(int i=0;i<n;++i)
 typedef long long ll;
 
