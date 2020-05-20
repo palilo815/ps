@@ -1,28 +1,23 @@
-#include<iostream>
-using namespace std;
-int main()
-{
-    int room;
-    cin >> room;
-    if (room == 0) {
-        cout << "1";
+#include<cstdio>
+
+int cnt[10];
+int main() {
+    int N; scanf("%d", &N);
+    if (!N) {
+        putchar('1');
         return 0;
     }
-    int arr[10] = {};
-    while (room > 0) {
-        arr[room % 10]++;
-        room /= 10;
+
+    while (N) {
+        ++cnt[N % 10];
+        N /= 10;
     }
-    arr[6] += arr[9];
-    if (arr[6] % 2 == 0)
-        arr[6] /= 2;
-    else
-        arr[6] = (arr[6] + 1) / 2;
-    int max = arr[0];
-    for (int i = 1; i < 9; i++) {
-        if (arr[i] > max)
-            max = arr[i];
-    }
-    cout << max;
+    cnt[6] = (cnt[6] + cnt[9] + 1) / 2;
+
+    int ans = 0;
+    for (int i = 0; i < 9; ++i)
+        if (cnt[i] > ans)
+            ans = cnt[i];
+    printf("%d", ans);
     return 0;
 }
