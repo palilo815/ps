@@ -1,46 +1,46 @@
-#include<iostream>
-#include<list>
-#include<iterator>
+#include <bits/stdc++.h>
 using namespace std;
 
-int main()
-{
-    cin.tie(NULL);
-    std::ios::sync_with_stdio(false);
+int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
-    int n;
-    char c;
-    list<char> word;
+    stack<char> L, R;
+    string s; cin >> s;
+    for (char c : s) L.emplace(c);
 
-    while (cin.peek() != '\n') {
-        cin >> c;
-        word.push_back(c);
-    }
-    cin >> n;
-    list<char>::iterator cursor = word.end();
-
-    while (n-- > 0) {
-        cin >> c;
+    int N; cin >> N;
+    while (N--) {
+        char c; cin >> c;
         switch (c) {
         case 'L':
-            if (cursor != word.begin())
-                cursor--;
+            if (L.empty()) break;
+            c = L.top(); L.pop();
+            R.emplace(c);
             break;
         case 'D':
-            if (cursor != word.end())
-                cursor++;
+            if (R.empty()) break;
+            c = R.top(); R.pop();
+            L.emplace(c);
             break;
         case 'B':
-            if (cursor != word.begin())
-                cursor = word.erase(--cursor);
+            if (L.empty()) break;
+            L.pop();
             break;
         case 'P':
             cin >> c;
-            word.insert(cursor, c);
-            break;
+            L.emplace(c);
         }
     }
-    for (list<char>::iterator it = word.begin(); it != word.end();it++)
+
+    vector<char> ans;
+    while (!L.empty()) {
+        ans.emplace_back(L.top()); L.pop();
+    }
+    for (auto it = ans.rbegin(); it != ans.rend(); ++it)
         cout << *it;
+    while (!R.empty()) {
+        cout << R.top(); R.pop();
+    }
     return 0;
 }
