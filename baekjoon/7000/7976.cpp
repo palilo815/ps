@@ -4,7 +4,6 @@ using namespace std;
 
 const int max_N = 1000000;
 
-int arr[max_N];
 int cnt[max_N][2];
 
 int main() {
@@ -12,10 +11,10 @@ int main() {
     ios::sync_with_stdio(0);
 
     int N, K; cin >> N >> K;
-    loop(i, N) cin >> arr[i];
-
-    loop(s, K) for (int i = s; i < N; i += K)
-        ++cnt[s][arr[i] & 1];
+    loop(i, N) {
+        int x; cin >> x;
+        ++cnt[i % K][x & 1];
+    }
 
     int odd = 0x3f3f3f3f, even = 0;
     loop(i, K) {
