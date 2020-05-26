@@ -20,6 +20,9 @@ int cnt[max_A];
 _query query[max_N];
 
 int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
+
     int N; cin >> N;
     for (int i = 1; i <= N; ++i)
         cin >> A[i];
