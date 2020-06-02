@@ -3,7 +3,7 @@
 using namespace std;
 typedef long long ll;
 
-const int  max_N = 100000;
+const int max_N = 100000;
 
 int pay[max_N + 1];
 
