@@ -25,6 +25,10 @@ int main() {
         }
         stk.emplace(i);
     }
+    while (stk.size() != 1) {
+        ll p = pay[stk.top()]; stk.pop();
+        ans = max(ans, p * (N - stk.top()));
+    }
     cout << ans;
     return 0;
 }
