@@ -7,7 +7,7 @@ int main() {
 
     ull ans = 1;
     while (B) {
-        if (B & 1) ans = (ans * A) % C;
+        if (B & 1) ans = ans * A % C;
         A = A * A % C;
         B >>= 1;
     }
