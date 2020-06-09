@@ -1,36 +1,29 @@
-#include<iostream>
-#include<algorithm>
+#include <bits/stdc++.h>
+#define LOOP(i,n) for(int i=1;i<=n;++i)
 using namespace std;
 
-int len;
-int* cache;
-int* podo;
+const int max_N = 10001;
 
-int Podoju(int n)
-{
-    if (n == len - 1) return podo[n];
-    if (n > len - 1) return 0;
+int arr[max_N];
+int DP[max_N];
 
-    if (cache[n] != -1) return cache[n];
-    int ret;
-    ret = max(podo[n] + Podoju(n + 2), podo[n] + podo[n + 1] + Podoju(n + 3));
-    ret = max(ret, Podoju(n + 1));
-    return cache[n] = ret;
-}
+int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
-int main()
-{
-    cin.tie(NULL);
-    std::ios::sync_with_stdio(false);
+    int N; cin >> N;
+    for (int i = 1; i <= N; ++i)
+        cin >> arr[i];
 
-    cin >> len;
-    cache = new int[len];
-    podo = new int[len];
-    for (int i = 0; i < len; i++)
-        cache[i] = -1;
-    for (int i = 0; i < len; i++)
-        cin >> podo[i];
+    DP[0] = 0;
+    DP[1] = arr[1];
+    DP[2] = arr[1] + arr[2];
 
-    cout << Podoju(0);
+    for (int i = 3; i <= N; ++i)
+        DP[i] = max({DP[i - 3] + arr[i - 1] + arr[i],
+                     DP[i - 2] + arr[i],
+                     DP[i - 1]
+                    });
+    cout << DP[N];
     return 0;
 }
