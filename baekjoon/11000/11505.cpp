@@ -1,53 +1,44 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef long long ll;
+using ll = long long;
 
 const int mod = 1000000007;
 const int max_N = 1000000;
 
-int arr[max_N];
-int segT[1048576 * 2 - 1];
+int N, Q, Q2;
+int segT[max_N << 1];
 
-int build_segT(int l, int r, int idx)
-{
-    if (l == r) return segT[idx] = arr[l];
-    int m = l + (r - l) / 2;
-    return segT[idx] = (ll)build_segT(l, m, 2 * idx + 1) * build_segT(m + 1, r, 2 * idx + 2) % mod;
-}
-int query(int ql, int qr, int l, int r, int idx)
-{
-    if (ql <= l && r <= qr) return segT[idx];
-    if (qr < l || r < ql) return 1;
-    int m = l + (r - l) / 2;
-    return (ll)query(ql, qr, l, m, 2 * idx + 1) * query(ql, qr, m + 1, r, 2 * idx + 2) % mod;
-}
-void update(int qi, int qv, int l, int r, int idx)
-{
-    if (l == r) {
-        segT[idx] = qv;
-        return;
-    }
-    int m = l + (r - l) / 2;
-    if (qi <= m) update(qi, qv, l, m, 2 * idx + 1);
-    else update(qi, qv, m + 1, r, 2 * idx + 2);
-    segT[idx] = (ll)segT[2 * idx + 1] * segT[2 * idx + 2] % mod;
-}
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
-
-    int N, Q, Q2; cin >> N >> Q >> Q2;
+void init() {
+    cin >> N >> Q >> Q2;
     Q += Q2;
-    for (int i = 0; i < N; ++i)
-        cin >> arr[i];
+    for (int i = N; i < N << 1; ++i)
+        cin >> segT[i];
+    for (int i = N - 1; i; --i)
+        segT[i] = (ll)segT[i << 1] * segT[i << 1 | 1] % mod;
+}
+void update(int i, int v) {
+    segT[i + N] = v;
+    for (i += N; i > 1; i >>= 1)
+        segT[i >> 1] = (ll)segT[i] * segT[i ^ 1] % mod;
+}
+int query(int l, int r) {
+    int ret = 1;
+    for (l += N, r += N; l < r; l >>= 1, r >>= 1) {
+        if (l & 1) ret = (ll)ret * segT[l++] % mod;
+        if (r & 1) ret = (ll)ret * segT[--r] % mod;
+    }
+    return ret;
+}
+int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
-    build_segT(0, N - 1, 0);
+    init();
 
     while (Q--) {
-        int q, a, b; cin >> q >> a >> b;
-        if (q == 1) update(a - 1, b, 0, N - 1, 0);
-        else cout << query(a - 1, b - 1, 0, N - 1, 0) << '\n';
+        int q, x, y; cin >> q >> x >> y;
+        if (q == 1) update(x - 1, y);
+        else cout << query(x - 1, y) << '\n';
     }
     return 0;
 }
