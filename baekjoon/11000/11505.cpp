@@ -17,8 +17,7 @@ void init() {
         segT[i] = (ll)segT[i << 1] * segT[i << 1 | 1] % mod;
 }
 void update(int i, int v) {
-    segT[i + N] = v;
-    for (i += N; i > 1; i >>= 1)
+    for (segT[i += N] = v; i > 1; i >>= 1)
         segT[i >> 1] = (ll)segT[i] * segT[i ^ 1] % mod;
 }
 int query(int l, int r) {
