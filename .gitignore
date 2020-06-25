@@ -399,3 +399,5 @@ Baekjoon/in.txt
 *.txt
 PS.vcxproj
 PS.vcxproj.filters
+*.xml
+Baekjoon/.idea/Baekjoon.iml
