@@ -1,63 +1,34 @@
-#include <iostream>
-using namespace std;
+#include <cstdio>
+#define loop(i,n) for(int i=0;i<n;++i)
 
-int **map;
-bool **visited;
-int mov_i[4] = {0, 0, -1, 1};
-int mov_j[4] = {1, -1, 0, 0};
+const int M = 50;
+const int mov[4][2] = { -1, 0, 0, -1, 0, 1, 1, 0};
+
 int row, col;
-void Init() {
-    map = new int *[row];
-    visited = new bool *[row];
-    for (int i = 0; i < row; i++) {
-        map[i] = new int[col]{};
-        visited[i] = new bool[col]{};
-    }
-}
-void Dele() {
-    for (int i = 0; i < row; i++) {
-        delete (map[i]);
-        delete (visited[i]);
-    }
-    delete (map);
-    delete (visited);
-}
-void dfs(int a, int b) {
-    visited[a][b] = true;
-    for (int i = 0; i < 4; i++) {
-        int y = a + mov_i[i];
-        if (y == -1 || y >= row) continue;
-        int x = b + mov_j[i];
-        if (x == -1 || x >= col) continue;
-        if (map[y][x] == 1 && !visited[y][x])
-            dfs(y, x);
-    }
-}
+bool mat[M][M];
 
+void DFS(int r, int c) {
+    mat[r][c] = 0;
+    loop(i, 4) {
+        int R = r + mov[i][0], C = c + mov[i][1];
+        if (R < 0 || R >= row || C < 0 || C >= col || !mat[R][C]) continue;
+        DFS(R, C);
+    }
+}
 int main() {
-    cin.tie(NULL);
-    std::ios::sync_with_stdio(false);
-
-    int t, k;
-    cin >> t;
-    while (t-- > 0) {
-        int count = 0;
-        cin >> col >> row >> k;
-        Init();
-        while (k-- > 0) {
-            int j, i;
-            cin >> j >> i;
-            map[i][j] = 1;
-        }
-
-        for (int i = 0; i < row; i++)
-            for (int j = 0; j < col; j++)
-                if (map[i][j] == 1 && !visited[i][j]) {
-                    dfs(i, j);
-                    count++;
-                }
-        cout << count << '\n';
-        Dele();
+    int T; scanf("%d", &T);
+start:;
+    int K; scanf("%d %d %d", &col, &row, &K);
+    while (K--) {
+        int c, r; scanf("%d %d", &c, &r);
+        mat[r][c] = 1;
     }
+    int ans = 0;
+    loop(i, row) loop(j, col) if (mat[i][j]) {
+        DFS(i, j);
+        ++ans;
+    }
+    printf("%d\n", ans);
+    if (--T) goto start;
     return 0;
 }
