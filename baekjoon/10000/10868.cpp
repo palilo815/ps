@@ -1,49 +1,31 @@
-#include <bits/stdc++.h> 
+#include <bits/stdc++.h>
 #define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
 
 const int max_N = 100000;
-int arr[max_N];
-int construct_segT(vector<int>& segT, int l, int r, int idx)
-{
-    if (l == r)
-        return segT[idx] = arr[l];
 
-    int mid = l + (r - l) / 2;
-    return segT[idx] = min(construct_segT(segT, l, mid, idx * 2 + 1),
-        construct_segT(segT, mid + 1, r, idx * 2 + 2));
+int sparse[17][max_N];
+
+int query(int l, int r) {
+    int k = 31 - __builtin_clz(r - l);
+    return min(sparse[k][l], sparse[k][r - (1 << k)]);
 }
-int minQ(vector<int>& segT, int l, int r, int ql, int qr, int idx)
-{
-    // total overlap
-    if (ql <= l && r <= qr)
-        return segT[idx];
-    // no overlap
-    if (r < ql || qr < l)
-        return INT_MAX;
-    // partial overlap
-    int mid = l + (r - l) / 2;
-    return min(minQ(segT, l, mid, ql, qr, 2 * idx + 1),
-        minQ(segT, mid + 1, r, ql, qr, 2 * idx + 2));
-}
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
-    // ** input **
-    int n, m; cin >> n >> m;
-    loop(i, n) cin >> arr[i];
+    int N, M; cin >> N >> M;
+    int R = 31 - __builtin_clz(N);
 
-    // ** initialize segment tree **
-    int log_2 = (int)(ceil(log2(n)));
-    vector<int> segtree(2 * pow(2, log_2) - 1);
-    construct_segT(segtree, 0, n - 1, 0);
+    for (int i = 0; i < N; ++i)
+        cin >> sparse[0][i];
+    for (int i = 1; i <= R; ++i)
+        for (int j = 0; j + (1 << i) <= N; ++j)
+            sparse[i][j] = min(sparse[i - 1][j], sparse[i - 1][j + (1 << (i - 1))]);
 
-    // ** query **
-    while (m--) {
-        int a, b; cin >> a >> b;
-        cout << minQ(segtree, 0, n - 1, a - 1, b - 1, 0) << '\n';
+    while (M--) {
+        int l, r; cin >> l >> r;
+        cout << query(l - 1, r) << '\n';
     }
     return 0;
 }
