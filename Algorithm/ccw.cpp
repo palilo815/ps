@@ -16,9 +16,7 @@ bool cross(p& a, p& b, p& c, p& d) {
     int A = ccw(a, b, c) * ccw(a, b, d);
     int B = ccw(c, d, a) * ccw(c, d, b);
     if (A | B) return A <= 0 && B <= 0;
-    else {
-        if (a > b) swap(a, b);
-        if (c > d) swap(c, d);
-        return a <= d && c <= b;
-    }
+    if (a > b) swap(a, b);
+    if (c > d) swap(c, d);
+    return a <= d && c <= b;
 }
