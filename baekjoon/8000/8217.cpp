@@ -1,98 +1,80 @@
-/*
-    By himanshujaju
-    https://codeforces.com/blog/entry/45578
-*/
 #include <bits/stdc++.h>
-#define loop(i,s,e) for(auto i=s-(s>e);i!=e-(s>e);i+=1-2*(s>e))
+#define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
+using ll = long long;
 
-typedef long long ll;
-const int max_N = 300000;
+struct meteo {
+    int l, r, w;
+};
 
-vector<int> owner[max_N + 1];
-ll req[max_N + 1];
+const int MAX = 300000;
 
-int ql[max_N + 1], qr[max_N + 1], qa[max_N + 1];
+int N, M, Q;
+vector<int> state[MAX];
+int req[MAX];
+ll fenwick[MAX + 1];
 
-int lo[max_N + 1], hi[max_N + 1];
-stack<int> stk[max_N + 1];
+meteo q[MAX];
+int lo[MAX], hi[MAX];
+vector<int> vt[MAX];
 
-ll fenwick[max_N + 1];
-int N, M;
-
-void update(int idx, int val) {
-    while (idx <= M) {
-        fenwick[idx] += val;
-        idx += (idx & -idx);
-    }
+void update(int i, int v) {
+    for (++i; i <= M; i += i & -i)
+        fenwick[i] += v;
 }
-ll read(int idx) {
+ll read(int i) {
     ll ret = 0;
-    while (idx) {
-        ret += fenwick[idx];
-        idx -= (idx & -idx);
+    for (++i; i; i -= i & -i)
+        ret += fenwick[i];
+    return ret;
+}
+bool go() {
+    memset(fenwick + 1, 0, sizeof(ll) * M);
+    loop(i, Q) vt[i].clear();
+
+    bool ret = false;
+    loop(i, N) if (lo[i] ^ hi[i]) {
+        vt[(lo[i] + hi[i]) >> 1].emplace_back(i);
+        ret = true;
     }
     return ret;
 }
-void apply(int x) {
-    if (ql[x] <= qr[x]) {
-        update(ql[x], qa[x]);
-        update(qr[x] + 1, -qa[x]);
-    }
-    else {
-        update(1, qa[x]);
-        update(qr[x] + 1, -qa[x]);
-        update(ql[x], qa[x]);
-    }
-}
 int main() {
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
     cin >> N >> M;
-    loop(i, 1, M + 1) {
+    loop(i, M) {
         int x; cin >> x;
-        owner[x].emplace_back(i);
+        state[x - 1].emplace_back(i);
     }
-    loop(i, 1, N + 1)
-        cin >> req[i];
+    loop(i, N) cin >> req[i];
+    cin >> Q;
+    loop(i, Q) {
+        cin >> q[i].l >> q[i].r >> q[i].w;
+        --q[i].l;
+    }
+    fill(hi, hi + N, Q);
 
-    int Q; cin >> Q;
-    loop(i, 1, Q + 1)
-        cin >> ql[i] >> qr[i] >> qa[i];
-    loop(i, 1, N + 1)
-        lo[i] = 1, hi[i] = Q + 1;
+    while (go()) loop(m, Q) {
+        auto& [l, r, w] = q[m];
+        if (l < r) update(l, w), update(r, -w);
+        else update(0, w), update(r, -w), update(l, w);
 
-    while (1) {
-        memset(fenwick, 0, sizeof(fenwick));
-        bool finished = true;
-
-        loop(i, 1, N + 1)
-            if (lo[i] != hi[i]) {
-                stk[(lo[i] + hi[i]) / 2].emplace(i);
-                finished = false;
+        for (int& i : vt[m]) {
+            ll total = 0;
+            for (int& area : state[i]) {
+                total += read(area);
+                if (total >= req[i]) break;
             }
-        if (finished) break;
-
-        loop(q, 1, Q + 1) {
-            apply(q);
-            while (!stk[q].empty()) {
-                int id = stk[q].top();
-                stk[q].pop();
-
-                ll sum = 0;
-                for (auto sectors : owner[id]) {
-                    sum += read(sectors);
-                    if (sum >= req[id]) break;
-                }
-
-                if (sum >= req[id]) hi[id] = q;
-                else lo[id] = q + 1;
-            }
+            total < req[i] ? (lo[i] = m + 1) : (hi[i] = m);
         }
     }
-    loop(i, 1, N + 1)
-        if (lo[i] <= Q) cout << lo[i] << '\n';
-        else cout << "NIE\n";
+
+    loop(i, N) {
+        if (lo[i] == Q) cout << "NIE";
+        else cout << lo[i] + 1;
+        cout << '\n';
+    }
     return 0;
 }
