@@ -8,7 +8,7 @@ using p = pair<int, int>;
 
 const int M = 100000;
 
-p poly[M], datum;
+p poly[M];
 
 int ccw(p& a, p& b, p& c) {
     ll ret = 1LL * (b.x - a.x) * (c.y - a.y) -
@@ -16,7 +16,7 @@ int ccw(p& a, p& b, p& c) {
     return ret ? (ret > 0 ? 1 : -1) : 0;
 }
 ll dist(p& v) {
-    ll dx = datum.x - v.x, dy = datum.y - v.y;
+    ll dx = poly[0].x - v.x, dy = poly[0].y - v.y;
     return dx * dx + dy * dy;
 }
 int main() {
@@ -26,20 +26,20 @@ int main() {
     int N; cin >> N;
     loop(i, N) cin >> poly[i].x >> poly[i].y;
 
-    datum = *min_element(poly, poly + N, [](p & a, p & b) -> bool {
+    swap(poly[0], *min_element(poly, poly + N, [](p & a, p & b) -> bool {
         return a.x == b.x ? a.y < b.y : a.x < b.x;
-    });
-    sort(poly, poly + N, [](p & a, p & b) -> bool {
-        int ret = ccw(datum, a, b);
+    }));
+    sort(poly + 1, poly + N, [](p & a, p & b) -> bool {
+        int ret = ccw(poly[0], a, b);
         return ret ? ret == 1 : dist(a) < dist(b);
     });
 
-    vector<p> stk;
+    vector<p> hull;
     loop(i, N) {
-        while (stk.size() > 1 && ccw(stk[stk.size() - 2], stk[stk.size() - 1], poly[i]) <= 0)
-            stk.pop_back();
-        stk.emplace_back((poly[i]));
+        while (hull.size() > 1 && ccw(hull[hull.size() - 2], hull[hull.size() - 1], poly[i]) <= 0)
+            hull.pop_back();
+        hull.emplace_back(poly[i]);
     }
-    cout << stk.size();
+    cout << hull.size();
     return 0;
 }
