@@ -8,7 +8,7 @@ using p = pair<int, int>;
 
 const int M = 100000;
 
-p poly[M], datum;
+p poly[M], axis;
 
 int ccw(p& a, p& b, p& c) {
 	ll ret = 1LL * (b.x - a.x) * (c.y - a.y) -
@@ -16,7 +16,7 @@ int ccw(p& a, p& b, p& c) {
 	return ret ? (ret > 0 ? 1 : -1) : 0;
 }
 ll dist(p& v) {
-	ll dx = datum.x - v.x, dy = datum.y - v.y;
+	ll dx = axis.x - v.x, dy = axis.y - v.y;
 	return dx * dx + dy * dy;
 }
 int main() {
@@ -26,11 +26,11 @@ int main() {
 	int N; cin >> N;
 	loop(i, N) cin >> poly[i].x >> poly[i].y;
 
-	datum = *min_element(poly, poly + N, [](p & a, p & b) -> bool {
+	axis = *min_element(poly, poly + N, [](p & a, p & b) -> bool {
 		return a.x == b.x ? a.y < b.y : a.x < b.x;
 	});
 	sort(poly, poly + N, [](p & a, p & b) -> bool {
-		int ret = ccw(datum, a, b);
+		int ret = ccw(axis, a, b);
 		return ret ? ret == 1 : dist(a) < dist(b);
 	});
 
