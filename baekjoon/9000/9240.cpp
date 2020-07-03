@@ -7,7 +7,6 @@ using p = pair<int, int>;
 
 const int M = 100000;
 
-int N, sz;
 p poly[M];
 vector<p> hull;
 
