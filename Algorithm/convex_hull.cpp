@@ -26,10 +26,8 @@ int main() {
 	int N; cin >> N;
 	loop(i, N) cin >> poly[i].x >> poly[i].y;
 
-	swap(poly[0], *min_element(poly, poly + N, [](p & a, p & b) -> bool {
-		return a.x == b.x ? a.y < b.y : a.x < b.x;
-	}));
-	sort(poly + 1, poly + N, [](p & a, p & b) -> bool {
+	swap(poly[0], *min_element(poly, poly + N));
+	sort(poly + 1, poly + N, [&](p & a, p & b) -> bool {
 		int ret = ccw(poly[0], a, b);
 		return ret ? ret == 1 : dist(a) < dist(b);
 	});
