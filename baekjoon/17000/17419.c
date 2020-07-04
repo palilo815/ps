@@ -1,0 +1,1 @@
+a;main(N){for(scanf("%d\n",&N);N--;a+=getchar()&1);printf("%d",a);}
