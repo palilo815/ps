@@ -2,8 +2,7 @@
 #define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
 
-const int max_N = 10;
-//const int max_N = 100000;
+const int max_N = 100000;
 
 int t, scc_cnt;
 vector<int> adj[max_N];
