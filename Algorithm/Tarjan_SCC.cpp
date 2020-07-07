@@ -36,8 +36,8 @@ bool cmp(const vector<int>& a, const vector<int>& b) {
     return a[0] < b[0];
 }
 int main() {
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
     int V, E; cin >> V >> E;
     while (E--) {
