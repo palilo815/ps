@@ -1,79 +1,48 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef long long ll;
+using ll = long long;
 
-const int max_N = 1000000;
+const int M = 1000001;
 
-int arr[max_N];
-ll segT[1048576 * 2 - 1];
-int lazy[1048576 * 2 - 1];
+int N;
+ll fen1[M], fen2[M];
 
-ll build_segT(int l, int r, int idx)
-{
-    if (l == r) return segT[idx] = arr[l];
-    int m = l + (r - l) / 2;
-    return segT[idx] = build_segT(l, m, 2 * idx + 1) + build_segT(m + 1, r, 2 * idx + 2);
+void update(ll fenwick[], int i, ll v) {
+    for (; i <= N; i += i & -i)
+        fenwick[i] += v;
 }
-ll query(int ql, int qr, int l, int r, int idx)
-{
-    if (lazy[idx]) {
-        segT[idx] += (ll)lazy[idx] * (r - l + 1);
-        if (l != r) {
-            lazy[2 * idx + 1] += lazy[idx];
-            lazy[2 * idx + 2] += lazy[idx];
-        }
-        lazy[idx] = 0;
-    }
-    if (ql <= l && r <= qr) return segT[idx];
-    if (qr < l || r < ql) return 0;
-    int m = l + (r - l) / 2;
-    return query(ql, qr, l, m, 2 * idx + 1) + query(ql, qr, m + 1, r, 2 * idx + 2);
+ll read(ll fenwick[], int i) {
+    ll ret = 0;
+    for (; i; i -= i & -i)
+        ret += fenwick[i];
+    return ret;
 }
-void update(int ql, int qr, int qv, int l, int r, int idx)
-{
-    if (lazy[idx]) {
-        segT[idx] += (ll)lazy[idx] * (r - l + 1);
-        if (l != r) {
-            lazy[2 * idx + 1] += lazy[idx];
-            lazy[2 * idx + 2] += lazy[idx];
-        }
-        lazy[idx] = 0;
-    }
-    if (ql <= l && r <= qr) {
-        segT[idx] += (ll)qv * (r - l + 1);
-        if (l != r) {
-            lazy[2 * idx + 1] += qv;
-            lazy[2 * idx + 2] += qv;
-        }
-        return;
-    }
-    if (qr < l || r < ql) return;
-    int m = l + (r - l) / 2;
-    update(ql, qr, qv, l, m, 2 * idx + 1);
-    update(ql, qr, qv, m + 1, r, 2 * idx + 2);
-    segT[idx] = segT[2 * idx + 1] + segT[2 * idx + 2];
+void Q1(int l, int r, ll v) {
+    update(fen1, l, v), update(fen1, r + 1, -v);
+    update(fen2, l, v * (l - 1)), update(fen2, r + 1, -v * r);
 }
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+ll Q2(int l, int r) {
+    return read(fen1, r) * r - read(fen2, r) -
+           read(fen1, l - 1) * (l - 1) + read(fen2, l - 1);
+}
+int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
-    int N, Q, Q2; cin >> N >> Q >> Q2;
-    Q += Q2;
-    for (int i = 0; i < N; ++i)
-        cin >> arr[i];
+    int Q, QQ; cin >> N >> Q >> QQ;
+    Q += QQ;
+    for (int i = 1; i <= N; ++i) {
+        ll x; cin >> x;
+        Q1(i, i, x);
+    }
 
-    build_segT(0, N - 1, 0);
-
-    while (Q--) {
-        int q, a, b; cin >> q >> a >> b;
-        // query 1 : arr[a-1,b-1] += v
+    for (int i = 0, q, l, r; i < Q; ++i) {
+        cin >> q >> l >> r;
         if (q == 1) {
-            int v; cin >> v;
-            update(a - 1, b - 1, v, 0, N - 1, 0);
+            ll v; cin >> v;
+            Q1(l, r, v);
         }
-        // query 2 : cout << sum(arr[a-1,b-1])
-        else cout << query(a - 1, b - 1, 0, N - 1, 0) << '\n';
+        else  cout << Q2(l, r) << '\n';
     }
     return 0;
 }
