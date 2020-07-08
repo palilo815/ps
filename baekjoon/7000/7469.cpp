@@ -6,7 +6,7 @@ using namespace std;
 using p = pair<int, int>;
 
 const int max_N = 100000;
-const int LEN = 131072;
+const int LEN = 1 << 17;
 
 p a[max_N];
 int table[17][LEN];
