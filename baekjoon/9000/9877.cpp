@@ -1,7 +1,6 @@
 #include <bits/stdc++.h>
 #define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
-using p = pair<int, int>;
 struct edge {
     int u, v, w;
     edge(int a, int b, int c): u(a), v(b), w(c) {}
