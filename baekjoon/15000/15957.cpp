@@ -6,8 +6,7 @@ struct query {
     int t, p, s;
 };
 
-//const int MAX = 1e5;
-const int MAX = 10;
+const int MAX = 1e5;
 
 int t, N;
 vector<int> adj[MAX], song[MAX];
