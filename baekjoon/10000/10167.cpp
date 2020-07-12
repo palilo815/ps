@@ -9,7 +9,7 @@ struct gold {
 };
 
 const int max_N = 3e3;
-const int seg_N = 32768;
+const int seg_N = 4096;
 
 int N, M, idx[max_N];
 gold a[max_N + 1];
