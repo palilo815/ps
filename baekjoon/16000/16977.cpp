@@ -76,7 +76,6 @@ int main() {
 
         reset();
 
-        int j = 0;
         loop(m, N) {
             update(h[m].y);
             for (int& i : vt[m]) {
