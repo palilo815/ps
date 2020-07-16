@@ -1,37 +1,21 @@
-#include <iostream>
-#include <algorithm>
-#define loop(i,n) for(int i=0;i<n;++i)
+#include <bits/stdc++.h>
 using namespace std;
-typedef struct student {
+struct s {
     string name;
-    int Kor;
-    int Eng;
-    int Math;
-}Stu;
+    int kor, eng, math;
+} a[100000];
 
-bool MySort(Stu a, Stu b)
-{
-    if (a.Kor == b.Kor) {
-        if (a.Eng == b.Eng) {
-            if (a.Math == b.Math)
-                return a.name < b.name;
-            else return a.Math > b.Math;
-        }
-        else return a.Eng < b.Eng;
-    }
-    else return a.Kor > b.Kor;
-}
-int main()
-{
-    cin.tie(NULL);
-    ios::sync_with_stdio(false);
+int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
-    int n; cin >> n;
-    Stu* arr = new Stu[n];
-    loop(i, n)
-        cin >> arr[i].name >> arr[i].Kor >> arr[i].Eng >> arr[i].Math;
-    sort(arr, arr + n, MySort);
-    loop(i, n)
-        cout << arr[i].name << '\n';
+    int N; cin >> N;
+    for (int i = 0; i < N; ++i)
+        cin >> a[i].name >> a[i].kor >> a[i].eng >> a[i].math;
+    sort(a, a + N, [](auto & a, auto & b) -> bool {
+        return a.kor == b.kor ? a.eng == b.eng ? a.math == b.math ? a.name < b.name : a.math > b.math : a.eng < b.eng : a.kor > b.kor;
+    });
+    for (int i = 0; i < N; ++i)
+        cout << a[i].name << '\n';
     return 0;
 }
