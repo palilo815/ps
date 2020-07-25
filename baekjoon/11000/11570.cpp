@@ -16,13 +16,10 @@ int main() {
         cin >> song[i];
 
     memset(dp, 0x3f, sizeof(dp));
-    dp[0][1] = dp[1][0] = 0;
+    dp[1][0] = 0;
 
     for (int i = 2; i <= N; ++i) {
-        int val1 = gap(i, i - 1);
-        dp[i][0] = dp[i - 1][0] + val1;
-
-        for (int j = 0; j < i - 1; ++j) {
+        for (int j = 0, val1 = gap(i, i - 1); j < i - 1; ++j) {
             int val2 = gap(i, j);
             dp[i][j] = min(dp[i][j], dp[i - 1][j] + val1);
             dp[i][i - 1] = min(dp[i][i - 1], dp[i - 1][j] + val2);
