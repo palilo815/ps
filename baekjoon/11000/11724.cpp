@@ -1,34 +1,24 @@
 #include <bits/stdc++.h>
 using namespace std;
-const int max_N = 1000;
 
-vector<int> adj[max_N + 1];
-bool visited[max_N + 1];
-void DFS(int u)
-{
-    visited[u] = true;
-    for (int v : adj[u])
-        if (!visited[v])
-            DFS(v);
+const int mxN = 1001;
+
+int par[mxN];
+
+int _find(int u) {
+    return ~par[u] ? (par[u] = _find(par[u])) : u;
 }
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
     int V, E; cin >> V >> E;
-    while (E--) {
-        int u, v; cin >> u >> v;
-        adj[u].push_back(v);
-        adj[v].push_back(u);
+    memset(par + 1, -1, sizeof(int) * V);
+    for (int i = 0, u, v; i < E; ++i) {
+        cin >> u >> v;
+        u = _find(u), v = _find(v);
+        if (u ^ v) par[u] = v;
     }
-
-    int ans = 0;
-    for (int i = 1;i <= V;++i)
-        if (!visited[i]) {
-            DFS(i);
-            ++ans;
-        }
-    cout << ans;
+    cout << count(par + 1, par + 1 + V, -1);
     return 0;
 }
