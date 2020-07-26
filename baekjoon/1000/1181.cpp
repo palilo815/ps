@@ -1,25 +1,22 @@
-#include<iostream>
-#include<algorithm>
+#include <bits/stdc++.h>
+#define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
 
-const int max_N = 20000;
+const int mxN = 2e4;
 
-string arr[max_N];
+string s[mxN];
 
-bool cmp(const string& a, const string& b) {
-    if (a.size() == b.size()) return a < b;
-    return a.size() < b.size();
-}
 int main() {
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
     int N; cin >> N;
-    for (int i = 0; i < N; ++i) cin >> arr[i];
-    sort(arr, arr + N, cmp);
-    cout << arr[0];
-    for (int i = 1; i < N; i++)
-        if (arr[i] != arr[i - 1])
-            cout << '\n' << arr[i];
+    loop(i, N) cin >> s[i];
+
+    sort(s, s + N, [&](auto & a, auto & b) -> bool {
+        return a.size() == b.size() ? a < b : a.size() < b.size();
+    });
+    N = unique(s, s + N) - s;
+    loop(i, N) cout << s[i] << '\n';
     return 0;
 }
