@@ -1,23 +1,20 @@
-#include <iostream>
-#include <algorithm>
+#include <bits/stdc++.h>
 #define LOOP(i,n) for(int i=1;i<=n;++i)
 using namespace std;
 
-int candy[1001][1001], DP[1001][1001];
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+const int mxN = 1001;
 
-    // ** initialize ** 
+int dp[mxN];
+
+int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
+
     int row, col; cin >> row >> col;
-    LOOP(i, row) LOOP(j, col) cin >> candy[i][j];
-
-    // ** dynamic programming **
-    LOOP(i, row) LOOP(j, col) {
-        int tmp = max(DP[i - 1][j], DP[i][j - 1]);
-        tmp = max(tmp, DP[i - 1][j - 1]);
-        DP[i][j] = tmp + candy[i][j];
+    LOOP(_, row) LOOP(i, col) {
+        int x; cin >> x;
+        dp[i] = max(dp[i - 1], dp[i]) + x;
     }
-    cout << DP[row][col];
+    cout << dp[col];
+    return 0;
 }
