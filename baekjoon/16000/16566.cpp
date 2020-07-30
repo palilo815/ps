@@ -1,10 +1,9 @@
 #include <bits/stdc++.h>
-#define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
 
-const int mxN = 4e6;
+const int mxN = 4e6 + 2;
 
-int a[mxN], par[mxN + 1];
+int par[mxN];
 
 int _find(int u) {
     return ~par[u] ? (par[u] = _find(par[u])) : u;
@@ -14,15 +13,18 @@ int main() {
     ios::sync_with_stdio(0);
 
     int N, M, K; cin >> N >> M >> K;
-    loop(i, M) cin >> a[i];
-
-    sort(a, a + M);
-    memset(par, -1, sizeof(int) * (M + 1));
-
-    loop(i, K) {
+    while (M--) {
         int x; cin >> x;
-        x = _find(upper_bound(a, a + M, x) - a);
-        cout << a[x] << '\n';
+        par[x] = -1;
+    }
+    par[N + 1] = -1;
+
+    for (int i = N, nxt = N + 1; ~i; --i)
+        par[i] ? (nxt = i) : (par[i] = nxt);
+
+    while (K--) {
+        int x; cin >> x;
+        cout << (x = _find(x + 1)) << '\n';
         par[x] = _find(x + 1);
     }
     return 0;
