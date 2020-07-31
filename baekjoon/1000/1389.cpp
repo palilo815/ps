@@ -1,51 +1,31 @@
-#include<iostream>
-#include<queue>
-using namespace std;
+#include <cstdio>
+#include <cstring>
+#define min(x,y) (x<y?x:y)
 #define loop(i,n) for(int i=0;i<n;++i)
 
-bool chingu[101][101];
-int n;
+const int mxN = 100;
+const int INF = 0x3f3f3f3f;
 
-// BFS
-int Kevin(int start)
-{
-    queue<int> q;
-    vector<int> step(n + 1, -1);
-    q.push(start);
-    step[start] = 0;
-    while (!q.empty()) {
-        int here = q.front(); q.pop();
-        loop(i, n + 1)
-            if (chingu[here][i] && step[i] == -1) {
-                step[i] = step[here] + 1;
-                q.push(i);
-            }
-    }
-    int ret = 0;
-    loop(i, n + 1) ret += step[i];
-    return ret;
-}
+int d[mxN][mxN];
 
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
-
-    int m;
-    cin >> n >> m;
-    while (m--) {
-        int u, v; cin >> u >> v;
-        chingu[u][v] = true, chingu[v][u] = true;
+int main() {
+    int N, M; scanf("%d%d", &N, &M);
+    memset(d, 0x3f, sizeof(d));
+    for (int i = 0, u, v; i < M; ++i) {
+        scanf("%d%d", &u, &v); --u, --v;
+        d[u][v] = d[v][u] = 1;
     }
 
-    int min = INT32_MAX, ans;
-    for (int i = 1; i <= n; ++i) {
-        int tmp = Kevin(i);
-        if (tmp < min) {
-            min = tmp;
-            ans = i;
-        }
+    loop(k, N) loop(i, N) if (d[i][k] ^ INF)
+        loop(j, N) if (d[k][j] ^ INF)
+            d[i][j] = min(d[i][j], d[i][k] + d[k][j]);
+
+    int ans, _min = INF;
+    loop(i, N) {
+        int cnt = 0;
+        loop(j, N) cnt += d[i][j];
+        if (cnt < _min) _min = cnt, ans = i;
     }
-    cout << ans;
+    printf("%d", ans + 1);
     return 0;
 }
