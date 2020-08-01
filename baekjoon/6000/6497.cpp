@@ -1,46 +1,42 @@
 #include <bits/stdc++.h>
 #define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
-typedef tuple<int, int, int> tup;
-const int max_N = 200000;
-const int max_M = 200000;
+struct edge {
+    int u, v, w;
+};
 
-int parent[max_N];
-tup road[max_M];
-int find_rt(int u)
-{
-    if (u == parent[u]) return u;
-    return parent[u] = find_rt(parent[u]);
+const int mx = 2e5;
+
+int N, M, par[mx];
+edge e[mx];
+
+int _find(int u) {
+    return ~par[u] ? (par[u] = _find(par[u])) : u;
 }
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+void solve() {
+    memset(par, -1, sizeof(int) * N);
+    int s = 0;
+    loop(i, M) cin >> e[i].u >> e[i].v >> e[i].w;
+    loop(i, M) s += e[i].w;
+    sort(e, e + M, [&](auto & a, auto & b) {
+        return a.w < b.w;
+    });
+
+    loop(i, M) {
+        auto& [u, v, w] = e[i];
+        u = _find(u), v = _find(v);
+        if (u ^ v) par[u] = v, s -= w;
+    }
+    cout << s << '\n';
+}
+int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
     while (1) {
-        // 왜 #_vertex가 M이냐.. N이 국룰이다.
-        int N, M; cin >> N >> M;
-        if (N == 0) break;
-        loop(i, N) parent[i] = i;
-        
-        // total : 기존에 있던 모든 길의 비용
-        int total = 0;
-        loop(i, M) {
-            int u, v, w; cin >> u >> v >> w;
-            road[i] = { w,u,v };
-            total += w;
-        }
-        sort(road, road + M);
-
-        // total에서, MST에 해당되는 edge의 비용을 빼준다.
-        loop(i, M) {
-            int u = get<1>(road[i]), v = get<2>(road[i]);
-            u = find_rt(u), v = find_rt(v);
-            if (u == v) continue;
-            parent[u] = v;
-            total -= get<0>(road[i]);
-        }
-        cout << total << '\n';
+        cin >> N >> M;
+        if (!N) break;
+        solve();
     }
     return 0;
 }
