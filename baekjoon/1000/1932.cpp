@@ -1,33 +1,22 @@
-#include<iostream>
-#include<algorithm>
-using namespace std;
+#include <cstdio>
+#define loop(i,n) for(int i=0;i<n;++i)
+#define max(x,y) (x>y?x:y)
 
-int main()
-{
-    cin.tie(NULL);
-    std::ios::sync_with_stdio(false);
+const int mx = 500;
 
-    int n;
-    cin >> n;
-    int** triangle = new int* [n];
-    int** sum = new int* [n];
-    for (int i = 0; i < n; i++) {
-        triangle[i] = new int[i + 1];
-        sum[i] = new int[i + 1];
-        for (int j = 0; j < i + 1; j++)
-            cin >> triangle[i][j];
+int a[mx], dp[mx];
+
+int main() {
+    int N; scanf("%d", &N);
+    loop(r, N) {
+        loop(i, r + 1) scanf("%d", a + i);
+        for (int i = r; i; --i)
+            dp[i] = max(dp[i - 1], dp[i]) + a[i];
+        dp[0] += a[0];
     }
-    sum[0][0] = triangle[0][0];
-    for (int i = 1; i < n; i++) {
-        for (int j = 0; j < i + 1; j++) {
-            if (j == 0) sum[i][j] = sum[i - 1][j] + triangle[i][j];
-            else if (j == i) sum[i][j] = sum[i - 1][j - 1] + triangle[i][j];
-            else sum[i][j] = max(sum[i - 1][j], sum[i - 1][j - 1]) + triangle[i][j];
-        }
-    }
-    int max = sum[n - 1][0];
-    for (int j = 0; j < n; j++)
-        if (sum[n - 1][j] > max) max = sum[n - 1][j];
-    cout << max;
+
+    int ans = 0;
+    loop(i, N) ans = max(ans, dp[i]);
+    printf("%d", ans);
     return 0;
 }
