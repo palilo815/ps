@@ -1,60 +1,44 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-const int max_N = 100000;
+const int mxN = 1e5;
+const int mxD = 17;
+const int sgN = 1 << mxD;
 
-int arr[max_N];
-vector<int> segT[131072 * 2 - 1];
+int d;
+int segT[mxD + 1][sgN];
 
-vector<int> merge_segT(vector<int>& a, vector<int>& b) {
-    int len_a = a.size(), len_b = b.size();
-    vector<int> ret;
-    ret.reserve(len_a + len_b);
-
-    int i = 0, j = 0;
-    while (i < len_a && j < len_b) {
-        if (a[i] < b[j]) ret.emplace_back(a[i++]);
-        else ret.emplace_back(b[j++]);
+int query(int l, int r, int k) {
+    int ret = 0;
+    for (int i = d, w = 1; l ^ r; --i, w <<= 1) {
+        if (l & w) {
+            ret += segT[i] + l + w - upper_bound(segT[i] + l, segT[i] + l + w, k);
+            l += w;
+        }
+        if (r & w) {
+            r -= w;
+            ret += segT[i] + r + w - upper_bound(segT[i] + r, segT[i] + r + w, k);
+        }
     }
-    while (i < len_a) ret.emplace_back(a[i++]);
-    while (j < len_b) ret.emplace_back(b[j++]);
     return ret;
-}
-void build_segT(int l, int r, int idx) {
-    if (l == r) {
-        segT[idx].emplace_back(arr[l]);
-        return;
-    }
-    int m = l + (r - l) / 2;
-    build_segT(l, m, 2 * idx + 1);
-    build_segT(m + 1, r, 2 * idx + 2);
-    segT[idx] = merge_segT(segT[2 * idx + 1], segT[2 * idx + 2]);
-}
-int query(int ql, int qr, int k, int l, int r, int idx) {
-    if (ql <= l && r <= qr)
-        return segT[idx].end() - lower_bound(segT[idx].begin(), segT[idx].end(), k);
-    if (qr < l || r < ql) return 0;
-
-    int m = l + (r - l) / 2;
-    return query(ql, qr, k, l, m, 2 * idx + 1) + query(ql, qr, k, m + 1, r, 2 * idx + 2);
 }
 int main() {
     cin.tie(0), cout.tie(0);
     ios::sync_with_stdio(0);
 
     int N; cin >> N;
+    d = 32 - __builtin_clz(N - 1);
     for (int i = 0; i < N; ++i)
-        cin >> arr[i];
+        cin >> segT[d][i];
+    for (int i = d, k = 1; i; --i, k <<= 1)
+        for (int j = 0; j < N; j += k << 1)
+            merge(segT[i] + j, segT[i] + j + k, segT[i] + j + k, segT[i] + j + k + k, segT[i - 1] + j);
 
-    build_segT(0, N - 1, 0);
-
-    int ans = 0;
     int Q; cin >> Q;
-    while (Q--) {
-        int a, b, c; cin >> a >> b >> c;
-        int i = a ^ ans, j = b ^ ans, k = c ^ ans;
-        ans = query(i - 1, j - 1, k + 1, 0, N - 1, 0);
-        cout << ans << '\n';
+    for (int i = 0, ans = 0, l, r, k; i < Q; ++i) {
+        cin >> l >> r >> k;
+        l ^= ans, r ^= ans, k ^= ans; --l;
+        cout << (ans = query(l, r, k)) << '\n';
     }
     return 0;
 }
