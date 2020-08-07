@@ -1,51 +1,39 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
-#define loop(i,n) for(int i=0;i<n;++i)
-#define P pair<int,int>
 
-int dist[20001];
-vector<int> graph[20001];
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+const int mx = 20001;
 
-    loop(i, 20001) dist[i] = INT32_MAX;
-    int V, E; cin >> V >> E;
-    while (E--) {
-        int u, v; cin >> u >> v;
-        graph[u].push_back(v);
-        graph[v].push_back(u);
+int dist[mx];
+vector<int> adj[mx];
+
+int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
+
+    int N, M; cin >> N >> M;
+    for (int u, v; M--;) {
+        cin >> u >> v;
+        adj[u].emplace_back(v);
+        adj[v].emplace_back(u);
     }
 
-    priority_queue<P, vector<P>, greater<P>> pq;
-    pq.push({ 0,1 });
-    dist[1] = 0;
-    while (!pq.empty()) {
-        int cost = pq.top().first, here = pq.top().second; pq.pop();
-        if (dist[here] < cost) continue;
-        for (int there : graph[here])
-            if (dist[there] > cost + 1) {
-                dist[there] = cost + 1;
-                pq.push({ cost + 1, there });
+    memset(dist + 2, 0x3f, sizeof(int) * (N - 1));
+    queue<int> q;
+    q.emplace(1);
+
+    while (!q.empty()) {
+        int u = q.front(); q.pop();
+        for (int& v : adj[u])
+            if (dist[v] > dist[u] + 1) {
+                dist[v] = dist[u] + 1;
+                q.emplace(v);
             }
     }
 
-    int ans = 0, MAX = 0, cnt = 0;
-    for (int i = 2; i <= V; ++i) {
-        // 더 먼 지점을 발견하면
-        // MAX = 그 거리, ans = 번호, cnt = 1
-        if (dist[i] > MAX) {
-            MAX = dist[i];
-            ans = i;
-            cnt = 1;
-        }
-        // 가장 먼 지점을 추가로 발견하면
-        // cnt += 1
-        else if (dist[i] == MAX)
-            ++cnt;
-    }
-    // 번호, 거리, 개수 출력
-    cout << ans << ' ' << MAX << ' ' << cnt;
+    int v = 1, cnt = 1;
+    for (int i = 2; i <= N; ++i)
+        if (dist[i] > dist[v]) v = i, cnt = 1;
+        else if (dist[i] == dist[v]) ++cnt;
+    cout << v << ' ' << dist[v] << ' ' << cnt;
     return 0;
 }
