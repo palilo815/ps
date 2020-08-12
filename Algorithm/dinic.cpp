@@ -5,10 +5,12 @@ struct edge {
 	edge(int v, int capa, int rev) : v(v), capa(capa), rev(rev) {}
 };
 
-const int M = 400;
+const int mx = 400;
+const int s = 0;
+const int t = 1;
 
-vector<edge> adj[M];
-int level[M], ptr[M];
+vector<edge> adj[mx];
+int level[mx], ptr[mx];
 
 void add_edge(int u, int v) {
 	adj[u].emplace_back(v, 1, adj[v].size());
@@ -16,10 +18,10 @@ void add_edge(int u, int v) {
 }
 int bfs() {
 	memset(level, -1, sizeof(level));
-	level[0] = 0;
+	level[s] = 0;
 
 	queue<int> q;
-	q.emplace(0);
+	q.emplace(s);
 
 	while (!q.empty()) {
 		int u = q.front(); q.pop();
@@ -29,17 +31,20 @@ int bfs() {
 				q.emplace(v);
 			}
 	}
-	return ~level[1];
+	return ~level[t];
 }
-int dfs(int u) {
-	if (u == 1) return 1;
+int dfs(int u, int f) {
+	if (u == t) return f;
 	for (int& i = ptr[u], sz = adj[u].size(); i ^ sz; ++i) {
 		auto& [v, capa, rev] = adj[u][i];
-		if (capa && level[u] + 1 == level[v])
-			if (dfs(v)) {
-				--capa, ++adj[v][rev].capa;
-				return 1;
+		if (capa && level[u] + 1 == level[v]) {
+			int d = dfs(v, min(f, capa));
+			if (d) {
+				capa -= d;
+				adj[v][rev].capa += d;
+				return d;
 			}
+		}
 	}
 	return 0;
 }
@@ -53,11 +58,11 @@ int main() {
 		add_edge(--u, --v);
 	}
 
-	int f = 0;
-	for (; bfs();) {
+	int ans = 0;
+	for (int f; bfs();) {
 		memset(ptr, 0, sizeof(ptr));
-		while (dfs(0)) ++f;
+		while ((f = dfs(s, INT_MAX))) ans += f;
 	}
-	cout << f;
+	cout << ans;
 	return 0;
 }
