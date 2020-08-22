@@ -1,55 +1,52 @@
 #include <bits/stdc++.h>
+#define left (i<<1)
+#define right (i<<1|1)
 using namespace std;
-typedef pair<int, int> p;
 
-const int max_N = 100000;
+const int mxN = 1e5;
+const int sgN = 131072;
 
-int arr[max_N];
-p segT[131072 * 2 - 1];
+int a[mxN + 1], segT[sgN << 1];
 
-p build_segT(int l, int r, int idx)
-{
-    if (l == r) return segT[idx] = { arr[l],l };
-
-    int mid = l + (r - l) / 2;
-    return segT[idx] = min(build_segT(l, mid, 2 * idx + 1), build_segT(mid + 1, r, 2 * idx + 2));
+void update(int i, int val) {
+    a[i] = val;
+    for (i = (i + sgN) >> 1; i; i >>= 1)
+        segT[i] = a[segT[left]] > a[segT[right]] ? segT[right] : segT[left];
 }
-p minQ(int ql, int qr, int l, int r, int idx)
-{
-    if (ql <= l && r <= qr) return segT[idx];
-    if (r < ql || qr < l) return { INT_MAX,0 };
-    int mid = l + (r - l) / 2;
-    return min(minQ(ql, qr, l, mid, 2 * idx + 1), minQ(ql, qr, mid + 1, r, 2 * idx + 2));
-}
-void update(int ui, int uv, int l, int r, int idx)
-{
-    if (l == r) {
-        arr[ui] = uv;
-        segT[idx] = { uv,ui };
+int query(int l, int r) {
+    int ret = 0;
+    for (l += sgN, r += sgN; l ^ r; l >>= 1, r >>= 1) {
+        if (l & 1) {
+            if (a[segT[l]] < a[ret] || a[segT[l]] == a[ret] && segT[l] < ret)
+                ret = segT[l];
+            ++l;
+        }
+        if (r & 1) {
+            --r;
+            if (a[segT[r]] < a[ret] || a[segT[r]] == a[ret] && segT[r] < ret)
+                ret = segT[r];
+        }
     }
-    else {
-        int mid = l + (r - l) / 2;
-        if (ui <= mid) update(ui, uv, l, mid, 2 * idx + 1);
-        else update(ui, uv, mid + 1, r, 2 * idx + 2);
-        segT[idx] = min(segT[2 * idx + 1], segT[2 * idx + 2]);
-    }
-
+    return ret;
 }
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
     int N; cin >> N;
-    for (int i = 0; i < N; ++i)
-        cin >> arr[i];
-    build_segT(0, N - 1, 0);
-    
+    for (int i = 1; i <= N; ++i)
+        cin >> a[i];
+    a[0] = INT_MAX;
+
+    iota(segT + sgN, segT + sgN + N + 1, 0);
+    for (int i = sgN - 1; i; --i)
+        segT[i] = a[segT[left]] > a[segT[right]] ? segT[right] : segT[left];
+
     int Q; cin >> Q;
-    while (Q--) {
-        int q, a, b; cin >> q >> a >> b;
-        if (q == 1) update(a - 1, b, 0, N - 1, 0);
-        else cout << minQ(a - 1, b - 1, 0, N - 1, 0).second + 1 << '\n';
+    for (int q, u, v; Q--;) {
+        cin >> q >> u >> v;
+        if (q == 1) update(u, v);
+        else cout << query(u, v + 1) << '\n';
     }
     return 0;
 }
