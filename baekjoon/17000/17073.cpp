@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-const int mxN = 5e5;
+const int mxN = 5e5 + 1;
 
 int cnt[mxN];
 
