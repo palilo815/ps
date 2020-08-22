@@ -1,43 +1,35 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef pair<int, int> p;
-const int max_N = 50000;
+struct edge {
+    int v, w, dp;
+    edge(int v, int w, int dp): v(v), w(w), dp(dp) {}
+};
 
-vector<p> adj[max_N + 1];
-map<int,int> dist[max_N + 1];
-int max_dist(int parent, int u)
-{
+const int mxN = 5e4 + 1;
+
+vector<edge> adj[mxN];
+
+int solve(int u, int p) {
     int ret = 0;
-    for (p edge : adj[u]) {
-        int w = edge.first, v = edge.second;
-        if (v == parent) continue;
-
-        // u->v로 갈 때 최대거리를 구해놨다면 그대로 사용하면 되고
-        // 안구해놨다면 map에 추가해준다.
-        auto it = dist[u].find(v);
-        if (it == dist[u].end()) {
-            int tmp = w + max_dist(u, v);
-            ret = max(ret, tmp);
-            dist[u][v] = tmp;
-        }
-        else
-            ret = max(ret, it->second);
+    for (auto& [v, w, dp] : adj[u]) {
+        if (v == p) continue;
+        if (dp == 0) dp = solve(v, u) + w;
+        if (dp > ret) ret = dp;
     }
     return ret;
 }
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
     int N; cin >> N;
-    for (int i = 0; i < N - 1; ++i) {
-        int u, v, w; cin >> u >> v >> w;
-        adj[u].push_back({ w,v });
-        adj[v].push_back({ w,u });
+    for (int i = 0, u, v, w; i < N - 1; ++i) {
+        cin >> u >> v >> w;
+        adj[u].emplace_back(v, w, 0);
+        adj[v].emplace_back(u, w, 0);
     }
 
     for (int i = 1; i <= N; ++i)
-        cout << max_dist(-1, i) << '\n';
+        cout << solve(i, 0) << '\n';
     return 0;
 }
