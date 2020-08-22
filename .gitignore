@@ -1,3 +1,7 @@
 Baekjoon/a.exe
 Baekjoon/in
 Baekjoon/out
+Algorithm/berlekamp_massey.cpp
+.gitignore
+.vscode/c_cpp_properties.json
+*.json
