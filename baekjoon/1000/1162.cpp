@@ -1,44 +1,51 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef long long ll;
-typedef pair<int, int> p;
-typedef tuple<ll, int, int> tup;
+using ll = long long;
+using p = pair<int, int>;
+struct elem {
+    ll d;
+    int u, k;
+    elem(ll d, int u, int k) : d(d), u(u), k(k) {}
+    bool operator <(const elem& rhs) const {
+        return d > rhs.d;
+    }
+};
 
-const int max_N = 10000;
-const int max_K = 20;
+const int mxN = 1e4 + 1;
+const int mxK = 20;
 
-vector<p> adj[max_N + 1];
-ll dist[max_N + 1][max_K + 1];
+vector<p> adj[mxN];
+ll dist[mxN][mxK + 1];
 
 int main() {
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
     int N, M, K; cin >> N >> M >> K;
-    while (M--) {
-        int u, v, w; cin >> u >> v >> w;
+    for (int u, v, w; M--;) {
+        cin >> u >> v >> w;
         adj[u].emplace_back(w, v);
         adj[v].emplace_back(w, u);
     }
 
-    for (int i = 1; i <= N; ++i) for (int j = 0; j <= K; ++j)
-        dist[i][j] = INT64_MAX;
+    memset(dist, 0x3f, sizeof(dist));
     dist[1][0] = 0;
 
-    priority_queue<tup, vector<tup>, greater<tup>> pq;
-    pq.emplace(0, 0, 1);
-    while (1) {
-        auto [d, k, u] = pq.top(); pq.pop();
-        if (u == N) { cout << d; break; }
+    priority_queue<elem> pq;
+    pq.emplace(0, 1, 0);
 
-        for (auto [w, v] : adj[u]) {
+    while (1) {
+        auto [d, u, k] = pq.top(); pq.pop();
+        if (u == N) {cout << d; break;}
+
+        for (auto& [w, v] : adj[u]) {
             if (dist[v][k] > d + w) {
                 dist[v][k] = d + w;
-                pq.emplace(d + w, k, v);
+                pq.emplace(d + w, v, k);
             }
             if (k < K && dist[v][k + 1] > d) {
                 dist[v][k + 1] = d;
-                pq.emplace(d, k + 1, v);
+                pq.emplace(d, v, k + 1);
             }
         }
     }
