@@ -1,26 +1,22 @@
-#include <iostream>
-#define loop(i,n) for(int i=0;i<n;++i)
-using namespace std;
+#include <cstdio>
 
-char Before[10][10], After[10][20];
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+const int mx = 10;
 
-    int row, col; cin >> row >> col;
-    bool f = true;
-    loop(i, row) loop(j, col) cin >> Before[i][j];
-    loop(i, row) loop(j, 2 * col) cin >> After[i][j];
-    loop(i, row) {
-        for (int j = 0; j < col; ++j) {
-            char c = Before[i][j];
-            if (After[i][2 * j] != c) { f = false; goto OUT; }
-            if (After[i][2 * j + 1] != c) { f = false; goto OUT; }
-        }
+char a[mx][mx + 1], b[mx << 1 | 1];
+
+int main() {
+    int R, C; scanf("%d%d\n", &R, &C);
+    for (int i = 0; i < R; ++i)
+        scanf("%s", a[i]);
+
+    for (int i = 0; i < R; ++i) {
+        scanf("%s", b);
+        for (int j = 0; j < C; ++j)
+            if (a[i][j] ^ b[j << 1] || a[i][j] ^ b[j << 1 | 1]) {
+                puts("Not Eyfa");
+                return 0;
+            }
     }
-OUT:;
-    if (f) cout << "Eyfa";
-    else cout << "Not Eyfa";
+    puts("Eyfa");
     return 0;
 }
