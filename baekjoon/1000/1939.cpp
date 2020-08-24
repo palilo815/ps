@@ -1,54 +1,36 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
-#define loop(i,n) for(int i=0;i<n;++i)
-#define P pair<int,int>
+struct edge {
+    int u, v, w;
+};
 
-vector<P> bridge[100001];
+const int mxN = 1e4 + 1;
+const int mxM = 1e5;
 
-// vertex의 개수는 V개, 중량은 load
-// u->v로 이동하는게 가능한가?
-bool BFS(int u, int v, int V, int load) {
-    queue<int> q;
-    vector<bool> visited(V + 1);
-    q.push(u);
-    while (!q.empty()) {
-        int curr = q.front();q.pop();
-        if (curr == v) return true;
-        for (P p : bridge[curr]) {
-            int to = p.first, w = p.second;
-            if (!visited[to] && w >= load) {
-                visited[to] = true;
-                q.push(to);
-            }
-        }
-    }
-    return false;
+int par[mxN];
+edge e[mxM];
+
+int _find(int u) {
+    return ~par[u] ? (par[u] = _find(par[u])) : u;
 }
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
-    int V, E, L = 0, R = 0, ans = -1;
-    cin >> V >> E;
-    while (E--) {
-        int u, v, w; cin >> u >> v >> w;
-        R = max(R, w);
-        bridge[u].push_back(make_pair(v, w));
-        bridge[v].push_back(make_pair(u, w));
-    }
-    int from, to;
-    cin >> from >> to;
+    int N, M; cin >> N >> M;
+    for (int i = 0; i < M; ++i)
+        cin >> e[i].u >> e[i].v >> e[i].w;
+    int x1, x2; cin >> x1 >> x2;
 
-    // binary-search
-    while (L <= R) {
-        int mid = L + (R - L) / 2;
-        if (BFS(from, to, V, mid)) {
-            ans = mid;
-            L = mid + 1;
-        }
-        else
-            R = mid - 1;
+    sort(e, e + M, [&](auto & a, auto & b) {
+        return a.w > b.w;
+    });
+    memset(par + 1, -1, sizeof(int) * N);
+
+    int ans = 0;
+    for (int i = 0, u, v; _find(x1) ^ _find(x2); ++i) {
+        u = _find(e[i].u), v = _find(e[i].v), ans = e[i].w;
+        if (u ^ v) par[u] = v;
     }
     cout << ans;
     return 0;
