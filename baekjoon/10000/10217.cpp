@@ -1,56 +1,61 @@
 #include <bits/stdc++.h>
+#define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
-typedef tuple<int, int, int> tup;
-
-const int max_N = 100;
-const int max_M = 10000;
-
-vector<tup> adj[max_N + 1];
-int dist[max_N + 1][max_M + 1];
-
-int main() {
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
-
-    int T, N, M, K;
-    cin >> T;
-    while (T--) {
-        cin >> N >> M >> K;
-        for (int i = 1; i <= N; ++i) {
-            adj[i].clear();
-            fill(dist[i], dist[i] + M + 1, INT_MAX);
-        }
-        while (K--) {
-            int u, v, c, d; cin >> u >> v >> c >> d;
-            adj[u].emplace_back(d, c, v);
-        }
-
-        dist[1][0] = 0;
-        priority_queue<tup, vector<tup>, greater<tup>> pq;
-        pq.emplace(0, 0, 1);
-
-        int ans = -1;
-        while (!pq.empty()) {
-            auto [d, c, u] = pq.top(); pq.pop();
-            if (dist[u][c] < d) continue;
-            if (u == N) { ans = d; break; }
-
-            for (auto [w1, w2, v] : adj[u]) {
-                int D = d + w1, C = c + w2;
-                if (C > M || dist[v][C] <= D) continue;
-
-                for (int cost = C; cost <= M; ++cost) {
-                    if (dist[v][cost] > D)
-                        dist[v][cost] = D;
-                    else break;
-                }
-                pq.emplace(D, C, v);
-            }
-        }
-
-        if (ans == -1) cout << "Poor KCM";
-        else cout << ans;
-        cout << '\n';
+struct elem {
+    int d, c, u;
+    elem(int d, int c, int u) : d(d), c(c), u(u) {}
+    bool operator <(const elem& rhs) const {
+        return d > rhs.d;
     }
+};
+
+const int mxN = 1e2;
+const int mxM = 1e4;
+
+vector<elem> adj[mxN];
+int dist[mxN][mxM + 1];
+
+void solve() {
+    int N, M, K; cin >> N >> M >> K;
+
+    loop(i, N) adj[i].clear();
+    loop(i, N) memset(dist[i], 0x3f, sizeof(int) * (M + 1));
+    dist[0][0] = 0;
+
+    for (int u, v, c, d; K--;) {
+        cin >> u >> v >> c >> d;
+        --u, --v;
+        adj[u].emplace_back(d, c, v);
+    }
+
+    priority_queue<elem> pq;
+    pq.emplace(0, 0, 0);
+
+    int ans = -1;
+    while (!pq.empty()) {
+        auto [d, c, u] = pq.top(); pq.pop();
+        if (dist[u][c] < d) continue;
+        if (u == N - 1) {ans = d; break;}
+
+        for (auto& [w1, w2, v] : adj[u]) {
+            int D = d + w1, C = c + w2;
+            if (C > M || dist[v][C] <= D) continue;
+
+            for (int cost = C; cost <= M && dist[v][cost] > D; ++cost)
+                dist[v][cost] = D;
+            pq.emplace(D, C, v);
+        }
+    }
+
+    if (ans == -1) cout << "Poor KCM";
+    else cout << ans;
+    cout << '\n';
+}
+int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
+
+    int T; cin >> T;
+    while (T--) solve();
     return 0;
 }
