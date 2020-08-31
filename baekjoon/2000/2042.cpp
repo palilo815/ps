@@ -1,46 +1,44 @@
 #include<bits/stdc++.h>
 using namespace std;
-#define loop(i,n) for(int i=0;i<n;++i)
-#define ll long long
+using ll = long long;
+
+const int mxN = 1e6;
 
 int N;
-ll read(vector<ll>& tree, int idx) {
-    ll sum = 0;
-    while (idx > 0) {
-        sum += tree[idx];
-        idx -= (idx & -idx);
-    }
-    return sum;
+ll a[mxN + 1], fenwick[mxN + 1];
+
+ll read(int i) {
+    ll ret = 0;
+    for (; i; i -= i & -i)
+        ret += fenwick[i];
+    return ret;
 }
-void update(vector<ll>& tree, int idx, ll val) {
-    while (idx <= N) {
-        tree[idx] += val;
-        idx += (idx & -idx);
-    }
+void update(int i, ll v) {
+    for (; i <= N; i += i & -i)
+        fenwick[i] += v;
 }
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
     int M, K; cin >> N >> M >> K;
-    vector<ll> origin(N), fenwick(N + 1);
-    loop(i, N) {
-        cin >> origin[i];
-        update(fenwick, i + 1, origin[i]);
-    }
-    M += K;
-    while (M--) {
-        int op;
-        ll a, b;
-        cin >> op >> a >> b;
-        if (op == 1) {
-            ll gap = b - origin[a - 1];
-            origin[a - 1] = b;
-            update(fenwick, a, gap);
+    for (int i = 1; i <= N; ++i)
+        cin >> a[i];
+
+    for (int i = 1; i <= N; ++i)
+        update(i, a[i]);
+
+    for (M += K; M; --M) {
+        char op;
+        ll u, v;
+        cin >> op >> u >> v;
+
+        if (op == '1') {
+            ll diff = v - a[u];
+            a[u] = v;
+            update(u, diff);
         }
-        else
-            cout << read(fenwick, b) - read(fenwick, a - 1) << '\n';
+        else cout << read(v) - read(u - 1) << '\n';
     }
     return 0;
 }
