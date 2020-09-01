@@ -1,68 +1,65 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef long long ll;
-typedef pair<ll, int> p;
+using ll = long long;
+struct elem {
+    ll d;
+    int u;
+    elem(ll d, int u) : d(d), u(u) {}
+    bool operator <(const elem& rhs) const {
+        return d > rhs.d;
+    }
+};
 
-const int max_N = 100000;
+const int mxN = 1e5 + 1;
+const ll INF = 0x3f3f3f3f3f3f3f3f;
 
-int height[max_N + 1];
-vector<p> adj[max_N + 1];
+int h[mxN];
+vector<pair<int, int>> adj[mxN];
+ll up[mxN], dw[mxN];
 
-ll dist_up[max_N + 1];
-ll dist_dw[max_N + 1];
+void dijk(ll dist[], int src) {
+    priority_queue<elem> pq;
+    pq.emplace(0, src);
 
-void Dijkstra(ll dist[], int src)
-{
-    priority_queue<p, vector<p>, greater<p>> pq;
-    pq.push({ 0,src });
     while (!pq.empty()) {
-        ll d = pq.top().first;
-        int u = pq.top().second; pq.pop();
+        auto [d, u] = pq.top(); pq.pop();
         if (dist[u] < d) continue;
 
-        for (p edge : adj[u]) {
-            ll D = d + edge.first;
-            int v = edge.second;
-            if (height[u] >= height[v]) continue;
+        for (auto& [w, v] : adj[u]) {
+            ll D = d + w;
             if (dist[v] > D) {
                 dist[v] = D;
-                pq.push({ D,v });
+                pq.emplace(D, v);
             }
         }
     }
 }
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
     int N, M, D, E;
     cin >> N >> M >> D >> E;
-
     for (int i = 1; i <= N; ++i)
-        cin >> height[i];
-    while (M--) {
-        int u, v, d; cin >> u >> v >> d;
-        adj[u].push_back({ d,v });
-        adj[v].push_back({ d,u });
+        cin >> h[i];
+    for (int u, v, w; M; --M) {
+        cin >> u >> v >> w;
+        if (h[u] < h[v]) adj[u].emplace_back(w, v);
+        else if (h[u] > h[v]) adj[v].emplace_back(w, u);
     }
 
-    for (int i = 2; i < N; ++i)
-        dist_up[i] = dist_dw[i] = INT64_MAX;
+    memset(up + 1, 0x3f, sizeof(ll) * N);
+    memset(dw + 1, 0x3f, sizeof(ll) * N);
 
-    // dist_up에는 1에서 출발해서 올라갈 때 최소거리
-    // dist_dw에는 N에서 ...
-    // dist_up + dist_dw이 총 거리다.
-    Dijkstra(dist_up, 1);
-    Dijkstra(dist_dw, N);
+    dijk(up, 1);
+    dijk(dw, N);
 
-    // 올라가거나 내려가는 경로가 없으면 continue
-    // 둘 다 있다면 가치를 계산해서 비교
     ll ans = INT64_MIN;
     for (int i = 2; i < N; ++i) {
-        if (dist_up[i] == INT64_MAX || dist_dw[i] == INT64_MAX) continue;
-        ans = max(ans, ll(height[i]) * E - D * (dist_up[i] + dist_dw[i]));
+        if (up[i] == INF || dw[i] == INF) continue;
+        ans = max(ans, h[i] * E - D * (up[i] + dw[i]));
     }
+
     if (ans == INT64_MIN) cout << "Impossible";
     else cout << ans;
     return 0;
