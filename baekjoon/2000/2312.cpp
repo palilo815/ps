@@ -1,71 +1,27 @@
-#include<iostream>
-#include<algorithm>
-using namespace std;
-struct node {
-    int div;
-    int count;
-    node* next;
-};
+#include <cstdio>
 
-class linked_list
-{
-private:
-    node* head, * tail;
-public:
-    linked_list()
-    {
-        head = NULL;
-        tail = NULL;
-    }
-    void add_node(int n)
-    {
-        if (tail != NULL && tail->div == n) {
-            tail->count++;
-        }
-        else {
-            node* tmp = new node;
-            tmp->div = n;
-            tmp->count = 1;
-            tmp->next = NULL;
-            if (head == NULL) {
-                head = tmp;
-                tail = tmp;
-            }
-            else {
-                tail->next = tmp;
-                tail = tail->next;
-            }
-        }
-    }
-    void Print()
-    {
-        node* curr = head;
-        while (curr != NULL) {
-            cout << curr->div << ' ' << curr->count << '\n';
-            curr = curr->next;
-        }
-    }
-};
+const int mxN = 1e5;
 
-int main()
-{
-    cin.tie(NULL);
-    std::ios::sync_with_stdio(false);
+bool sieve[mxN + 1];
 
-    int t, n;
-    cin >> t;
-    while (t-- > 0) {
-        cin >> n;
-        linked_list ls;
-        int D = 2;
-        while (n != 1) {
-            if (n % D == 0) {
-                n /= D;
-                ls.add_node(D);
-            }
-            else D++;
+void solve() {
+    int N; scanf("%d", &N);
+    for (int i = 2; N ^ 1; ++i)
+        if (!sieve[i] && N % i == 0) {
+            int cnt = 1; N /= i;
+            while (N % i == 0)
+                ++cnt, N /= i;
+            printf("%d %d\n", i, cnt);
         }
-        ls.Print();
-    }
+}
+int main() {
+    sieve[0] = sieve[1] = true;
+    for (int i = 2; i * i <= mxN; ++i)
+        if (!sieve[i])
+            for (int j = i * 2; j <= mxN; j += i)
+                sieve[j] = true;
+
+    int T; scanf("%d", &T);
+    while (T--) solve();
     return 0;
 }
