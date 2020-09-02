@@ -1,20 +1,17 @@
 #include<bits/stdc++.h>
 using namespace std;
-#define loop(i,n) for(int i=0;i<n;++i)
 
-int DP[100000];
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
-    int n; cin >> n;
-    loop(i, n) cin >> DP[i];
-    for (int i = 1; i < n; ++i)
-        DP[i] = max(DP[i], DP[i - 1] + DP[i]);
-    int ans = INT32_MIN;
-    loop(i, n)
-        ans = max(ans, DP[i]);
+    int N, s; cin >> N >> s;
+    int ans = s;
+    for (int x; --N;) {
+        cin >> x;
+        s = s < 0 ? x : (s + x);
+        if (s > ans) ans = s;
+    }
     cout << ans;
     return 0;
 }
