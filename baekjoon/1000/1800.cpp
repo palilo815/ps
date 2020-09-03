@@ -33,10 +33,10 @@ int main() {
         if (price[u][c] < p) continue;
 
         if (c < K) for (auto [w, v] : adj[u])
-            if (price[v][c + 1] > p) {
-                price[v][c + 1] = p;
-                pq.emplace(p, c + 1, v);
-            }
+                if (price[v][c + 1] > p) {
+                    price[v][c + 1] = p;
+                    pq.emplace(p, c + 1, v);
+                }
         for (auto [w, v] : adj[u]) {
             int P = max(w, p);
             if (price[v][c] > P) {
