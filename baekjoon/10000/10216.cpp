@@ -2,47 +2,37 @@
 #define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
 
-const int max_N = 3000;
-const double eps = 1e-8;
+const int mxN = 3e3;
 
-int N;
-int X[max_N], Y[max_N], R[max_N];
-bool visited[max_N];
+int x[mxN], y[mxN], r[mxN], par[mxN];
 
-vector<int> adj[max_N];
+int _find(int u) {
+    return ~par[u] ? (par[u] = _find(par[u])) : u;
+}
+void solve() {
+    int N; cin >> N;
+    loop(i, N) cin >> x[i] >> y[i] >> r[i];
 
-void DFS(int u) {
-    visited[u] = true;
-    for (int v : adj[u]) if (!visited[v])
-        DFS(v);
+    memset(par, -1, sizeof(int) * N);
+
+    loop(i, N) {
+        int u = _find(i);
+        loop(j, i) {
+            int v = _find(j);
+            if (u == v) continue;
+
+            int dx = x[i] - x[j], dy = y[i] - y[j], sr = r[i] + r[j];
+            if (dx * dx + dy * dy <= sr * sr)
+                par[v] = u;
+        }
+    }
+    cout << count(par, par + N, -1) << '\n';
 }
 int main() {
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
     int T; cin >> T;
-    while (T--) {
-        cin >> N;
-        loop(i, N) cin >> X[i] >> Y[i] >> R[i];
-
-        memset(visited, 0, N);
-        loop(i, N) adj[i].clear();
-
-        loop(i, N) loop(j, i) {
-            int dx = X[i] - X[j], dy = Y[i] - Y[j];
-            double d = sqrt(dx * dx + dy * dy);
-            if (R[i] + R[j] > d - eps) {
-                adj[i].emplace_back(j);
-                adj[j].emplace_back(i);
-            }
-        }
-
-        int ans = 0;
-        loop(i, N) if (!visited[i]) {
-            ++ans;
-            DFS(i);
-        }
-        cout << ans << '\n';
-    }
+    while (T--) solve();
     return 0;
 }
