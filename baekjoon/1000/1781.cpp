@@ -1,36 +1,34 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
-#define loop(i,n) for(int i=0;i<n;++i)
-#define P pair<int,int>
-
-P arr[200000];
-auto cmp = [](P a, P b)
-{
-    return a.second < b.second;
+struct work {
+    int d, e;
 };
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+
+const int mxN = 2e5;
+
+work a[mxN + 1];
+
+int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
 
     int N; cin >> N;
-    loop(i, N) cin >> arr[i].first >> arr[i].second;
-    
-    // 뒤의 숙제부터 고려한다.
-    sort(arr, arr + N, greater<P>());
-    priority_queue<P, vector<P>, decltype(cmp)> pq(cmp);
-    int day = arr[0].first, pos = 0, ans = 0;
+    for (int i = 0; i < N; ++i)
+        cin >> a[i].d >> a[i].e;
 
-    while (day) {
-        // day일에 할 수 있는 숙제룰 전부 집어넣음
-        while (pos < N && arr[pos].first >= day)
-            pq.push(arr[pos++]);
-        // 그 중에서 보상이 제일 큰 것을 한다.
+    sort(a, a + N, [&](auto & a, auto & b) {
+        return a.d > b.d;
+    });
+
+    priority_queue<int> pq;
+    int cur = a[0].d, ans = 0;
+    for (int cur = a[0].d, i = 0; cur; --cur) {
+        while (a[i].d >= cur)
+            pq.emplace(a[i++].e);
         if (!pq.empty()) {
-            ans += pq.top().second;
+            ans += pq.top();
             pq.pop();
         }
-        --day;
     }
     cout << ans;
     return 0;
