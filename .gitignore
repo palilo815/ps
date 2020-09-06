@@ -5,3 +5,4 @@ Algorithm/berlekamp_massey.cpp
 .gitignore
 .vscode/c_cpp_properties.json
 *.json
+Baekjoon/0_codeforce/*
