@@ -14,10 +14,7 @@ int main() {
     loop(i, K) cin >> a[i];
 
     string s = *max_element(a, a + K, [&](auto & a, auto & b) {
-        if (a.size() ^ b.size()) return a.size() < b.size();
-        loop(i, a.size()) if (a[i] ^ b[i])
-            return a[i] < b[i];
-        return false;
+        return a.size() == b.size() ? a < b : a.size() < b.size();
     });
 
     for (int i = K; i < N; ++i)
