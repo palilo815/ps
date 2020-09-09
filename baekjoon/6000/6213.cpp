@@ -1,45 +1,43 @@
 #include <bits/stdc++.h>
+#define left (i<<1)
+#define right (i<<1|1)
 using namespace std;
-typedef pair<int, int> p;
 
-const int max_N = 50000;
+const int sgN = 65536;
 
-int arr[max_N];
-p segT[65536 * 2 - 1];
+int minT[sgN << 1], maxT[sgN << 1];
 
-void init_segT(int l, int r, int i) {
-    if (l == r) {
-        segT[i] = { arr[l],arr[l] };
-        return;
+int query(int l, int r) {
+    int mn = INT_MAX, mx = INT_MIN;
+    for (l += sgN, r += sgN; l ^ r; l >>= 1, r >>= 1) {
+        if (l & 1) {
+            mn = min(mn, minT[l]), mx = max(mx, maxT[l]);
+            ++l;
+        }
+        if (r & 1) {
+            --r;
+            mn = min(mn, minT[r]), mx = max(mx, maxT[r]);
+        }
     }
-    int m = (l + r) / 2;
-    init_segT(l, m, 2 * i + 1);
-    init_segT(m + 1, r, 2 * i + 2);
-    segT[i].first = min(segT[2 * i + 1].first, segT[2 * i + 2].first);
-    segT[i].second = max(segT[2 * i + 1].second, segT[2 * i + 2].second);
-}
-p query(int ql, int qr, int l, int r, int i) {
-    if (ql <= l && r <= qr) return segT[i];
-    if (qr < l || r < ql) return { INT_MAX,INT_MIN };
-    int m = (l + r) / 2;
-    p L = query(ql, qr, l, m, 2 * i + 1);
-    p R = query(ql, qr, m + 1, r, 2 * i + 2);
-    return { min(L.first,R.first),max(L.second,R.second) };
+    return mx - mn;
 }
 int main() {
     cin.tie(0), cout.tie(0);
     ios::sync_with_stdio(0);
 
     int N, Q; cin >> N >> Q;
-    for (int i = 1; i <= N; ++i)
-        cin >> arr[i];
-    
-    init_segT(1, N, 0);
+    for (int i = sgN; i < sgN + N; ++i)
+        cin >> minT[i];
 
-    while (Q--) {
-        int ql, qr; cin >> ql >> qr;
-        p res = query(ql, qr, 1, N, 0);
-        cout << res.second - res.first << '\n';
+    copy(minT + sgN, minT + sgN + N, maxT + sgN);
+    for (int i = sgN - 1; i; --i) {
+        minT[i] = min(minT[left], minT[right]);
+        maxT[i] = max(maxT[left], maxT[right]);
+    }
+
+    for (int u, v; Q--;) {
+        cin >> u >> v;
+        cout << query(--u, v) << '\n';
     }
     return 0;
 }
