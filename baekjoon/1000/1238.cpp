@@ -1,51 +1,46 @@
 #include<bits/stdc++.h>
 using namespace std;
-#define loop(i,n) for(int i=0;i<n;++i)
-#define P pair<int,int>
+using p = pair<int, int>;
 
-vector<int> Dijkstra(int V, int src, vector<P>(&adj)[1000])
-{
-    vector<int> dist(V, INT32_MAX);
+const int mxN = 1001;
+
+vector<p> adj[mxN], rev[mxN];
+int V, E, src;
+int d1[mxN], d2[mxN];
+
+void dijkstra(vector<p> adj[], int dist[]) {
+    memset(dist + 1, 0x3f, sizeof(int) * V);
     dist[src] = 0;
-    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
-    pq.push(make_pair(0, src));
-    while (!pq.empty()) {
-        int cost = pq.top().first, here = pq.top().second;
-        pq.pop();
-        if (dist[here] < cost) continue;
-        loop(i, adj[here].size()) {
-            int nextDist = cost + adj[here][i].first;
-            int there = adj[here][i].second;
-            if (dist[there] > nextDist) {
-                dist[there] = nextDist;
-                pq.push(make_pair(nextDist, there));
-            }
-        }
-    }
-    return dist;
-}
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
 
-    vector<P> adj[1000], rev[1000];
-    int V, E, X;
-    cin >> V >> E >> X;
-    while (E--) {
-        int u, v, w;
-        cin >> u >> v >> w;
-        --u, --v;
-        adj[u].push_back(make_pair(w, v));
-        rev[v].push_back(make_pair(w, u));
+    priority_queue<p, vector<p>, greater<p>> pq;
+    pq.emplace(0, src);
+
+    while (!pq.empty()) {
+        auto [d, u] = pq.top(); pq.pop();
+        if (dist[u] < d) continue;
+
+        for (auto& [w, v] : adj[u])
+            if (dist[v] > dist[u] + w)
+                pq.emplace(dist[v] = dist[u] + w, v);
     }
-    // Dijkstra 두번을 정방향, 역방향으로 쓰면
-    // 가는 시간과 오는 시간 각각을 구할 수 있음
-    vector<int> t1 = Dijkstra(V, X - 1, adj);
-    vector<int> t2 = Dijkstra(V, X - 1, rev);
+}
+int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
+
+    cin >> V >> E >> src;
+    for (int u, v, w; E--;) {
+        cin >> u >> v >> w;
+        adj[u].emplace_back(w, v);
+        rev[v].emplace_back(w, u);
+    }
+
+    dijkstra(adj, d1);
+    dijkstra(rev, d2);
+
     int ans = 0;
-    loop(i, V)
-        ans = max(ans, t1[i] + t2[i]);
+    for (int i = 1; i <= V; ++i)
+        ans = max(ans, d1[i] + d2[i]);
     cout << ans;
     return 0;
 }
