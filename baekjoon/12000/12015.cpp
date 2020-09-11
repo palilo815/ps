@@ -1,36 +1,18 @@
 #include <bits/stdc++.h>
-#define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
-const int max_N = 1000000;
 
-int arr[max_N], T[max_N];
-int ceil_elem(int s, int e, int key) {
-    while (e - s > 1) {
-        int mid = s + (e - s) / 2;
-        if (T[mid] >= key)
-            e = mid;
-        else
-            s = mid;
-    }
-    return e;
-}
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+int main() {
+    cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(0);
+
+    vector<int> T = {INT_MIN};
 
     int N; cin >> N;
-    loop(i, N) cin >> arr[i];
-    int len = 1;
-    T[0] = arr[0];
-    for (int i = 1;i < N;++i) {
-        if (arr[i] < T[0])
-            T[0] = arr[i];
-        else if (arr[i] > T[len - 1])
-            T[len++] = arr[i];
-        else
-            T[ceil_elem(-1, len - 1, arr[i])] = arr[i];
+    for (int x; N--;) {
+        cin >> x;
+        if (x > T.back()) T.emplace_back(x);
+        else *lower_bound(T.begin(), T.end(), x) = x;
     }
-    cout << len;
+    cout << T.size() - 1;
     return 0;
 }
