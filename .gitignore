@@ -6,3 +6,5 @@ Algorithm/berlekamp_massey.cpp
 .vscode/c_cpp_properties.json
 *.json
 Baekjoon/0_codeforce/*
+Baekjoon/sol.exe
+Baekjoon/sol.cpp
