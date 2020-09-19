@@ -34,6 +34,7 @@ out:
     for (;;) {
         auto [d, r, c] = pq.top();
         pq.pop();
+        if (dist[r][c] < d) continue;
 
         loop(i, 4) {
             int R = r + mov[i][0], C = c + mov[i][1];
