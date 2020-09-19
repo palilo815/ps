@@ -1,29 +1,31 @@
-#include<bits/stdc++.h>
-#define loop(i,n) for(int i=0;i<n;++i)
+#include <bits/stdc++.h>
+#define loop(i, n) for (int i = 0; i < n; ++i)
 using namespace std;
 
-const int MAX = 16;
-int N, cost[MAX][MAX], cache[MAX][1 << MAX];
+const int mxN = 16;
 
-int TSP(int u, int visited)
-{
-    if (visited == (1 << N) - 1)
-        return (cost[u][0] ? cost[u][0] : INT_MAX / 2);
+int w[mxN][mxN], dp[1 << mxN][mxN];
 
-    int& ret = cache[u][visited];
-    if (ret) return ret;
-
-    ret = INT_MAX / 2;
-    loop(v, N) if (cost[u][v] && !(visited & (1 << v)))
-        ret = min(ret, cost[u][v] + TSP(v, visited + (1 << v)));
-    return ret;
-}
 int main() {
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
-
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int N;
     cin >> N;
-    loop(i, N) loop(j, N) cin >> cost[i][j];
-    cout << TSP(0, 1);
+    loop(i, N) loop(j, N) cin >> w[i][j];
+
+    memset(dp, 0x3f, sizeof(dp));
+    dp[1][0] = 0;
+    loop(mask, 1 << N) loop(u, N) if (mask & (1 << u))
+        loop(v, N) if (!(mask & (1 << v)) && w[u][v])
+            dp[mask | (1 << v)][v] = min(dp[mask | (1 << v)][v], dp[mask][u] + w[u][v]);
+
+    int ans = INT_MAX;
+    loop(i, N) if (w[i][0])
+        ans = min(ans, dp[(1 << N) - 1][i] + w[i][0]);
+    cout << ans;
     return 0;
 }
