@@ -1,24 +1,38 @@
 #include <bits/stdc++.h>
-#define loop(i,n) for(int i=0;i<n;++i)
+#define loop(i, n) for (int i = 0; i < n; ++i)
 using namespace std;
 
-int power[20][20];
+const int mxN = 20;
+
+int mat[mxN][mxN];
 
 int main() {
-    int N; cin >> N;
-    loop(i, N) loop(j, N) cin >> power[i][j];
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int N;
+    cin >> N;
+    loop(i, N) loop(j, N) cin >> mat[i][j];
 
-    vector<bool> select(N);
-    loop(i, N / 2) select[i] = true;
-
+    int c = (1 << (N >> 1)) - 1, mxN = (1 << N) - 1;
     int ans = INT_MAX;
-    do {
+    while (c <= mxN) {
         int start = 0, link = 0;
-        loop(i, N) loop(j, N)
-            if (select[i] && select[j]) start += power[i][j];
-            else if (!select[i] && !select[j]) link += power[i][j];
+        loop(i, N) loop(j, N) {
+            int f1 = c & (1 << i), f2 = c & (1 << j);
+            if (f1 && f2)
+                start += mat[i][j];
+            else if (!f1 && !f2)
+                link += mat[i][j];
+        }
+
         ans = min(ans, abs(start - link));
-    } while (prev_permutation(select.begin(), select.end()));
+        int t = c | (c - 1);
+        c = (t + 1) | (((~t & -~t) - 1) >> (__builtin_ctz(c) + 1));
+    }
     cout << ans;
     return 0;
 }
