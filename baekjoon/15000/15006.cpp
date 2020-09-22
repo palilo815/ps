@@ -15,7 +15,7 @@ const int mxN = 1e5;
 
 vector<p> adj[mxN];
 ll dist[mxN];
-int par[mxN];
+int par[mxN], sign[mxN];
 
 int main() {
     ios::sync_with_stdio(0);
@@ -33,6 +33,7 @@ int main() {
     }
 
     memset(dist, 0x3f, sizeof(ll) * N);
+    memset(par, -1, sizeof(int) * N);
 
     priority_queue<elem> pq;
     pq.emplace(dist[1] = 0, 1);
@@ -43,14 +44,13 @@ int main() {
         if (dist[u] < d) continue;
 
         for (auto& [v, w] : adj[u])
-            if (dist[v] > d + w)
+            if (dist[v] > d + w) {
+                par[v] = u;
                 pq.emplace(dist[v] = d + w, v);
+            }
     }
 
-    for (int u = 0; u < N; ++u)
-        for (auto& [v, w] : adj[u])
-            if (dist[u] - w == dist[v])
-                w = -1;
+    copy(par, par + N, sign);
 
     vector<bool> visited(N);
     visited[0] = true;
@@ -63,7 +63,7 @@ int main() {
         q.pop();
 
         for (auto& [v, w] : adj[u])
-            if (~w && !visited[v]) {
+            if (v ^ sign[u] && !visited[v]) {
                 visited[v] = true, par[v] = u;
                 q.emplace(v);
             }
