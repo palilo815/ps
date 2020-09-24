@@ -41,7 +41,7 @@ int dijk(int sr, int sc, int dr, int dc) {
     priority_queue<elem> pq;
     pq.emplace(0, sr, sc);
 
-    for (; !pq.empty();) {
+    for (;;) {
         auto [d, r, c] = pq.top();
         pq.pop();
         if (dist[r][c] < d) continue;
@@ -60,7 +60,6 @@ int dijk(int sr, int sc, int dr, int dc) {
                 pq.emplace(dist[R][C] = D, R, C);
         }
     }
-    return -1;
 }
 int main() {
     ios::sync_with_stdio(0);
