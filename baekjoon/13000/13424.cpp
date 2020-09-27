@@ -1,55 +1,49 @@
 #include <bits/stdc++.h>
+#define loop(i, n) for (int i = 0; i < n; ++i)
 using namespace std;
-typedef pair<int, int> p;
 
-const int max_N = 100;
+const int mxN = 1e2;
+const int oo = 0x3f3f3f3f;
 
-vector<p> adj[max_N + 1];
-int dist[max_N + 1];
-int total[max_N + 1];
+int adj[mxN][mxN], total[mxN];
 
-int main() {
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+void solve() {
+    int N, M;
+    cin >> N >> M;
 
-    int T; cin >> T;
-    while (T--) {
-        int N, M; cin >> N >> M;
-        for (int i = 1; i <= N; ++i) adj[i].clear();
-        while (M--) {
-            int u, v, w; cin >> u >> v >> w;
-            adj[u].emplace_back(w, v);
-            adj[v].emplace_back(w, u);
-        }
+    memset(adj, 0x3f, sizeof(adj));
+    loop(i, N) adj[i][i] = 0;
 
-        memset(total, 0, sizeof(total));
-        int K; cin >> K;
-        while (K--) {
-            int src; cin >> src;
-            fill(dist + 1, dist + N + 1, INT_MAX);
-            dist[src] = 0;
-
-            priority_queue<p, vector<p>, greater<p>> pq;
-            pq.emplace(0, src);
-            while (!pq.empty()) {
-                auto [d, u] = pq.top(); pq.pop();
-                if (dist[u] < d) continue;
-
-                for (auto [w, v] : adj[u]) {
-                    int D = d + w;
-                    if (dist[v] > D) {
-                        dist[v] = D;
-                        pq.emplace(D, v);
-                    }
-                }
-            }
-            for (int i = 1; i <= N; ++i)
-                total[i] += dist[i];
-        }
-        int d = INT_MAX, ans = -1;
-        for (int i = 1; i <= N; ++i) if (total[i] < d)
-            d = total[i], ans = i;
-        cout << ans << '\n';    
+    for (int u, v, w; M--;) {
+        cin >> u >> v >> w;
+        --u, --v;
+        adj[u][v] = adj[v][u] = w;
     }
+
+    loop(k, N) loop(i, N) if (adj[i][k] != oo)
+        loop(j, N) if (adj[k][j] != oo)
+            adj[i][j] = min(adj[i][j], adj[i][k] + adj[k][j]);
+
+    int K;
+    cin >> K;
+
+    memset(total, 0, sizeof(int) * N);
+    for (int src; K--;) {
+        cin >> src;
+        --src;
+        transform(adj[src], adj[src] + N, total, total, plus<>());
+    }
+    cout << min_element(total, total + N) - total + 1 << '\n';
+}
+int main() {
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int T;
+    cin >> T;
+    while (T--) solve();
     return 0;
 }
