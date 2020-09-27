@@ -1,57 +1,58 @@
 #include <bits/stdc++.h>
-#define loop(i,n) for(int i=0;i<n;++i)
+#define loop(i, n) for (int i = 0; i < n; ++i)
 using namespace std;
-typedef long long ll;
-typedef pair<ll, int> P;
-const int max_N = 100000;
+using ll = long long;
+struct elem {
+    ll d;
+    int u;
+    elem(ll d, int u) : d(d), u(u) {}
+    bool operator<(const elem& rhs) const {
+        return d > rhs.d;
+    }
+};
 
-bool view[max_N];
-ll dist[max_N];
-vector<P> adj[max_N];
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+const int mxN = 1e5;
+const ll oo = 0x3f3f3f3f3f3f3f3f;
 
-    // ** Dijkstra **
+vector<pair<int, int>> adj[mxN];
+bool ward[mxN];
+ll dist[mxN];
 
-    // max_M = 300,000
-    // max_w = 100,000 이므로
-    // long long을 사용해야 한다.
+int main() {
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int N, M;
+    cin >> N >> M;
 
-    int N, M; cin >> N >> M;
-    loop(i, N) cin >> view[i];
-    loop(i, N) dist[i] = INT64_MAX;
-    view[N - 1] = false;
-    dist[0] = 0;
-   
-    while (M--) {
-        int u, v, w; cin >> u >> v >> w;
-        adj[u].push_back({ w,v });
-        adj[v].push_back({ w,u });
+    loop(i, N) cin >> ward[i];
+    ward[N - 1] = false;
+
+    for (int u, v, w; M--;) {
+        cin >> u >> v >> w;
+        if (ward[u] || ward[v]) continue;
+        adj[u].emplace_back(v, w);
+        adj[v].emplace_back(u, w);
     }
 
-    priority_queue<P, vector<P>, greater<P>> pq;
-    pq.push({ 0,0 });
+    memset(dist, 0x3f, sizeof(ll) * N);
+
+    priority_queue<elem> pq;
+    pq.emplace(dist[0] = 0, 0);
+
     while (!pq.empty()) {
-        ll d = pq.top().first;
-        int u = pq.top().second;
+        auto [d, u] = pq.top();
         pq.pop();
-        
         if (dist[u] < d) continue;
         if (u == N - 1) break;
 
-        for (P p : adj[u]) {
-            ll D = d + p.first;
-            int v = p.second;
-            if (!view[v] && dist[v] > D) {
-                dist[v] = D;
-                pq.push({ D,v });
-            }
-        }
+        for (auto& [v, w] : adj[u])
+            if (dist[v] > d + w)
+                pq.emplace(dist[v] = d + w, v);
     }
-
-    if (dist[N - 1] == INT64_MAX) cout << -1;
-    else cout << dist[N - 1];
+    cout << (dist[N - 1] == oo ? -1 : dist[N - 1]);
     return 0;
 }
