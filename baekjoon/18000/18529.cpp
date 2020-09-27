@@ -1,45 +1,56 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef pair<int, int> p;
+struct elem {
+    int d, u;
+    elem(int d, int u) : d(d), u(u) {}
+    bool operator<(const elem& rhs) const {
+        return d > rhs.d;
+    }
+};
 
-const int max_N = 50;
-const int max_K = 2500;
+const int mxN = 50;
+const int mask = (1 << 6) - 1;
 
-vector<p> tile[max_K + 1];
-int dist[max_N][max_N];
+vector<elem> tile[mxN * mxN + 1];
+int dist[mxN][mxN];
 
 int main() {
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int N, K;
+    cin >> N >> K;
+    for (int i = 0, x; i < N; ++i)
+        for (int j = 0; j < N; ++j) {
+            cin >> x;
+            tile[x].emplace_back(i, j);
+        }
 
-    int N, K; cin >> N >> K;
-    for (int i = 0; i < N; ++i) for (int j = 0; j < N; ++j) {
-        int x; cin >> x;
-        tile[x].emplace_back(i, j);
-    }
-
-    fill(&dist[0][0], &dist[N][0], INT_MAX);
-    priority_queue<p, vector<p>, greater<p>> pq;
-    for (auto [r, c] : tile[1]) {
-        dist[r][c] = 0;
-        pq.emplace(0, 64 * 64 + r * 64 + c);
-    }
+    memset(dist, 0x3f, sizeof(dist));
+    priority_queue<elem> pq;
+    for (auto& [r, c] : tile[1])
+        pq.emplace(dist[r][c] = 0, 1 << 12 | r << 6 | c);
 
     while (!pq.empty()) {
-        auto [d, num] = pq.top(); pq.pop();
-        int c = num % 64; num /= 64;
-        int r = num % 64; num /= 64;
-        if (dist[r][c] < d) continue;
-        if (num == K) { cout << d; return 0; }
+        auto [d, num] = pq.top();
+        pq.pop();
 
-        for (auto [R, C] : tile[num + 1]) {
+        int c = num & mask;
+        num >>= 6;
+        int r = num & mask;
+        num >>= 6;
+
+        if (dist[r][c] < d) continue;
+        if (num == K) return cout << d, 0;
+
+        for (auto& [R, C] : tile[num + 1]) {
             int D = d + abs(R - r) + abs(C - c);
-            if (dist[R][C] > D) {
-                dist[R][C] = D;
-                pq.emplace(D, (num + 1) * 64 * 64 + R * 64 + C);
-            }
+            if (dist[R][C] > D)
+                pq.emplace(dist[R][C] = D, (num + 1) << 12 | R << 6 | C);
         }
     }
-    cout << -1;
-    return 0;
+    return cout << -1, 0;
 }
