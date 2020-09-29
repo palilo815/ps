@@ -1,63 +1,72 @@
 #include <bits/stdc++.h>
-#define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
-typedef pair<int, int> P;
-const int max_M = 20;
+struct elem {
+    int d, u;
+    elem(int d, int u) : d(d), u(u) {}
+    bool operator<(const elem& rhs) const {
+        return d > rhs.d;
+    }
+};
 
-vector<P> adj[max_M];
-int dist[max_M], cache[max_M];
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+const int mxN = 20;
 
-    // ** Dijkstra **
+vector<elem> adj[mxN];
+int dist[mxN], par[mxN];
 
-    int T; cin >> T;
+void find_path(int u) {
+    if (~par[u]) find_path(par[u]);
+    cout << ' ' << u;
+}
+void solve() {
+    int M, N;
+    cin >> M >> N;
+
+    for (int i = 0; i < N; ++i)
+        adj[i].clear();
+
+    for (int u, v, w; M--;) {
+        cin >> u >> v >> w;
+        adj[u].emplace_back(v, w);
+        adj[v].emplace_back(u, w);
+    }
+
+    memset(par, -1, sizeof(int) * N);
+    memset(dist, 0x3f, sizeof(int) * N);
+
+    priority_queue<elem> pq;
+    pq.emplace(dist[0] = 0, 0);
+
+    while (!pq.empty()) {
+        auto [d, u] = pq.top();
+        pq.pop();
+        if (dist[u] < d) continue;
+        if (u == N - 1) break;
+
+        for (auto& [v, w] : adj[u])
+            if (dist[v] > d + w) {
+                pq.emplace(dist[v] = d + w, v);
+                par[v] = u;
+            }
+    }
+
+    if (dist[N - 1] == 0x3f3f3f3f)
+        cout << " -1";
+    else
+        find_path(N - 1);
+    cout << '\n';
+}
+int main() {
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int T;
+    cin >> T;
     for (int t = 1; t <= T; ++t) {
-        int N, M; cin >> N >> M;
-
-        loop(i, M) adj[i].clear();
-        loop(i, M) dist[i] = INT_MAX;
-        memset(cache, -1, sizeof(int) * M);
-
-        while (N--) {
-            int u, v, w; cin >> u >> v >> w;
-            adj[u].push_back({ v,w });
-            adj[v].push_back({ u,w });
-        }
-
-        priority_queue<P, vector<P>, greater<P>> pq;
-        pq.push({ 0,0 });
-        dist[0] = 0;
-        while (!pq.empty()) {
-            int u = pq.top().second, d = pq.top().first; pq.pop();
-            if (u == M - 1) break;
-            for (P p : adj[u]) {
-                int v = p.first, D = d + p.second;
-                if (dist[v] > D) {
-                    dist[v] = D;
-                    cache[v] = u;
-                    pq.push({ D,v });
-                }
-            }
-        }
-
-        cout << "Case #" << t << ": ";
-        if (cache[M - 1] == -1) cout << -1;
-        else {
-            stack<int> stk;
-            int idx = M - 1;
-            while (idx != -1) {
-                stk.push(idx);
-                idx = cache[idx];
-            }
-            while (!stk.empty()) {
-                cout << stk.top() << ' ';
-                stk.pop();
-            }
-        }
-        cout << '\n';
+        cout << "Case #" << t << ":";
+        solve();
     }
     return 0;
 }
