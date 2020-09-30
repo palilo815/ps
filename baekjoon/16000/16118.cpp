@@ -1,50 +1,50 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef pair<int, int> p;
-typedef tuple<int, int, int> tup;
+struct elem {
+    int d, u, speed;
+    elem(int d, int u, int speed) : d(d), u(u), speed(speed) {}
+    bool operator<(const elem& rhs) const {
+        return d > rhs.d;
+    }
+};
 
-const int max_N = 4000;
+const int mxN = 4e3 + 1;
 
-int dist[max_N + 1][3];
-vector<p> adj[max_N + 1];
+int dist[mxN][3];
+vector<pair<int, int>> adj[mxN];
 
 int main() {
-    cin.tie(0), cout.tie(0);
     ios::sync_with_stdio(0);
-
-    int N, M; cin >> N >> M;
-    while (M--) {
-        int u, v, w; cin >> u >> v >> w;
-        adj[u].emplace_back(w, v);
-        adj[v].emplace_back(w, u);
+    cin.tie(0);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int N, M;
+    cin >> N >> M;
+    for (int u, v, w; M--;) {
+        cin >> u >> v >> w;
+        adj[u].emplace_back(v, w);
+        adj[v].emplace_back(u, w);
     }
 
-    fill(&dist[1][0], &dist[N + 1][0], INT_MAX);
-    dist[1][0] = dist[1][1] = 0;
+    memset(dist[1], 0x3f, sizeof(int) * 3 * N);
 
-    priority_queue<tup, vector<tup>, greater<tup>>pq;
-    pq.emplace(0, 1, 1), pq.emplace(0, 1, 0);
+    priority_queue<elem> pq;
+    pq.emplace(dist[1][0] = 0, 1, 0), pq.emplace(dist[1][1] = 0, 1, 1);
 
     while (!pq.empty()) {
-        auto [d, u, speed] = pq.top(); pq.pop();
-        if (dist[u][speed] < d) continue;
+        auto [d, u, speed] = pq.top();
+        pq.pop();
+        if (d != dist[u][speed]) continue;
 
-        int cost = pow(2, speed);
-        speed = 2 - speed;
-
-        for (auto [w, v] : adj[u]) {
-            int D = d + w * cost;
-            if (dist[v][speed] > D) {
-                dist[v][speed] = D;
-                pq.emplace(D, v, speed);
-            }
-        }
+        for (auto& [v, w] : adj[u])
+            if (dist[v][2 - speed] > d + (w << speed))
+                pq.emplace(dist[v][2 - speed] = d + (w << speed), v, 2 - speed);
     }
 
-    int ans = 0;
-    for (int i = 1; i <= N; ++i)
-        if (dist[i][1] < min(dist[i][0], dist[i][2]))
-            ++ans;
-    cout << ans;
+    cout << count_if(dist + 1, dist + N + 1, [&](auto& it) {
+        return it[1] < it[0] && it[1] < it[2];
+    });
     return 0;
 }
