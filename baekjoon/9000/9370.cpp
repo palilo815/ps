@@ -1,58 +1,68 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef pair<int, int> p;
-
-const int max_V = 2000;
-
-vector<p> adj[max_V + 1];
-int dist[max_V + 1];
-
-int main() {
-    cin.tie(0), cout.tie(0);
-    ios::sync_with_stdio(0);
-
-    int T; cin >> T;
-    while (T--) {
-        int V, E, dst, src, g, h;
-        cin >> V >> E >> dst >> src >> g >> h;
-
-        for (int i = 1; i <= V; ++i) adj[i].clear();
-        while (E--) {
-            int u, v, w; cin >> u >> v >> w;
-            w *= 2;
-            if ((u == g && v == h) || (v == g && u == h)) --w;
-            adj[u].emplace_back(w, v);
-            adj[v].emplace_back(w, u);
-        }
-
-        memset(dist, 0x3e, sizeof(int) * (V + 1));
-        dist[src] = 0;
-
-        priority_queue<p, vector<p>, greater<p>> pq;
-        pq.emplace(0, src);
-
-        while (!pq.empty()) {
-            auto [d, u] = pq.top(); pq.pop();
-            if (dist[u] < d) continue;
-
-            for (auto [w, v] : adj[u]) {
-                int D = d + w;
-                if (dist[v] > D) {
-                    dist[v] = D;
-                    pq.emplace(D, v);
-                }
-            }
-        }
-
-        vector<int> ans;
-        while (dst--) {
-            int x; cin >> x;
-            if (dist[x] & 1) ans.emplace_back(x);
-        }
-
-        sort(ans.begin(), ans.end());
-        for (int x : ans) cout << x << ' ';
-        cout << '\n';
+struct elem {
+    int d, u;
+    elem(int d, int u) : d(d), u(u) {}
+    bool operator<(const elem& rhs) const {
+        return d > rhs.d;
     }
+};
+
+const int mxN = 2e3 + 1;
+const int mxT = 1e2;
+
+vector<pair<int, int>> adj[mxN];
+int dist[mxN], dst[mxT];
+
+void solve() {
+    int N, M, T, s, g, h;
+    cin >> N >> M >> T >> s >> g >> h;
+
+    for (int i = 1; i <= N; ++i)
+        adj[i].clear();
+
+    for (int u, v, w; M--;) {
+        cin >> u >> v >> w;
+        w <<= 1;
+        if (u == g && v == h || u == h && v == g) --w;
+        adj[u].emplace_back(v, w);
+        adj[v].emplace_back(u, w);
+    }
+
+    memset(dist + 1, 0x3e, sizeof(int) * N);
+
+    priority_queue<elem> pq;
+    pq.emplace(dist[s] = 0, s);
+
+    while (!pq.empty()) {
+        auto [d, u] = pq.top();
+        pq.pop();
+        if (d != dist[u]) continue;
+
+        for (auto& [v, w] : adj[u])
+            if (dist[v] > d + w)
+                pq.emplace(dist[v] = d + w, v);
+    }
+
+    for (int i = 0; i < T; ++i)
+        cin >> dst[i];
+
+    sort(dst, dst + T);
+
+    T = remove_if(dst, dst + T, [&](int& x) { return (dist[x] & 1) == 0; }) - dst;
+    for (int i = 0; i < T; ++i)
+        cout << dst[i] << ' ';
+    cout << '\n';
+}
+int main() {
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int T;
+    cin >> T;
+    while (T--) solve();
     return 0;
 }
