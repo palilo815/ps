@@ -1,74 +1,87 @@
 #include <bits/stdc++.h>
-#define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
-typedef pair<int, int> p;
+struct elem {
+    int d, u;
+    elem(int d, int u) : d(d), u(u) {}
+    bool operator<(const elem& rhs) const {
+        return d > rhs.d;
+    }
+};
 
-const int max_N = 500;
+const int mxN = 5e2;
 const int INF = 0x3f3f3f3f;
 
-vector<p> adj[max_N];
-vector<int> parent[max_N];
-int dist[max_N];
+vector<pair<int, int>> adj[mxN];
+vector<int> par[mxN];
+int N, M, src, dst, dist[mxN];
+bool visited[mxN];
 
-void Dijkstra(int N, int src, int dst, int record) {
+void dijk() {
     memset(dist, 0x3f, sizeof(int) * N);
-    dist[src] = 0;
 
-    priority_queue<p, vector<p>, greater<p>> pq;
-    pq.emplace(0, src);
+    priority_queue<elem> pq;
+    pq.emplace(dist[src] = 0, src);
 
     while (!pq.empty()) {
-        auto [d, u] = pq.top(); pq.pop();
-        if (dist[u] < d) continue;
-        if (u == dst) return;
+        auto [d, u] = pq.top();
+        pq.pop();
+        if (d != dist[u]) continue;
 
-        for (auto [w, v] : adj[u]) {
-            int D = d + w;
-            if (dist[v] > D) {
-                dist[v] = D;
-                pq.emplace(D, v);
-                if (record) {
-                    parent[v].clear();
-                    parent[v].emplace_back(u);
-                }
-            }
-            else if (dist[v] == D && record)
-                parent[v].emplace_back(u);
-        }
+        for (auto& [v, w] : adj[u])
+            if (dist[v] > d + w) {
+                pq.emplace(dist[v] = d + w, v);
+                par[v] = {u};
+            } else if (dist[v] == d + w)
+                par[v].emplace_back(u);
     }
 }
-void erase_edges(int src, int dst) {
-    if (dst == src) return;
-    for (int u : parent[dst]) {
-        for (auto& [w, v] : adj[u]) {
-            if (v == dst) {
-                w = INF;
-                break;
+void erase_edges() {
+    memset(visited, 0, N);
+    visited[dst] = true;
+
+    queue<int> q;
+    q.emplace(dst);
+
+    while (!q.empty()) {
+        int v = q.front();
+        q.pop();
+
+        for (int& u : par[v]) {
+            find_if(adj[u].begin(), adj[u].end(), [&](auto& e) {
+                return e.first == v;
+            })->second = INF;
+            if (!visited[u]) {
+                visited[u] = true;
+                q.emplace(u);
             }
         }
-        erase_edges(src, u);
     }
 }
 int main() {
-    cin.tie(0), cout.tie(0);
     ios::sync_with_stdio(0);
-
-    int N, M, src, dst;
-    while (1) {
+    cin.tie(0);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    for (;;) {
         cin >> N >> M;
-        if (N == 0) break;
-        cin >> src >> dst;
-        loop(i, N) adj[i].clear();
-        loop(i, N) parent[i].clear();
+        if (!N) break;
 
-        while (M--) {
-            int u, v, w; cin >> u >> v >> w;
-            adj[u].emplace_back(w, v);
+        for (int i = 0; i < N; ++i)
+            adj[i].clear();
+        for (int i = 0; i < N; ++i)
+            par[i].clear();
+
+        cin >> src >> dst;
+        for (int u, v, w; M--;) {
+            cin >> u >> v >> w;
+            adj[u].emplace_back(v, w);
         }
 
-        Dijkstra(N, src, dst, 1);
-        erase_edges(src, dst);
-        Dijkstra(N, src, dst, 0);
+        dijk();
+        erase_edges();
+        dijk();
 
         cout << (dist[dst] == INF ? -1 : dist[dst]) << '\n';
     }
