@@ -1,50 +1,61 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef pair<int, int> p;
-typedef tuple<int, int, int> tup;
 
-const int max_N = 1000;
+const int mxN = 1e3 + 1;
+const int mxM = 1e4 + 1;
 
-vector<p> adj[max_N + 1];
-int price[max_N + 1][max_N];
+vector<pair<int, int>> adj[mxN];
+int N, M, K, price[mxM];
+bool visited[mxN];
 
-int main() {
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+bool solve(int m) {
+    memset(visited + 1, 0, N);
 
-    int N, M, K; cin >> N >> M >> K;
-    while (M--) {
-        int u, v, w; cin >> u >> v >> w;
-        adj[u].emplace_back(w, v);
-        adj[v].emplace_back(w, u);
-    }
+    deque<int> dq;
+    dq.emplace_back(1);
+    dq.emplace_back(0);
 
-    for (int i = 1; i <= N; ++i)
-        memset(price[i], 0x3f, sizeof(price[i]));
-    price[1][0] = 0;
-
-    priority_queue<tup, vector<tup>, greater<tup>> pq;
-    pq.emplace(0, 0, 1);
-
-    int ans = -1;
-    while (!pq.empty()) {
-        auto [p, c, u] = pq.top(); pq.pop();
-        if (u == N) { ans = p; break; }
-        if (price[u][c] < p) continue;
-
-        if (c < K) for (auto [w, v] : adj[u])
-                if (price[v][c + 1] > p) {
-                    price[v][c + 1] = p;
-                    pq.emplace(p, c + 1, v);
-                }
-        for (auto [w, v] : adj[u]) {
-            int P = max(w, p);
-            if (price[v][c] > P) {
-                price[v][c] = P;
-                pq.emplace(P, c, v);
-            }
+    int cnt = K;
+    for (;;) {
+        int u = dq.front();
+        dq.pop_front();
+        if (visited[u]) continue;
+        if (u == 0) {
+            if (cnt-- == 0) return false;
+            dq.emplace_back(0);
+            continue;
         }
+        if (u == N) return true;
+
+        visited[u] = true;
+        for (auto& [v, w] : adj[u])
+            if (!visited[v])
+                w > price[m] ? dq.emplace_back(v) : dq.emplace_front(v);
     }
-    cout << ans;
+}
+int main() {
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    cin >> N >> M >> K;
+    for (int i = 0, u, v, w; i < M; ++i) {
+        cin >> u >> v >> price[i];
+        adj[u].emplace_back(v, price[i]);
+        adj[v].emplace_back(u, price[i]);
+    }
+
+    price[M++] = 0;
+    sort(price, price + M);
+    M = unique(price, price + M) - price;
+
+    int lo = 0, hi = M;
+    while (lo != hi) {
+        int m = (lo + hi) >> 1;
+        solve(m) ? (hi = m) : (lo = m + 1);
+    }
+    cout << (lo == M ? -1 : price[lo]);
     return 0;
 }
