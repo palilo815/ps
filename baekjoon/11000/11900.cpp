@@ -1,50 +1,53 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef pair<int, int> p;
+struct elem {
+    int d, u;
+    elem(int d, int u) : d(d), u(u) {}
+    bool operator<(const elem& rhs) const {
+        return d > rhs.d;
+    }
+};
 
-const int max_N = 2000;
+const int mxN = 2e3;
 
-int A[max_N];
-int dist[max_N];
+int a[mxN], dist[mxN];
 
 int main() {
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int N;
+    cin >> N;
+    for (int i = 1; i < N; ++i)
+        cin >> a[i];
 
-    int N; cin >> N;
-    for (int i = 1; i < N; ++i) cin >> A[i];
+    memset(dist, 0x3f, sizeof(int) * N);
 
-    fill(dist, dist + N, INT_MAX);
-    dist[0] = 0;
-
-    priority_queue<p, vector<p>, greater<p>> pq;
-    pq.emplace(0, 0);
+    priority_queue<elem> pq;
+    pq.emplace(dist[0] = 0, 0);
 
     while (!pq.empty()) {
-        auto [d, gap] = pq.top(); pq.pop();
-        if (dist[gap] < d) continue;
+        auto [d, u] = pq.top();
+        pq.pop();
+        if (d != dist[u]) continue;
 
-        for (int GAP = 1; GAP < gap; ++GAP) if (A[N + GAP - gap]) {
-            int D = d + A[N + GAP - gap];
-            if (dist[GAP] > D) {
-                dist[GAP] = D;
-                pq.emplace(D, GAP);
-            }
-        }
-        for (int GAP = gap + 1; GAP < N; ++GAP) if(A[GAP - gap]){
-            int D = d + A[GAP - gap];
-            if (dist[GAP] > D) {
-                dist[GAP] = D;
-                pq.emplace(D, GAP);
-            }
-        }
+        for (int v = 1; v < u; ++v)
+            if (a[N + v - u] && dist[v] > d + a[N + v - u])
+                pq.emplace(dist[v] = d + a[N + v - u], v);
+        for (int v = u + 1; v < N; ++v)
+            if (a[v - u] && dist[v] > d + a[v - u])
+                pq.emplace(dist[v] = d + a[v - u], v);
     }
 
-    int Q; cin >> Q;
-    while (Q--) {
-        int u, v; cin >> u >> v;
+    int Q;
+    cin >> Q;
+    for (int u, v; Q--;) {
+        cin >> u >> v;
         int d = (u > v ? dist[u - v] : dist[N - (v - u)]);
-        cout << (d == INT_MAX ? -1 : d) << '\n';
+        cout << (d == 0x3f3f3f3f ? -1 : d) << '\n';
     }
     return 0;
 }
