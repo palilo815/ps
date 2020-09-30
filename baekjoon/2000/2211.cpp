@@ -1,55 +1,52 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef pair<int, int> p;
+struct elem {
+    int d, u;
+    elem(int d, int u) : d(d), u(u) {}
+    bool operator<(const elem& rhs) const {
+        return d > rhs.d;
+    }
+};
 
-const int max_N = 1000;
+const int mxN = 1e3 + 1;
 
-vector<p> adj[max_N + 1];
-int dist[max_N + 1];
-bool connected[max_N + 1];
-vector<p> path;
+vector<pair<int, int>> adj[mxN];
+int dist[mxN], par[mxN];
 
-void find_path(int u) {
-    connected[u] = true;
-    for(auto [w,v] : adj[u]) if(!connected[v])
-        if (dist[u] + w == dist[v]) {
-            path.emplace_back(u, v);
-            find_path(v);
-        }
-}
 int main() {
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
-
-    int N, M; cin >> N >> M;
-    while (M--) {
-        int u, v, w; cin >> u >> v >> w;
-        adj[u].emplace_back(w, v);
-        adj[v].emplace_back(w, u);
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int N, M;
+    cin >> N >> M;
+    for (int u, v, w; M--;) {
+        cin >> u >> v >> w;
+        adj[u].emplace_back(v, w);
+        adj[v].emplace_back(u, w);
     }
 
-    fill(dist + 2, dist + N + 1, INT_MAX);
+    memset(dist + 1, 0x3f, sizeof(int) * N);
 
-    priority_queue<p, vector<p>, greater<p>> pq;
-    pq.emplace(0, 1);
+    priority_queue<elem> pq;
+    pq.emplace(dist[1] = 0, 1);
 
     while (!pq.empty()) {
-        auto [d, u] = pq.top(); pq.pop();
-        if (dist[u] < d) continue;
+        auto [d, u] = pq.top();
+        pq.pop();
+        if (d != dist[u]) continue;
 
-        for (auto [w, v] : adj[u]) {
-            int D = d + w;
-            if (dist[v] > D) {
-                dist[v] = D;
-                pq.emplace(D, v);
+        for (auto& [v, w] : adj[u])
+            if (dist[v] > d + w) {
+                pq.emplace(dist[v] = d + w, v);
+                par[v] = u;
             }
-        }
     }
 
-    find_path(1);
-
-    cout << path.size();
-    for (auto [u, v] : path)
-        cout << '\n' << u << ' ' << v;
+    cout << N - 1 << '\n';
+    for (int v = 2; v <= N; ++v)
+        cout << v << ' ' << par[v] << '\n';
     return 0;
 }
