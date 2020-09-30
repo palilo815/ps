@@ -1,67 +1,60 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef pair<int, int> p;
+struct elem {
+    int d, u;
+    elem(int d, int u) : d(d), u(u) {}
+    bool operator<(const elem& rhs) const {
+        return d > rhs.d;
+    }
+};
 
-const int max_N = 1000;
+const int mxN = 1e3 + 1;
 const int INF = 0x3f3f3f3f;
 
-vector<p> adj[max_N + 1];
-int dist[max_N + 1];
-int parent[max_N + 1];
+vector<pair<int, int>> adj[mxN];
+int N, M, dist[mxN], par[mxN];
 
-int Dijkstra(int N, int record) {
-    memset(dist, 0x3f, sizeof(int) * (N + 1));
-    dist[1] = 0;
+int dijk(int b1 = 0, int b2 = 0) {
+    memset(dist + 1, 0x3f, sizeof(int) * N);
 
-    priority_queue<p, vector<p>, greater<p>> pq;
-    pq.emplace(0, 1);
+    priority_queue<elem> pq;
+    pq.emplace(dist[1] = 0, 1);
 
     while (!pq.empty()) {
-        auto [d, u] = pq.top(); pq.pop();
-        if (dist[u] < d) continue;
+        auto [d, u] = pq.top();
+        pq.pop();
+        if (d != dist[u]) continue;
         if (u == N) return d;
 
-        for (auto [w, v] : adj[u]) {
-            int D = d + w;
-            if (dist[v] > D) {
-                dist[v] = D;
-                pq.emplace(D, v);
-                if (record) parent[v] = u;
+        for (auto& [v, w] : adj[u])
+            if ((u != b1 || v != b2) && (u != b2 || v != b1) && dist[v] > d + w) {
+                pq.emplace(dist[v] = d + w, v);
+                if (b1 == 0) par[v] = u;
             }
-        }
     }
     return INF;
 }
 int main() {
-    cin.tie(0), cout.tie(0);
     ios::sync_with_stdio(0);
-
-    int N, M; cin >> N >> M;
-    while (M--) {
-        int u, v, w; cin >> u >> v >> w;
-        adj[u].emplace_back(w, v);
-        adj[v].emplace_back(w, u);
+    cin.tie(0);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    cin >> N >> M;
+    for (int u, v, w; M--;) {
+        cin >> u >> v >> w;
+        adj[u].emplace_back(v, w);
+        adj[v].emplace_back(u, w);
     }
 
-    Dijkstra(N, 1);
+    dijk();
 
-    int ans = dist[N], delay = 0;
-    for (int v = N; parent[v]; v = parent[v]) {
-        int u = parent[v];
-        for (auto& [w1, n1] : adj[u]) if (n1 == v) {
-            for (auto& [w2, n2] : adj[v]) if (n2 == u) {
-                int tmp1 = w1, tmp2 = w2;
-                w1 = w2 = INF;
-
-                int d = Dijkstra(N, 0);
-                if (d == INF) { cout << -1; return 0; }
-                delay = max(delay, d - ans);
-
-                w1 = tmp1, w2 = tmp2;
-                goto OUT;
-            }
-        }
-    OUT:;
+    int path = dist[N], delay = 0;
+    for (int v = N, u; u = par[v]; v = par[v]) {
+        int d = dijk(u, v);
+        if (d == INF) return cout << -1, 0;
+        delay = max(delay, d - path);
     }
     cout << delay;
     return 0;
