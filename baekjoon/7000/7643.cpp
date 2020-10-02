@@ -6,11 +6,8 @@ struct edge {
 };
 
 const int mxN = 1e3;
-const int mxQ = 1e4;
-const int INF = 0x3f3f3f3f;
 
-edge e[mxQ];
-int dist[mxN << 1];
+int lo[mxN][mxN], hi[mxN][mxN];
 
 int main() {
     ios::sync_with_stdio(0);
@@ -24,34 +21,29 @@ int main() {
         cin >> N >> M >> Q;
         if (!N) break;
 
-        for (int i = 0, lo; i < Q; ++i) {
-            cin >> e[i].u >> e[i].v;
-            --e[i].u, e[i].v += N - 1;
-
-            cin.ignore();
-            lo = cin.get() == '<' ? 1 : 0;
-            cin.ignore();
-
-            cin >> e[i].w;
-
-            if (lo) swap(e[i].u, e[i].v);
-            else
-                e[i].w = -e[i].w;
+        for (int i = 0; i < N; ++i) {
+            memset(lo[i], 0xc0, sizeof(int) * M);
+            memset(hi[i], 0x3f, sizeof(int) * M);
         }
 
-        memset(dist, 0, sizeof(int) * (N + M));
+        bool ok = true;
+        char op[3];
 
-        bool update;
-        for (int cnt = N + M; cnt--;) {
-            update = false;
-            for (int i = 0; i < Q; ++i)
-                if (dist[e[i].v] > dist[e[i].u] + e[i].w) {
-                    dist[e[i].v] = dist[e[i].u] + e[i].w;
-                    update = true;
-                }
-            if (!update) break;
+        for (int u, v, w; Q--;) {
+            cin >> u >> v >> op >> w;
+            if (!ok) continue;
+            --u, --v;
+
+            if (op[0] == '<') {
+                if (lo[u][v] > w) ok = false;
+                hi[u][v] = min(hi[u][v], w);
+            } else {
+                if (hi[u][v] < w) ok = false;
+                lo[u][v] = max(lo[u][v], w);
+            }
         }
-        cout << (update ? "Impossible\n" : "Possible\n");
+
+        cout << (ok ? "Possible\n" : "Impossible\n");
     }
     return 0;
 }
