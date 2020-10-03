@@ -1,47 +1,59 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef pair<int, int> p;
-typedef tuple<int, int, int> tup;
+using p = pair<int, int>;
+struct elem {
+    p d;
+    int u;
+    elem(int dist, int dust, int u) : d(dist, dust), u(u) {}
+    bool operator<(const elem& rhs) const {
+        return d > rhs.d;
+    }
+};
 
-const int max_N = 1000;
+const int mxN = 1e3 + 2;
 
-int min_dist[max_N + 2];
-int min_dust[max_N + 2];
-vector<p> adj[max_N + 2];
+vector<p> adj[mxN];
+int mn_dist[mxN], mn_dust[mxN];
 
 int main() {
-    cin.tie(0), cout.tie(0);
     ios::sync_with_stdio(0);
+    cin.tie(0);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int N, K;
+    cin >> N >> K;
+    N += 2;
 
-    int N, M; cin >> N >> M;
-    while (M--) {
-        int u, v, w; cin >> u >> v >> w;
-        if (w > 100) continue;
-        adj[u].emplace_back(w, v);
-        adj[v].emplace_back(w, u);
+    for (int u, v, w; K--;) {
+        cin >> u >> v >> w;
+        adj[u].emplace_back(v, w);
+        adj[v].emplace_back(u, w);
     }
 
-    memset(min_dist + 1, 0x3f, sizeof(int) * (N + 1));
-    memset(min_dust + 1, 0x3f, sizeof(int) * (N + 1));
+    memset(mn_dist, 0x3f, sizeof(int) * N);
+    memset(mn_dust, 0x3f, sizeof(int) * N);
 
-    priority_queue<tup, vector<tup>, greater<tup>> pq;
-    pq.emplace(0, 0, 0);
+    priority_queue<elem> pq;
+    pq.emplace(mn_dist[0] = 0, mn_dust[0] = 0, 0);
 
-    while (1) {
-        auto [d, dust, u] = pq.top(); pq.pop();
-        if (min_dist[u] < d && min_dust[u] < dust) continue;
-        if (u == N + 1) { cout << d; break; }
+    for (;;) {
+        auto [d, u] = pq.top();
+        auto& [dist, dust] = d;
+        pq.pop();
 
-        if (dust) pq.emplace(d + 5, 0, u);
-        for (auto [w, v] : adj[u]) {
-            int D = d + w, DUST = dust + w;
-            if (DUST > 100) continue;
+        if (dist > mn_dist[u] && dust > mn_dust[u]) continue;
+        if (u == N - 1) return cout << dist, 0;
 
-            int flag = 0;
-            if (min_dist[v] > D) min_dist[v] = D, flag = 1;
-            if (min_dust[v] > DUST) min_dust[v] = DUST, flag = 1;
-            if (flag) pq.emplace(D, DUST, v);
+        if (dust && mn_dust[u])
+            pq.emplace(dist + 5, mn_dust[u] = 0, u);
+        for (auto& [v, w] : adj[u]) {
+            if (dust + w > 100) continue;
+            bool go = false;
+            if (mn_dist[v] > dist + w) mn_dist[v] = dist + w, go = true;
+            if (mn_dust[v] > dust + w) mn_dust[v] = dust + w, go = true;
+            if (go) pq.emplace(dist + w, dust + w, v);
         }
     }
-    return 0;
 }
