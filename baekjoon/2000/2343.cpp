@@ -1,38 +1,39 @@
-#include<iostream>
+#include <bits/stdc++.h>
 using namespace std;
-#define loop(i,n) for(int i=0;i<n;++i)
 
-int lesson[100000];
-bool Make(int size, int N, int max_cnt)
-{
-    int tmp = 0, count = 1;
-    loop(i, N) {
-        if (lesson[i] > size) return false;
-        if (tmp + lesson[i] > size)
-            tmp = 0, ++count;
-        tmp += lesson[i];
-    }
-    if (count > max_cnt) return false;
-    return true;
-}
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+const int mxN = 1e5;
 
-    int N, cnt;
-    cin >> N >> cnt;;
-    loop(i, N) cin >> lesson[i];
+int a[mxN];
 
-    int s = 1, e = 1000000000, ans;
-    while (s <= e) {
-        int mid = s + (e - s) / 2;
-        if (Make(mid, N,cnt)) {
-            ans = mid;
-            e = mid - 1;
+int main() {
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int N, M;
+    cin >> N >> M;
+
+    for (int i = 0; i < N; ++i)
+        cin >> a[i];
+
+    auto solve = [&](int m) {
+        for (int i = 0, cnt = 1, sum = 0; i < N; ++i) {
+            if (sum + a[i] > m) {
+                if (cnt++ == M) return false;
+                sum = 0;
+            }
+            sum += a[i];
         }
-        else s = mid + 1;
+        return true;
+    };
+
+    int lo = *max_element(a, a + N), hi = 1e9;
+    while (lo != hi) {
+        int m = (lo + hi) >> 1;
+        solve(m) ? (hi = m) : (lo = m + 1);
     }
-    cout << ans;
+    cout << lo;
     return 0;
 }
