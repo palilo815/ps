@@ -1,31 +1,33 @@
 #include <bits/stdc++.h>
-#define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
 
-const int max_N = 100000;
+const int mxN = 100000;
 
-int sparse[17][max_N];
+int dp[17][mxN];
 
-int query(int l, int r) {
-    int k = 31 - __builtin_clz(r - l);
-    return min(sparse[k][l], sparse[k][r - (1 << k)]);
-}
 int main() {
-    cin.tie(0), cout.tie(0);
     ios::sync_with_stdio(0);
-
-    int N, M; cin >> N >> M;
-    int R = 31 - __builtin_clz(N);
+    cin.tie(0);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int N, M;
+    cin >> N >> M;
 
     for (int i = 0; i < N; ++i)
-        cin >> sparse[0][i];
-    for (int i = 1; i <= R; ++i)
-        for (int j = 0; j + (1 << i) <= N; ++j)
-            sparse[i][j] = min(sparse[i - 1][j], sparse[i - 1][j + (1 << (i - 1))]);
+        cin >> dp[0][i];
 
-    while (M--) {
-        int l, r; cin >> l >> r;
-        cout << query(l - 1, r) << '\n';
+    int R = 32 - __builtin_clz(N);
+    for (int i = 1, k = 1; i < R; ++i, k <<= 1)
+        for (int j = 0; j + (k << 1) <= N; ++j)
+            dp[i][j] = min(dp[i - 1][j], dp[i - 1][j + k]);
+
+    for (int l, r, k; M--;) {
+        cin >> l >> r;
+        --l;
+        k = 31 - __builtin_clz(r - l);
+        cout << min(dp[k][l], dp[k][r - (1 << k)]) << '\n';
     }
     return 0;
 }
