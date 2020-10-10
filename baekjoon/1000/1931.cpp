@@ -1,31 +1,28 @@
-#include<iostream>
-#include<algorithm>
-#include<vector>
+#include <bits/stdc++.h>
 using namespace std;
 
-int main()
-{
-    cin.tie(NULL);
-    std::ios::sync_with_stdio(false);
+const int mxN = 1e5;
 
-    int n, start, end;
-    cin >> n;
+pair<int, int> a[mxN];
 
-    vector<pair<int, int>> order;
-    while (n-- > 0) {
-        cin >> start >> end;
-        order.push_back(make_pair(end, start));
-    }
-    sort(order.begin(), order.end());
+int main() {
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int N;
+    cin >> N;
+    for (int i = 0; i < N; ++i)
+        cin >> a[i].second >> a[i].first;
 
-    int earliest = 0, count = 0;
-    for (int i = 0;i < order.size(); i++) {
-        int meetingStart = order[i].second, meetingEnd = order[i].first;
-        if (earliest <= meetingStart) {
-            earliest = meetingEnd;
-            count++;
-        }
-    }
-    cout << count;
+    sort(a, a + N);
+
+    int ans = 0;
+    for (int i = 0, t = 0; i < N; ++i)
+        if (t <= a[i].second)
+            t = a[i].first, ++ans;
+    cout << ans;
     return 0;
 }
