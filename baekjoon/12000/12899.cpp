@@ -1,42 +1,45 @@
-#include <iostream>
+#include <bits/stdc++.h>
+#define left (i << 1)
+#define right (i << 1 | 1)
 using namespace std;
 
-const int MAX = 2000001;
+const int sgN = 2097152;
 
-int fenwick[MAX];
+int segT[sgN << 1];
 
-void update(int i, int v) {
-    while (i < MAX) {
-        fenwick[i] += v;
-        i += i & -i;
-    }
+void update(int i) {
+    ++segT[i += sgN];
+    while (i >>= 1)
+        ++segT[i];
 }
-int read(int i) {
-    int ret = 0;
-    while (i) {
-        ret += fenwick[i];
-        i -= i & -i;
+void query(int k) {
+    int i = 1;
+    while (i < sgN) {
+        --segT[i];
+        if (segT[left] >= k) i = left;
+        else {
+            k -= segT[left];
+            i = right;
+        }
     }
-    return ret;
-}
-int query(int x) {
-    int l = 0, r = MAX;
-    while (l < r) {
-        int m = (l + r) / 2;
-        read(m) < x ? l = m + 1 : r = m;
-    }
-    update(l, -1);
-    return l;
+    --segT[i];
+    cout << i - sgN << '\n';
 }
 int main() {
-    cin.tie(0), cout.tie(0);
     ios::sync_with_stdio(0);
+    cin.tie(0);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int N;
+    cin >> N;
 
-    int Q; cin >> Q;
-    while (Q--) {
-        int q, x; cin >> q >> x;
-        if (q == 1) update(x, 1);
-        else cout << query(x) << '\n';
+    char q;
+    int x;
+    while (N--) {
+        cin >> q >> x;
+        q == '1' ? update(x) : query(x);
     }
     return 0;
 }
