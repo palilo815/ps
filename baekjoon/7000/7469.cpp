@@ -1,46 +1,59 @@
 #include <bits/stdc++.h>
-#define loop(i,n) for(int i=0;i<n;++i)
-#define x first
-#define y second
+#define val first
+#define idx second
 using namespace std;
 using p = pair<int, int>;
 
-const int max_N = 100000;
-const int LEN = 1 << 17;
+const int mxN = 1e5;
+const int mxR = 17;
+const int mxC = 131072;
 
-p a[max_N];
-int table[17][LEN];
+p a[mxN];
+int tr[mxR][mxC];
 
 int main() {
-    cin.tie(0), cout.tie(0);
     ios::sync_with_stdio(0);
+    cin.tie(0);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int N, M;
+    cin >> N >> M;
 
-    int N, M; cin >> N >> M;
-    loop(i, N) {
-        cin >> a[i].x;
-        a[i].y = i;
+    if (N == 1) {
+        cin >> N;
+        while (M--) cout << N << '\n';
+        return 0;
     }
 
-    int L = 1, D = -1;
-    while (L < N) L <<= 1, ++D;
+    for (int i = 0; i < N; ++i) {
+        cin >> a[i].val;
+        a[i].idx = i;
+    }
+
+    int R = 32 - __builtin_clz(N - 1);
+    int C = 1 << R;
 
     sort(a, a + N);
-    loop(i, N) table[0][i] = a[i].y;
-    memset(table[0] + N, 0x3f, sizeof(int) * (L - N));
+    for (int i = 0; i < N; ++i)
+        tr[0][i] = a[i].idx;
+    memset(tr[0] + N, 0x3f, sizeof(int) * (C - N));
 
-    for (int d = 0, k = 1; d < D; ++d, k <<= 1)
-        for (int* t = table[d]; t < table[d] + L; t += k << 1)
-            merge(t, t + k, t + k, t + k * 2, t + LEN);
+    for (int r = 0, k = 1; r + 1 < R; ++r, k <<= 1)
+        for (int* t = tr[r]; t < tr[r] + C; t += k << 1)
+            merge(t, t + k, t + k, t + k + k, t + mxC);
 
-    while (M--) {
-        int i, j, k, d = D, l = 0, r = L; cin >> i >> j >> k;
-        for (--i, --j, --k; d >= 0; --d) {
-            int m = (l + r) >> 1;
-            int cnt = upper_bound(table[d] + l, table[d] + m, j) -
-                      lower_bound(table[d] + l, table[d] + m, i);
-            k >= cnt ? (l = m, k -= cnt) : (r = m);
+    for (int i, j, k, lo, hi, r; M--;) {
+        cin >> i >> j >> k;
+        lo = 0, hi = C, r = R - 1;
+        for (--i, --j; ~r; --r) {
+            int m = (lo + hi) >> 1;
+            int cnt = upper_bound(tr[r] + lo, tr[r] + m, j) -
+                      lower_bound(tr[r] + lo, tr[r] + m, i);
+            k > cnt ? (lo = m, k -= cnt) : (hi = m);
         }
-        cout << a[l].x << '\n';
+        cout << a[lo].val << '\n';
     }
     return 0;
 }
