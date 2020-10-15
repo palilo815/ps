@@ -1,43 +1,65 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+struct elem {
+    int val, idx;
+};
+struct query {
+    int l, r, k, idx;
+};
+
 const int mxN = 1e5;
-const int mxD = 17;
-const int sgN = 1 << mxD;
 
-int d;
-int segT[mxD + 1][sgN];
+elem a[mxN + 1];
+query q[mxN];
+int ans[mxN], bit[mxN + 1];
 
-int query(int l, int r, int k) {
-    int ret = 0;
-    for (int i = d, w = 1; l ^ r; --i, w <<= 1) {
-        if (l & w) {
-            ret += segT[i] + l + w - upper_bound(segT[i] + l, segT[i] + l + w, k);
-            l += w;
-        }
-        if (r & w) {
-            r -= w;
-            ret += segT[i] + r + w - upper_bound(segT[i] + r, segT[i] + r + w, k);
-        }
-    }
-    return ret;
-}
 int main() {
-    cin.tie(0), cout.tie(0);
     ios::sync_with_stdio(0);
-
-    int N; cin >> N;
-    d = 32 - __builtin_clz(N - 1);
-    for (int i = 0; i < N; ++i)
-        cin >> segT[d][i];
-    for (int i = d, k = 1; i; --i, k <<= 1)
-        for (int j = 0; j < N; j += k << 1)
-            merge(segT[i] + j, segT[i] + j + k, segT[i] + j + k, segT[i] + j + k + k, segT[i - 1] + j);
-
-    int Q; cin >> Q;
-    for (int i = 0, l, r, k; i < Q; ++i) {
-        cin >> l >> r >> k; --l;
-        cout << query(l, r, k) << '\n';
+    cin.tie(0);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int N;
+    cin >> N;
+    for (int i = 0; i < N; ++i) {
+        cin >> a[i].val;
+        a[i].idx = i + 1;
     }
-    return 0;
+
+    int M;
+    cin >> M;
+    for (int i = 0; i < M; ++i) {
+        cin >> q[i].l >> q[i].r >> q[i].k;
+        --q[i].l;
+        q[i].idx = i;
+    }
+
+    a[N].val = -1;
+    sort(a, a + N, [&](auto& a, auto& b) {
+        return a.val > b.val;
+    });
+    sort(q, q + M, [&](auto& a, auto& b) {
+        return a.k > b.k;
+    });
+
+    auto update = [&](int i) {
+        for (; i <= N; i += i & -i)
+            ++bit[i];
+    };
+    auto read = [&](int i) {
+        int ret = 0;
+        for (; i; i -= i & -i)
+            ret += bit[i];
+        return ret;
+    };
+
+    for (int i = 0, j = 0; j < M; ++j) {
+        while (a[i].val > q[j].k) update(a[i++].idx);
+        ans[q[j].idx] = read(q[j].r) - read(q[j].l);
+    }
+
+    for (int i = 0; i < M; ++i)
+        cout << ans[i] << '\n';
 }
