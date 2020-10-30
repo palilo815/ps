@@ -1,65 +1,44 @@
 #include <bits/stdc++.h>
-#define loop(i,n) for(int i=0;i<n;++i)
-#define x first
-#define y second
-#define L segT[i]
-#define R segT[i^1]
+#define num first
+#define cnt second
 using namespace std;
-using p = pair<int, int>;
 
-const int max_N = 1e6;
+const pair<int, int> sentinel = {INT_MAX, 0};
 const int mod = 1e9 + 7;
 
-int M, idx[max_N], arr[max_N << 1];
-p dp[max_N], segT[max_N << 1];
-
-void update(int i, p v) {
-    if (segT[i].x > v.x) return;
-    else if (segT[i].x == v.x) segT[i].y = (segT[i].y + v.y) % mod;
-    else segT[i] = v;
-    for (; i > 1; i >>= 1)
-        segT[i >> 1] = L.x == R.x ? make_pair(L.x, (L.y + R.y) % mod) : (L.x > R.x ? L : R);
-}
-p query(int i) {
-    p ret = {0, 0};
-    for (int l = M, r = i + M; l < r; l >>= 1, r >>= 1) {
-        if (l & 1) {
-            if (segT[l].x > ret.x) ret = segT[l];
-            else if (segT[l].x == ret.x) ret.y = (ret.y + segT[l].y) % mod;
-            ++l;
-        }
-        if (r & 1) {
-            --r;
-            if (segT[r].x > ret.x) ret = segT[r];
-            else if (segT[r].x == ret.x) ret.y = (ret.y + segT[r].y) % mod;
-        }
-    }
-    return ret;
-}
 int main() {
-    cin.tie(0), cout.tie(0);
     ios::sync_with_stdio(0);
+    cin.tie(0);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int N;
+    cin >> N;
 
-    int N; cin >> N;
-    loop(i, N) cin >> arr[i];
+    vector<vector<pair<int, int>>> dp(1);
+    dp[0] = {sentinel};
 
-    copy(arr, arr + N, idx);
-    sort(idx, idx + N);
-    M = unique(idx, idx + N) - idx;
+    for (int x, y; N--;) {
+        cin >> x;
+        if (x > dp.back().back().num) {
+            y = dp.back().back().cnt - lower_bound(dp.back().rbegin(), dp.back().rend(), x, [&](auto& a, auto& b) { return a.num < b; })->cnt;
+            if (y < 0) y += mod;
+            dp.emplace_back(initializer_list<pair<int, int>> {sentinel, {x, y}});
+        } else {
+            auto it = lower_bound(dp.begin(), dp.end(), x, [&](auto& a, auto& b) { return a.back().num < b; });
+            if (*it == dp.front()) y = 1;
+            else {
+                auto& vt = *prev(it);
+                y = vt.back().cnt - lower_bound(vt.rbegin(), vt.rend(), x, [&](auto& a, auto& b) { return a.num < b; })->cnt;
+                if (y < 0) y += mod;
+            }
 
-    loop(i, N) {
-        int id = lower_bound(idx, idx + M, arr[i]) - idx;
-        dp[i] = query(id);
-        ++dp[i].x;
-        if (!dp[i].y) ++dp[i].y;
-        update(id + M, dp[i]);
+            if (x == it->back().num)
+                it->back().cnt = (it->back().cnt + y) % mod;
+            else
+                it->emplace_back(x, (y + it->back().cnt) % mod);
+        }
     }
-
-    int lis = 0, cnt = 0;
-    loop(i, N) {
-        if (dp[i].x > lis) lis = dp[i].x, cnt = dp[i].y;
-        else if (dp[i].x == lis) cnt = (cnt + dp[i].y) % mod;
-    }
-    cout << lis << ' ' << cnt;
-    return 0;
+    cout << dp.size() << ' ' << dp.back().back().cnt;
 }
