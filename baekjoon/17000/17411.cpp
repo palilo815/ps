@@ -19,20 +19,18 @@ int main() {
     vector<vector<pair<int, int>>> dp(1);
     dp[0] = {sentinel};
 
+    auto psum = [&](vector<pair<int, int>>& vt, int x) {
+        int ret = vt.back().cnt - lower_bound(vt.rbegin(), vt.rend(), x, [&](auto& a, auto& b) { return a.num < b; })->cnt;
+        return ret >= 0 ? ret : ret + mod;
+    };
+
     for (int x, y; N--;) {
         cin >> x;
-        if (x > dp.back().back().num) {
-            y = dp.back().back().cnt - lower_bound(dp.back().rbegin(), dp.back().rend(), x, [&](auto& a, auto& b) { return a.num < b; })->cnt;
-            if (y < 0) y += mod;
-            dp.emplace_back(initializer_list<pair<int, int>> {sentinel, {x, y}});
-        } else {
+        if (x > dp.back().back().num)
+            dp.emplace_back(initializer_list<pair<int, int>> {sentinel, {x, psum(dp.back(), x)}});
+        else {
             auto it = lower_bound(dp.begin(), dp.end(), x, [&](auto& a, auto& b) { return a.back().num < b; });
-            if (*it == dp.front()) y = 1;
-            else {
-                auto& vt = *prev(it);
-                y = vt.back().cnt - lower_bound(vt.rbegin(), vt.rend(), x, [&](auto& a, auto& b) { return a.num < b; })->cnt;
-                if (y < 0) y += mod;
-            }
+            y = *it == dp.front() ? 1 : psum(*prev(it), x);
 
             if (x == it->back().num)
                 it->back().cnt = (it->back().cnt + y) % mod;
