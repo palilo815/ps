@@ -1,44 +1,30 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+const int mxN = 1e5;
+
+int a[mxN];
+
 int main() {
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int N;
+    cin >> N;
 
-    vector<int> acid, base;
-    int N; cin >> N;
-    while (N--) {
-        int x; cin >> x;
-        if (x > 0) acid.push_back(x);
-        else base.push_back(-x);
+    for (int i = 0; i < N; ++i)
+        cin >> a[i];
+
+    sort(a, a + N);
+
+    int x, y, mn = INT_MAX;
+    for (int i = 0, j = N - 1, sum; i != j;) {
+        sum = abs(a[i] + a[j]);
+        if (sum < mn) mn = sum, x = a[i], y = a[j];
+        a[i] + a[j] < 0 ? ++i : --j;
     }
-    reverse(base.begin(), base.end());
-
-    if (acid.empty()) {
-        cout << -base[1] << ' ' << -base[0];
-        return 0;
-    }
-    if (base.empty()) {
-        cout << acid[0] << ' ' << acid[1];
-        return 0;
-    }
-
-    int A = 1e9 + 1, B = 1e9 + 1;
-    for (int a : acid) {
-        auto it = lower_bound(base.begin(), base.end(), a);
-
-        if (it == base.end()) continue;
-        int b = -(*it);
-        if (abs(a + b) < abs(A + B))
-            A = a, B = b;
-
-        if (it == base.begin()) continue;
-        --it;
-
-        b = -(*it);
-        if (abs(a + b) < abs(A + B))
-            A = a, B = b;
-    }
-    cout << B << ' ' << A;
-    return 0;
+    cout << x << ' ' << y;
 }
