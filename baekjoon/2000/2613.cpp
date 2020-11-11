@@ -1,57 +1,53 @@
 #include <bits/stdc++.h>
-#define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
 
-const int max_N = 300;
+const int mxN = 300;
 
-int N, M;
-int arr[max_N];
+int a[mxN], ans[mxN + 1];
 
-int solve(int m) {
-    int ret = 1, sum = 0;
-    loop(i, N) {
-        if (sum + arr[i] > m) ++ret, sum = 0;
-        sum += arr[i];
-    }
-    return ret;
-}
 int main() {
-    cin.tie(0), cout.tie(0);
     ios::sync_with_stdio(0);
-
+    cin.tie(0);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int N, M;
     cin >> N >> M;
-    int l = 0, r = 0;
-    loop(i, N) {
-        cin >> arr[i];
-        l = max(l, arr[i]);
-        r += arr[i];
-    }
 
-    while (l < r) {
-        int m = (l + r) >> 1;
-        solve(m) > M ? (l = m + 1) : (r = m);
-    }
+    for (int i = 0; i < N; ++i)
+        cin >> a[i];
 
-    vector<int> ans(M);
-    int cnt = 0, sum = 0, it = 0;
-    loop(i, N) {
-        if (sum + arr[i] > l) {
-            ans[it++] = cnt;
-            cnt = sum = 0;
+    auto solve = [&](int m) {
+        for (int i = 0, cnt = 1, sum = 0; i < N; ++i) {
+            if (sum + a[i] > m) {
+                if (cnt++ == M) return false;
+                sum = 0;
+            }
+            sum += a[i];
         }
-        ++cnt, sum += arr[i];
-    }
-    ans[it++] = cnt;
+        return true;
+    };
 
-    for (; it < M; ++it) {
-        ++ans[it];
-        loop(j, M) if (ans[j] > 1) {
-            --ans[j];
-            break;
+    int lo = *max_element(a, a + N), hi = accumulate(a, a + N, 0);
+    while (lo != hi) {
+        int m = (lo + hi) >> 1;
+        solve(m) ? hi = m : lo = m + 1;
+    }
+
+    for (int i = M, j = N; i; --i, --j)
+        ans[i] = j;
+
+    for (int i = 0, j = 0, k, sum; i < M; ++i, j = k) {
+        for (k = j, sum = 0; k < ans[i + 1]; ++k) {
+            if (sum + a[k] > lo) break;
+            sum += a[k];
         }
+        ans[i] = j;
+        if (k == ans[i + 1]) break;
     }
 
-    cout << l << '\n';
-    for (int x : ans) cout << x << ' ';
-    return 0;
+    cout << lo << '\n';
+    for (int i = 0; i < M; ++i)
+        cout << ans[i + 1] - ans[i] << ' ';
 }
