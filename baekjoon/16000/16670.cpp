@@ -37,7 +37,7 @@ ll query(int r) {
     }
 
     for (; !stk.empty(); stk.pop_back())
-        ret = max({ret, ret + segT[stk.back()].sum, segT[stk.back()].mx});
+        ret = max(ret + segT[stk.back()].sum, segT[stk.back()].mx);
     return ret;
 }
 int main() {
