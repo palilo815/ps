@@ -36,8 +36,8 @@ void update(int ql, int qr, int qv, int l = 0, int r = sgN, int i = 1) {
 ll query(int ql, int qr, int l = 0, int r = sgN, int i = 1) {
     if (qr <= l || r <= ql) return 0;
     if (ql <= l && r <= qr) return calc(i);
-
     if (segT[i].lazy) prop(i);
+
     int m = (l + r) >> 1;
     return query(ql, qr, l, m, left) + query(ql, qr, m, r, right);
 }
