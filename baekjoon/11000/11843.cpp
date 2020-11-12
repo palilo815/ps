@@ -26,14 +26,12 @@ void update(int ql, int qr, int l = 1, int r = mxN, node* n = root) {
     n->cnt = n->left->cnt + n->right->cnt;
 }
 int query(int ql, int qr, int l = 1, int r = mxN, node* n = root) {
-    if (qr <= l || r <= ql) return 0;
+    if (qr <= l || r <= ql || n->cnt == 0) return 0;
     if (ql <= l && r <= qr) return n->cnt;
     if (n->cnt == r - l) return min(r, qr) - max(l, ql);
 
-    int m = (l + r) >> 1, ret = 0;
-    if (n->left) ret += query(ql, qr, l, m, n->left);
-    if (n->right) ret += query(ql, qr, m, r, n->right);
-    return ret;
+    int m = (l + r) >> 1;
+    return query(ql, qr, l, m, n->left) + query(ql, qr, m, r, n->right);
 }
 int main() {
     ios::sync_with_stdio(0);
