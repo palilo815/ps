@@ -1,29 +1,24 @@
-#include <iostream>
-#include <queue>
+#include <bits/stdc++.h>
 using namespace std;
 
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+const int mxN = 5e6;
 
-    priority_queue<int> pq;
-    int n, k, x; cin >> n >> k;
+int a[mxN];
 
-    // k개는 그냥 넣고
-    // n-k개는 비교하면서 넣는다.
-    n -= k;
-    while (k--) {
-        cin >> x;
-        pq.push(x);
-    }
-    while (n--) {
-        cin >> x;
-        if (x <= pq.top()) {
-            pq.pop();
-            pq.push(x);
-        }
-    }
-    cout << pq.top();
-    return 0;
+int main() {
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int N, K;
+    cin >> N >> K;
+    --K;
+
+    for (int i = 0; i < N; ++i)
+        cin >> a[i];
+
+    nth_element(a, a + K, a + N);
+    cout << a[K];
 }
