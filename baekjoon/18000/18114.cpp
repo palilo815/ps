@@ -1,6 +1,10 @@
 #include <bits/stdc++.h>
-#define loop(i,n) for(int i=0;i<n;++i)
-#define success do{cout<<1;return 0;}while(0)
+#define loop(i, n) for (int i = 0; i < n; ++i)
+#define success    \
+    do {           \
+        cout << 1; \
+        return 0;  \
+    } while (0)
 using namespace std;
 
 const int mxN = 5e3;
@@ -11,7 +15,8 @@ int main() {
     cin.tie(0), cout.tie(0);
     ios::sync_with_stdio(0);
 
-    int N, C; cin >> N >> C;
+    int N, C;
+    cin >> N >> C;
     loop(i, N) cin >> a[i];
 
     sort(a, a + N);
@@ -25,8 +30,8 @@ int main() {
             if (C - s != a[l] && C - s != a[r] && binary_search(a, a + N, C - s))
                 success;
             ++l;
-        }
-        else --r;
+        } else
+            --r;
     }
     cout << 0;
     return 0;
