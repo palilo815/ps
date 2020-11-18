@@ -1,20 +1,20 @@
 #include <bits/stdc++.h>
 using namespace std;
-using ll = long long;
+
+const int mxN = 1e4;
+const int mxK = 20;
+
 struct elem {
-    ll d;
+    int64_t d;
     int u, k;
-    elem(ll d, int u, int k) : d(d), u(u), k(k) {}
+    elem(int64_t d, int u, int k) : d(d), u(u), k(k) {}
     bool operator<(const elem& rhs) const {
         return d > rhs.d;
     }
 };
 
-const int mxN = 1e4 + 1;
-const int mxK = 20;
-
-vector<pair<int, int>> adj[mxN];
-ll dist[mxN][mxK + 1];
+vector<pair<int, int>> adj[mxN + 1];
+int64_t dist[mxN + 1][mxK + 1];
 
 int main() {
     ios::sync_with_stdio(0);
@@ -28,28 +28,33 @@ int main() {
 
     for (int u, v, w; M--;) {
         cin >> u >> v >> w;
-        adj[u].emplace_back(v, w);
-        adj[v].emplace_back(u, w);
+        adj[u].emplace_back(w, v);
+        adj[v].emplace_back(w, u);
     }
 
-    for (int i = 2; i <= N; ++i)
-        memset(dist[i], 0x3f, sizeof(ll) * (K + 1));
+    memset(dist, 0x3f, sizeof(dist));
 
     priority_queue<elem> pq;
-    for (int i = 0; i <= K; ++i)
-        pq.emplace(0, 1, i);
+    pq.emplace(dist[1][0] = 0, 1, 0);
 
     for (;;) {
-        auto [d, u, k] = pq.top();
+        auto [d, u, skip] = pq.top();
         pq.pop();
-        if (d != dist[u][k]) continue;
+
+        if (d != dist[u][skip]) continue;
         if (u == N) return cout << d, 0;
 
-        for (auto& [v, w] : adj[u]) {
-            if (dist[v][k] > d + w)
-                pq.emplace(dist[v][k] = d + w, v, k);
-            if (k != K && dist[v][k + 1] > d)
-                pq.emplace(dist[v][k + 1] = d, v, k + 1);
+        for (auto& [w, v] : adj[u]) {
+            if (dist[v][skip] > d + w) {
+                pq.emplace(dist[v][skip] = d + w, v, skip);
+                for (int i = skip + 1; i <= K && dist[v][i] > d + w; ++i)
+                    dist[v][i] = d + w;
+            }
+            if (skip != K && dist[v][skip + 1] > d) {
+                pq.emplace(dist[v][skip + 1] = d, v, skip + 1);
+                for (int i = skip + 2; i <= K && dist[v][i] > d; ++i)
+                    dist[v][i] = d;
+            }
         }
     }
 }
