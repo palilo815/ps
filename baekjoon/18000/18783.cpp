@@ -23,17 +23,13 @@ int main() {
         reverse(jump[0] + l - 1, jump[0] + r);
     }
 
-    if (k & 1)
-        for (int i = 0; i < n; ++i)
-            a[i] = jump[0][a[i]];
-    k >>= 1;
-
-    for (int i = 1, j = 0; k; k >>= 1, i ^= 1, j ^= 1) {
-        for (int k = 0; k < n; ++k)
-            jump[i][k] = jump[j][jump[j][k]];
+    for (int i = 0, j = 1;; i ^= 1, j ^= 1) {
         if (k & 1)
             for (int k = 0; k < n; ++k)
                 a[k] = jump[i][a[k]];
+        if (!(k >>= 1)) break;
+        for (int k = 0; k < n; ++k)
+            jump[j][k] = jump[i][jump[i][k]];
     }
 
     for (int i = 0; i < n; ++i)
