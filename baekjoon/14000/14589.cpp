@@ -29,7 +29,7 @@ int main() {
         a[i].i = i + 1;
 
     sort(a, a + n, [&](auto& a, auto& b) {
-        return a.r == b.r ? a.l > b.l : a.r < b.r;
+        return a.r < b.r;
     });
 
     for (int i = 0; i < n; ++i)
