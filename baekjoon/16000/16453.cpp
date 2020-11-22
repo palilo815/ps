@@ -39,16 +39,16 @@ void hld(int u) {
             hld(v);
         }
 }
+#define book visited[top[u]]
 void visit(int when, int u, int v) {
     for (; top[u] != top[v]; u = par[top[u]]) {
         if (sz[top[u]] > sz[top[v]]) swap(u, v);
-        visited[top[u]] = {when, in[top[u]], in[u]};
+        book = {when, in[top[u]], in[u]};
     }
     if (in[u] > in[v]) swap(u, v);
-    visited[top[u]] = {when, in[u], in[v]};
+    book = {when, in[u], in[v]};
 }
 void query(int when, int u, int v) {
-#define book visited[top[u]]
     int ans = 0;
     for (; top[u] != top[v]; u = par[top[u]]) {
         if (sz[top[u]] > sz[top[v]]) swap(u, v);
