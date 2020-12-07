@@ -1,89 +1,99 @@
 #include <bits/stdc++.h>
-#define loop(i,n) for(int i=0;i<n;++i)
-#define x first
-#define y second
-#define left (i<<1)
-#define right (i<<1|1)
+#define left (i << 1)
+#define right (i << 1 | 1)
 using namespace std;
-using p = pair<int, int>;
-struct query {
-    int u, v, w;
+
+const int mxN = 1e5;
+
+struct _segment {
+    int h, l, r;
+};
+struct _query {
+    int l, r, w, i;
 };
 
-const int M = 1e5;
-const int seg_N = 131072;
+_query q[mxN];
+_segment a[mxN + 1];
+int N, segT[mxN << 1];
 
-int N, lt[seg_N << 1], mt[seg_N << 1], rt[seg_N << 1];
-p h[M];
-
-query q[M];
-int lo[M], hi[M];
-
-void reset() {
-    memset(lt, 0, sizeof(int) * (seg_N + N));
-    memset(mt, 0, sizeof(int) * (seg_N + N));
-    memset(rt, 0, sizeof(int) * (seg_N + N));
+void update(int i, int v) {
+    segT[i += N] = v;
+    while (i >>= 1) segT[i] = max(segT[left], segT[right]);
 }
-int query(int u, int v) {
-    int um = 0, ur = 0, vl = 0, vm = 0, k = 1;
-    for (u += seg_N, v += seg_N; u < v; u >>= 1, v >>= 1, k <<= 1) {
-        if (u & 1) {
-            um = max({um, mt[u], ur + lt[u]});
-            ur = rt[u] + (rt[u] == k ? ur : 0);
-            ++u;
-        }
-        if (v & 1) {
-            --v;
-            vm = max({vm, mt[v], vl + rt[v]});
-            vl = lt[v] + (lt[v] == k ? vl : 0);
-        }
+int mn_query(int l, int r) {
+    int ret = INT_MAX;
+    for (l += N, r += N; l != r; l >>= 1, r >>= 1) {
+        if (l & 1) ret = min(ret, segT[l++]);
+        if (r & 1) ret = min(ret, segT[--r]);
     }
-    return max({um, ur + vl, vm});
+    return ret;
 }
-void update(int i) {
-    i += seg_N;
-    lt[i] = mt[i] = rt[i] = 1;
-    i >>= 1;
-    for (int k = 1; i; i >>= 1, k <<= 1) {
-        lt[i] = lt[left] + (lt[left] == k ? lt[right] : 0);
-        mt[i] = max({mt[left], mt[right], rt[left] + lt[right]});
-        rt[i] = rt[right] + (rt[right] == k ? rt[left] : 0);
+int mx_query(int l, int r) {
+    int ret = 0;
+    for (l += N, r += N; l != r; l >>= 1, r >>= 1) {
+        if (l & 1) ret = max(ret, segT[l++]);
+        if (r & 1) ret = max(ret, segT[--r]);
     }
+    return ret;
 }
 int main() {
-    cin.tie(0), cout.tie(0);
-    ios::sync_with_stdio(0);
-
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
     cin >> N;
-    loop(i, N) cin >> h[i].x;
-    loop(i, N) h[i].y = i;
-    sort(h, h + N, greater<p>());
+    for (int i = 0; i < N; ++i)
+        cin >> a[i].h;
 
-    int Q; cin >> Q;
-    loop(i, Q) cin >> q[i].u >> q[i].v >> q[i].w;
-    loop(i, Q) --q[i].u;
-    fill_n(hi, Q, N);
-
-    while (1) {
-        vector<vector<int>> vt(N);
-        bool done = true;
-
-        loop(i, Q) if (lo[i] ^ hi[i]) {
-            vt[(lo[i] + hi[i]) >> 1].emplace_back(i);
-            done = false;
-        }
-        if (done) break;
-
-        reset();
-
-        loop(m, N) {
-            update(h[m].y);
-            for (int& i : vt[m]) {
-                int len = query(q[i].u, q[i].v);
-                len < q[i].w ? (lo[i] = m + 1) : (hi[i] = m);
-            }
-        }
+    vector<int> vt;
+    for (int i = 0; i < N; ++i) {
+        while (!vt.empty() && a[vt.back()].h >= a[i].h)
+            vt.pop_back();
+        if (!vt.empty()) a[i].l = vt.back() + 1;
+        vt.emplace_back(i);
     }
-    loop(i, Q) cout << h[lo[i]].x << '\n';
-    return 0;
+    vt.clear();
+    for (int i = N - 1; ~i; --i) {
+        while (!vt.empty() && a[vt.back()].h >= a[i].h)
+            vt.pop_back();
+        a[i].r = vt.empty() ? N : vt.back();
+        vt.emplace_back(i);
+    }
+
+    for (int i = 0; i < N; ++i)
+        segT[N + i] = a[i].h;
+    for (int i = N - 1; i; --i)
+        segT[i] = min(segT[left], segT[right]);
+
+    int Q;
+    cin >> Q;
+
+    for (int i = 0; i < Q; ++i) {
+        cin >> q[i].l >> q[i].r >> q[i].w;
+        --q[i].l, q[i].i = i;
+    }
+
+    vt.resize(Q);
+    for (int i = 0; i < Q; ++i)
+        vt[i] = mn_query(q[i].l, q[i].l + q[i].w);
+
+    sort(q, q + Q, [&](auto& a, auto& b) {
+        return a.w > b.w;
+    });
+    sort(a, a + N, [&](auto& a, auto& b) {
+        return a.r - a.l > b.r - b.l;
+    });
+    memset(segT, 0, sizeof(segT));
+
+    for (int i = 0, j = 0; i < Q; ++i) {
+        // a[N] is sentinel
+        for (; a[j].r - a[j].l >= q[i].w; ++j)
+            update(a[j].l, a[j].h);
+        vt[q[i].i] = max(vt[q[i].i], mx_query(q[i].l, q[i].r - q[i].w + 1));
+    }
+
+    for (auto& x : vt)
+        cout << x << '\n';
 }
