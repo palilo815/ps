@@ -1,92 +1,91 @@
 #include <bits/stdc++.h>
-#define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
-using p = pair<int, int>;
 
-const int MAX = 100000;
+const int mxN = 1e5;
 
-int N, M, K, Q;
-vector<p> adj[MAX];
-p edge[MAX << 1];
-int dist[MAX];
-int parent[MAX];
+struct elem {
+    int d, u;
+    elem(int d, int u) : d(d), u(u) {}
+    bool operator<(const elem& rhs) const {
+        return d > rhs.d;
+    }
+};
+struct edge {
+    int u, v, w;
+};
 
-p q[MAX];
-int lo[MAX], hi[MAX];
-vector<int> vt[MAX << 1];
+vector<pair<int, int>> adj[mxN];
+edge e[mxN << 1];
+int dist[mxN], par[mxN];
 
-int _find(int u) {
-    if (parent[u] < 0) return u;
-    return parent[u] = _find(parent[u]);
-}
-void _union(int u, int v) {
-    u = _find(u), v = _find(v);
-    if (u ^ v) parent[u] = v;
-}
-void Dijkstra() {
-    memset(dist, 0x3f, sizeof(int) * N);
-    priority_queue<p, vector<p>, greater<p>> pq;
+void dijk(int K) {
+    memset(dist, 0x3f, sizeof(dist));
+    priority_queue<elem> pq;
 
-    while (K--) {
-        int s; cin >> s;
-        --s;
-        pq.emplace(dist[s] = 0, s);
+    for (int s; K--;) {
+        cin >> s;
+        pq.emplace(dist[s - 1] = 0, s - 1);
     }
 
     while (!pq.empty()) {
-        auto [d, u] = pq.top(); pq.pop();
-        if (dist[u] < d) continue;
+        auto [d, u] = pq.top();
+        pq.pop();
 
-        for (auto& [w, v] : adj[u]) {
-            int D = d + w;
-            if (dist[v] > D) {
-                dist[v] = D;
-                pq.emplace(D, v);
-            }
-        }
+        if (d != dist[u]) continue;
+
+        for (auto& [w, v] : adj[u])
+            if (dist[v] > d + w)
+                pq.emplace(dist[v] = d + w, v);
     }
 }
-bool go() {
-    memset(parent, -1, sizeof(int) * N);
-    loop(i, M) vt[i].clear();
+void merge(int u, int v, int w) {
+    while (par[u] >= 0) u = par[u];
+    while (par[v] >= 0) v = par[v];
+    if (u == v) return;
 
-    bool ret = false;
-    loop(i, Q) if (lo[i] ^ hi[i]) {
-        vt[(lo[i] + hi[i]) >> 1].emplace_back(i);
-        ret = true;
-    }
-    return ret;
+    if (par[u] > par[v]) swap(u, v);
+    par[u] += par[v];
+    par[v] = u;
+    dist[v] = w;
 }
-int main() {
-    cin.tie(0), cout.tie(0);
-    ios::sync_with_stdio(0);
-
+int main(void) {
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int N, M, K, Q;
     cin >> N >> M >> K >> Q;
-    loop(i, M) {
-        int u, v, w; cin >> u >> v >> w;
-        edge[i] = {--u, --v};
-        adj[u].emplace_back(w, v);
-        adj[v].emplace_back(w, u);
+
+    for (int i = 0, w; i < M; ++i) {
+        cin >> e[i].u >> e[i].v >> w;
+        --e[i].u, --e[i].v;
+        adj[e[i].u].emplace_back(w, e[i].v);
+        adj[e[i].v].emplace_back(w, e[i].u);
     }
 
-    Dijkstra();
-    sort(edge, edge + M, [](p & a, p & b) -> bool {
-        return min(dist[a.first], dist[a.second]) > min(dist[b.first], dist[b.second]);
+    dijk(K);
+
+    for (int i = 0; i < M; ++i)
+        e[i].w = min(dist[e[i].u], dist[e[i].v]);
+
+    sort(e, e + M, [&](auto& a, auto& b) {
+        return a.w > b.w;
     });
 
-    loop(i, Q) {
-        cin >> q[i].first >> q[i].second;
-        --q[i].first, --q[i].second;
-    }
+    memset(par, -1, sizeof(par));
+    memset(dist, -1, sizeof(dist));
 
-    fill(hi, hi + Q, M);
-    while (go()) loop(m, M) {
-        _union(edge[m].first, edge[m].second);
-        for (int& i : vt[m]) {
-            int u = _find(q[i].first), v = _find(q[i].second);
-            u == v ? (hi[i] = m) : (lo[i] = m + 1);
+    for (int i = 0; i < M; ++i)
+        merge(e[i].u, e[i].v, e[i].w);
+
+    for (int u, v, ans; Q--;) {
+        cin >> u >> v;
+        for (--u, --v; u != v; u = par[u]) {
+            if (dist[u] < dist[v]) swap(u, v);
+            ans = dist[u];
         }
+        cout << ans << '\n';
     }
-    loop(i, Q) cout << min(dist[edge[lo[i]].first], dist[edge[lo[i]].second]) << '\n';
-    return 0;
 }
