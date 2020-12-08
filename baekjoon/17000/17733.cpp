@@ -44,9 +44,9 @@ void bfs(int P) {
                 if (!area[R][C]) {
                     area[R][C] = id;
                     q.emplace(R << 11 | C, id);
-                } else if (id < area[R][C])
+                } else if (id < area[R][C]) {
                     merge(id, area[R][C], d << 1);
-                else if (id > area[R][C])
+                } else if (id > area[R][C])
                     tmp.emplace_back(id, area[R][C]);
             }
         }
