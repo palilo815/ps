@@ -50,8 +50,8 @@ void bfs(int P) {
                     tmp.emplace_back(id, area[R][C]);
             }
         }
-        for (auto& e : tmp)
-            merge(e.first, e.second, d << 1 | 1);
+        for (auto& [u, v] : tmp)
+            merge(u, v, d << 1 | 1);
     }
 }
 int main() {
