@@ -1,47 +1,41 @@
 #include <bits/stdc++.h>
-#define LOOP(i,n) for(int i=1;i<=n;++i)
 using namespace std;
 
-const int max_N = 100;
-const int INF = 1 << 29;
+const int mxN = 1e2;
 
-int psum[max_N + 2];
-int cost[max_N + 2];
-
-int DP[max_N + 2];
-int cache[max_N + 2];
+unsigned psum[mxN + 2], t[mxN + 1], dp[mxN + 2], prv[mxN + 2];
 
 int main() {
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int mov, n;
+    cin >> mov >> n;
 
-    int T, N; cin >> T >> N;
-    LOOP(i, N + 1) {
-        int dist; cin >> dist;
-        psum[i] = psum[i - 1] + dist;
-    }
-    LOOP(i, N) cin >> cost[i];
+    for (int i = 1; i <= n + 1; ++i)
+        cin >> psum[i];
+    partial_sum(psum + 1, psum + n + 2, psum + 1);
 
-    LOOP(i, N + 1) {
-        int tmp = INF;
-        for (int j = i - 1; j >= 0 && psum[i] - psum[j] <= T; --j) {
-            if (DP[j] + cost[i] < tmp) {
-                tmp = DP[j] + cost[i];
-                cache[i] = j;
-            }
-        }
-        DP[i] = tmp;
+    for (int i = 1; i <= n; ++i)
+        cin >> t[i];
+
+    memset(dp + 1, 0xff, sizeof(int) * (n + 1));
+    for (int st = 0; st <= n; ++st) {
+        int ed = upper_bound(psum + st + 1, psum + n + 2, psum[st] + mov) - psum;
+        for (int i = st + 1; i < ed; ++i)
+            if (dp[i] > dp[st] + t[st])
+                dp[i] = dp[st] + t[st], prv[i] = st;
     }
 
     vector<int> path;
-    int u = cache[N + 1];
-    while (u) {
+    for (int u = prv[n + 1]; u; u = prv[u])
         path.emplace_back(u);
-        u = cache[u];
-    }
+    reverse(path.begin(), path.end());
 
-    cout << DP[N + 1] << '\n' << path.size() << '\n';
-    for (auto it = path.rbegin(); it != path.rend(); ++it)
-        cout << *it << ' ';
-    return 0;
+    cout << dp[n + 1] << '\n'
+         << path.size() << '\n';
+    for (auto& x : path) cout << x << ' ';
 }
