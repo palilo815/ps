@@ -1,33 +1,39 @@
 #include <bits/stdc++.h>
-#define loop(i,n) for(int i=0;i<n;++i)
+#define pos first
+#define cnt second
 using namespace std;
-typedef long long ll;
-typedef pair<int, int> p;
 
-const int max_N = 100000;
+const int mxN = 1e5;
 
-p city[max_N];
+pair<int, int> city[mxN];
 
 int main() {
-    cin.tie(0), cout.tie(0);
-    ios::sync_with_stdio(0);
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int n;
+    cin >> n;
 
-    int N; cin >> N;
-    ll total = 0;
-    loop(i, N) {
-        cin >> city[i].first >> city[i].second;
-        total += city[i].second;
+    int64_t total = 0;
+    for (int i = 0; i < n; ++i) {
+        cin >> city[i].pos >> city[i].cnt;
+        total += city[i].cnt;
     }
-    sort(city, city + N);
 
-    total /= 2;
-    ll sum = 0;
-    loop(i, N) {
-        sum += city[i].second;
+    sort(city, city + n, [&](auto& a, auto& b) {
+        return a.pos < b.pos;
+    });
+
+    total = (total + 1) >> 1;
+    int64_t sum = 0;
+    for (int i = 0; i < n; ++i) {
+        sum += city[i].cnt;
         if (sum >= total) {
-            cout << city[i].first;
+            cout << city[i].pos;
             break;
         }
     }
-    return 0;
 }
