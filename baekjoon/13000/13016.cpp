@@ -1,35 +1,65 @@
 #include <bits/stdc++.h>
 using namespace std;
-struct edge {
-    int v, w, dp;
-    edge(int v, int w, int dp): v(v), w(w), dp(dp) {}
-};
 
 const int mxN = 5e4 + 1;
 
-vector<edge> adj[mxN];
+vector<pair<int, int>> adj[mxN];
+int par[mxN], dp[mxN];
 
-int solve(int u, int p) {
-    int ret = 0;
-    for (auto& [v, w, dp] : adj[u]) {
-        if (v == p) continue;
-        if (dp == 0) dp = solve(v, u) + w;
-        if (dp > ret) ret = dp;
+void dfs(int u) {
+    int mx = 0;
+    for (auto& [w, v] : adj[u]) {
+        if (v == par[u]) {
+            v = 0;
+            continue;
+        }
+        par[v] = u;
+        dfs(v);
+        mx = max(mx, dp[v] + w);
     }
-    return ret;
+    dp[u] += mx;
+}
+void solve(int u, int p_val) {
+    dp[u] = max(dp[u], p_val);
+    if (adj[u].size() <= 2) {
+        for (auto& [w, v] : adj[u])
+            if (v)
+                solve(v, p_val + w);
+        return;
+    }
+
+    int m1 = -1, m2 = -1;
+    for (auto& [w, v] : adj[u]) {
+        if (dp[v] + w > m1) {
+            m2 = m1;
+            m1 = dp[v] + w;
+        } else if (dp[v] + w > m2)
+            m2 = dp[v] + w;
+    }
+
+    for (auto& [w, v] : adj[u])
+        if (v)
+            solve(v, w + max(p_val, dp[v] + w == m1 ? m2 : m1));
 }
 int main() {
-    cin.tie(0), cout.tie(0);
-    ios::sync_with_stdio(0);
-
-    int N; cin >> N;
-    for (int i = 0, u, v, w; i < N - 1; ++i) {
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int n;
+    cin >> n;
+    for (int i = 1, u, v, w; i < n; ++i) {
         cin >> u >> v >> w;
-        adj[u].emplace_back(v, w, 0);
-        adj[v].emplace_back(u, w, 0);
+        adj[u].emplace_back(w, v);
+        adj[v].emplace_back(w, u);
     }
 
-    for (int i = 1; i <= N; ++i)
-        cout << solve(i, 0) << '\n';
-    return 0;
+    adj[1].emplace_back(0, 0);
+    dfs(1);
+    solve(1, 0);
+
+    for (int i = 1; i <= n; ++i)
+        cout << dp[i] << '\n';
 }
