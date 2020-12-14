@@ -1,64 +1,85 @@
 #include <bits/stdc++.h>
-#define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
-struct edge {
-    int u, v, w;
-    edge(int u, int v, int w) : u(u), v(v), w(w) {}
-};
 
 const int mxN = 5e2;
+const int mxPair = mxN * (mxN - 1);
 
-vector<int> adj[mxN], tree[mxN * mxN];
-int a[mxN], par[mxN * mxN], ans[mxN * mxN];
+vector<int> adj[mxN], child[mxPair];
+pair<int, int> pos[mxPair];
+int c[mxN], idx[mxN][mxN], rev[mxPair], par[mxPair], ans[mxPair];
 
+inline int find(int u) {
+    while (par[u] >= 0) u = par[u];
+    return u;
+}
+void update(int root, int u, int w) {
+    if (!ans[u] && find(rev[u]) == root) ans[u] = ans[rev[u]] = w;
+    for (int& v : child[u])
+        update(root, v, w);
+}
+void merge(int u, int v, int w) {
+    u = find(u), v = find(v);
+    if (u == v) return;
+
+    if (par[u] > par[v]) swap(u, v);
+    par[u] += par[v];
+    par[v] = u;
+
+    child[u].emplace_back(v);
+    update(u, v, w);
+}
 int main() {
-    cin.tie(0), cout.tie(0);
-    ios::sync_with_stdio(0);
-
-    int N, M; cin >> N >> M;
-    loop(i, N) cin >> a[i];
-    for (int u, v; M; --M) {
-        cin >> u >> v; --u, --v;
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr);
+    cout << fixed << setprecision(9);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int n, m;
+    cin >> n >> m;
+    for (int i = 0; i < n; ++i)
+        cin >> c[i];
+    for (int u, v; m--;) {
+        cin >> u >> v;
+        --u, --v;
         adj[u].emplace_back(v);
         adj[v].emplace_back(u);
     }
 
-    vector<edge> e;
-    loop(i, N) loop(j, N) for (int& k : adj[i]) {
-        int c = max(a[i], a[k]) * a[j];
-        e.emplace_back(i * N + j, k * N + j, c);
-        e.emplace_back(j * N + i, j * N + k, c);
-    }
+    int k = n * (n - 1);
+    for (int i = 0, sz = 0; i < n; ++i)
+        for (int j = 0; j < n; ++j)
+            if (i != j)
+                pos[sz++] = {i, j};
 
-    sort(e.begin(), e.end(), [&](auto & a, auto & b) {
-        return a.w < b.w;
+    sort(pos, pos + k, [&](auto& a, auto& b) {
+        return c[a.first] * c[a.second] < c[b.first] * c[b.second];
     });
-    iota(par, par + N * N, 0);
-    loop(i, N * N) tree[i].emplace_back(i);
 
-    for (auto& [u, v, w] : e) {
-        int pu = par[u], pv = par[v];
-        if (pu == pv) continue;
-        if (tree[pu].size() > tree[pv].size()) swap(pu, pv);
+    for (int i = 0; i < k; ++i)
+        idx[pos[i].first][pos[i].second] = i;
 
-        for (int& x : tree[pu]) {
-            int rev = x % N * N + x / N;
-            if (par[rev] == pv)
-                ans[x] = ans[rev] = w;
-        }
+    for (int i = 0; i < n; ++i)
+        for (int j = 0; j < n; ++j)
+            if (i != j)
+                rev[idx[i][j]] = idx[j][i];
 
-        for (int& x : tree[pu]) {
-            par[x] = pv;
-            tree[pv].emplace_back(x);
-        }
-
-        tree[pu].clear();
+    memset(par, -1, sizeof(int) * k);
+    for (int i = 0; i < k; ++i) {
+        int w = c[pos[i].first] * c[pos[i].second];
+        for (int& x : adj[pos[i].first])
+            if (c[x] * c[pos[i].second] <= w)
+                merge(i, idx[x][pos[i].second], w);
+        for (int& x : adj[pos[i].second])
+            if (c[x] * c[pos[i].first] <= w)
+                merge(i, idx[pos[i].first][x], w);
     }
 
-    int Q; cin >> Q;
-    for (int u, v; Q; --Q) {
-        cin >> u >> v; --u, --v;
-        cout << ans[u * N + v] << '\n';
+    int l;
+    cin >> l;
+    for (int u, v; l--;) {
+        cin >> u >> v;
+        cout << ans[idx[u - 1][v - 1]] << '\n';
     }
-    return 0;
 }
