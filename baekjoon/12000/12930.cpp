@@ -1,53 +1,66 @@
 #include <bits/stdc++.h>
-#define loop(i,n) for(int i=0;i<n;++i)
+#define loop(i, n) for (int i = 0; i < n; ++i)
 using namespace std;
-typedef pair<int, int> p;
 
-const int max_N = 20;
+const int mxN = 30;
 
-int dist[max_N];
-p adj[max_N][max_N];
-
-auto cmp = [](const pair<p, int>& a, const pair<p, int>& b) {
-    auto [a1, a2] = a.first;
-    auto [b1, b2] = b.first;
-    return a1 * a2 > b1 * b2;
+struct elem {
+    int w1, w2, u;
+    elem(int w1, int w2, int u) : w1(w1), w2(w2), u(u) {}
+    bool operator<(const elem& rhs) const {
+        return w1 > rhs.w1;
+    }
 };
-int main() {
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
 
-    int N; cin >> N;
-    loop(i, N) loop(j, N) {
-        char w; cin >> w;
+pair<int, int> adj[mxN][mxN];
+int dist[mxN][9 * (mxN - 1) + 1];
+
+int main() {
+    cin.tie(nullptr)->sync_with_stdio(false);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int n;
+    cin >> n;
+    loop(i, n) loop(j, n) {
+        char w;
+        cin >> w;
         if (w != '.') adj[i][j].first = w - '0';
     }
-    loop(i, N) loop(j, N) {
-        char w; cin >> w;
+    loop(i, n) loop(j, n) {
+        char w;
+        cin >> w;
         if (w != '.') adj[i][j].second = w - '0';
     }
 
-    fill(dist + 1, dist + N, INT_MAX);
+    const int mx = 9 * (n - 1);
 
-    priority_queue<pair<p, int>, vector<pair<p, int>>, decltype(cmp)> pq(cmp);
-    pq.push({ {0,0},0 });
+    memset(dist, 0x3f, sizeof(dist[0]) * n);
+    dist[0][0] = 0;
+
+    priority_queue<elem> pq;
+    pq.emplace(0, 0, 0);
+
     while (!pq.empty()) {
-        auto [w, u] = pq.top(); pq.pop();
-        auto [w1, w2] = w;
+        auto [w1, w2, u] = pq.top();
+        pq.pop();
+        if (w1 != dist[u][w2]) continue;
 
-        if (dist[u] < w1 * w2) continue;
-        if (u == 1) break;
+        loop(v, n) if (adj[u][v].first) {
+            if (w2 + adj[u][v].second > mx ||
+                dist[v][w2 + adj[u][v].second] <= w1 + adj[u][v].first)
+                continue;
 
-        loop(v, N) if (adj[u][v].first) {
-            auto [W1, W2] = adj[u][v];
-            int nxt_dist = (w1 + W1) * (w2 + W2);
-            if (dist[v] > nxt_dist) {
-                dist[v] = nxt_dist;
-                pq.push({ make_pair(w1 + W1, w2 + W2), v });
-            }
+            for (int i = w2 + adj[u][v].second; i <= mx && dist[v][i] > w1 + adj[u][v].first; ++i)
+                dist[v][i] = w1 + adj[u][v].first;
+            pq.emplace(w1 + adj[u][v].first, w2 + adj[u][v].second, v);
         }
     }
-    int ans = dist[1];
-    cout << (ans == INT_MAX ? -1 : ans);
-    return 0;
+
+    int ans = -1;
+    for (int i = 0; i <= mx; ++i)
+        if (dist[1][i] != 0x3f3f3f3f && (ans == -1 || ans > i * dist[1][i]))
+            ans = i * dist[1][i];
+    cout << ans;
 }
