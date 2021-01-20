@@ -1,34 +1,34 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
-#define loop(i,n) for(int i=0;i<n;++i)
-#define ll long long
 
-int Lan[10000], k, n;
-bool Make(ll m)
-{
-    int cnt = 0;
-    loop(i, k)
-        cnt += Lan[i] / m;
-    if (cnt >= n) return true;
-    else return false;
-}
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+const int mxK = 1e4;
 
+unsigned a[mxK];
+
+int main() {
+    cin.tie(nullptr)->sync_with_stdio(false);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int k, n;
     cin >> k >> n;
-    loop(i, k) cin >> Lan[i];
-    ll s = 0, e = (1 << 31) - 1, m, ans = 0;
-    while (s <= e) {
-        m = s + (e - s) / 2;
-        if (Make(m)) {
-            ans = m;
-            s = m + 1;
-        }
-        else
-            e = m - 1;
+
+    for (int i = 0; i < k; ++i)
+        cin >> a[i];
+
+    auto valid = [&](unsigned mid) {
+        int cnt = 0;
+        for (int i = 0; i < k; ++i)
+            if ((cnt += a[i] / mid) >= n)
+                return true;
+        return false;
+    };
+
+    unsigned lo = 0, hi = INT_MAX;
+    while (lo != hi) {
+        unsigned mid = (lo + hi + 1) >> 1;
+        valid(mid) ? lo = mid : hi = mid - 1;
     }
-    cout << ans;
-    return 0;
+    cout << lo;
 }
