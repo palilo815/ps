@@ -27,9 +27,7 @@ int main() {
     sort(mn, mn + n);
 
     int64_t ans = 0;
-    for (int i = 0; i < n; ++i) {
-        auto prv = ans;
+    for (int i = 0; i < n; ++i)
         ans += lower_bound(mn, mn + n, mx[i]) - mn;
-    }
     cout << ans;
 }
