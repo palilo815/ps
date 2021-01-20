@@ -1,36 +1,35 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define loop(i,n) for(int i=0;i<n;++i)
-#define ll long long
 
-ll tree[1000000];
-bool enough(int N, int h, ll cut)
-{
-    ll sum = 0;
-    loop(i, N)
-        if (tree[i] > cut)
-            sum += (tree[i] - cut);
-    if (sum >= h) return true;
-    else return false;
-}
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+const int mxN = 1e6;
 
-    int N, h; cin >> N >> h;
-    loop(i, N) cin >> tree[i];
+unsigned a[mxN];
 
-    ll s = 0, e = 1000000000, ans;
-    while (s <= e) {
-        ll mid = s + (e - s) / 2;
-        if (enough(N, h, mid)) {
-            ans = mid;
-            s = mid + 1;
-        }
-        else
-            e = mid - 1;
+int main() {
+    cin.tie(nullptr)->sync_with_stdio(false);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int n;
+    unsigned m;
+    cin >> n >> m;
+
+    for (int i = 0; i < n; ++i)
+        cin >> a[i];
+
+    auto valid = [&](unsigned mid) {
+        unsigned sum = 0;
+        for (int i = 0; i < n; ++i)
+            if (a[i] > mid && (sum += a[i] - mid) >= m)
+                return true;
+        return false;
+    };
+
+    unsigned lo = 0, hi = 1e9;
+    while (lo != hi) {
+        unsigned mid = (lo + hi + 1) >> 1;
+        valid(mid) ? lo = mid : hi = mid - 1;
     }
-    cout << ans;
-    return 0;
+    cout << lo;
 }
