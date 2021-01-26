@@ -1,58 +1,90 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
 
-const int max_V = 10001;
+template <typename edge_t>
+class sorted_edges {
+public:
+    sorted_edges(int n, const vector<pair<int, edge_t>>& edges) : start(n + 1), elist(edges.size()) {
+        for (auto& e : edges)
+            ++start[e.first + 1];
+        partial_sum(start.begin(), start.end(), start.begin());
 
-vector<int> adj[max_V];
-int disc[max_V], low[max_V];
-bool on_stack[max_V];
-int t;
-stack<int> stk;
-vector<vector<int>> ans;
-
-void dfs(int u) {
-    disc[u] = low[u] = ++t;
-    stk.emplace(u);
-    on_stack[u] = true;
-
-    for (int& v : adj[u]) {
-        if (!disc[v]) dfs(v);
-        if (on_stack[v]) low[u] = min(low[u], low[v]);
+        auto counter = start;
+        for (auto& e : edges)
+            elist[counter[e.first]++] = e.second;
+    }
+    template <class UnaryFunction>
+    void for_edge(int u, UnaryFunction f) {
+        for_each(elist.begin() + start[u], elist.begin() + start[u + 1], [&](edge_t& e) { f(e); });
     }
 
-    if (disc[u] == low[u]) {
-        vector<int> tmp;
-        while (1) {
-            int x = stk.top(); stk.pop();
-            on_stack[x] = false;
-            tmp.emplace_back(x);
-            if (x == u) break;
+private:
+    vector<int> start;
+    vector<edge_t> elist;
+};
+
+template <typename edge_t>
+vector<vector<int>> scc(int n, vector<pair<int, edge_t>> edges) {
+    auto elist = sorted_edges(n, edges);
+
+    int t = 0, scc_cnt = 0;
+    vector<int> stk, low(n), disc(n, -1), ids(n);
+
+    auto dfs = [&](auto self, int u) -> void {
+        low[u] = disc[u] = t++;
+        stk.emplace_back(u);
+
+        elist.for_edge(u, [&](int& v) {
+            if (disc[v] == -1) {
+                self(self, v);
+                low[u] = min(low[u], low[v]);
+            } else
+                low[u] = min(low[u], disc[v]);
+        });
+
+        if (low[u] == disc[u]) {
+            for (;;) {
+                int x = stk.back();
+                stk.pop_back();
+                disc[x] = n;
+                ids[x] = scc_cnt;
+                if (x == u) break;
+            }
+            ++scc_cnt;
         }
-        ans.emplace_back(tmp);
-    }
+    };
+
+    for (int i = 0; i < n; ++i)
+        if (disc[i] == -1)
+            dfs(dfs, i);
+
+    vector<vector<int>> ret(scc_cnt);
+    for (int i = 0; i < n; ++i)
+        ret[ids[i]].emplace_back(i);
+    return ret;
 }
+
 int main() {
-    cin.tie(0), cout.tie(0);
-    ios::sync_with_stdio(0);
+    cin.tie(nullptr)->sync_with_stdio(false);
+#ifdef home
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int n, m;
+    cin >> n >> m;
 
-    int V, E; cin >> V >> E;
-    while (E--) {
-        int u, v; cin >> u >> v;
-        adj[u].emplace_back(v);
-    }
+    vector<pair<int, int>> edges(m);
+    for (auto& [u, v] : edges)
+        cin >> u >> v, --u, --v;
 
-    for (int i = 1; i <= V; ++i)
-        if (!disc[i])
-            dfs(i);
+    auto ans = scc(n, edges);
+    sort(ans.begin(), ans.end(), [&](auto& a, auto& b) {
+        return *a.begin() < *b.begin();
+    });
 
-    for (auto& v : ans) sort(v.begin(), v.end());
-    sort(ans.begin(), ans.end(), [] (const auto & a, const auto & b) -> bool { return a[0] < b[0]; });
-
-    cout << ans.size();
+    cout << ans.size() << '\n';
     for (auto& v : ans) {
-        cout << '\n';
-        for (int& x : v) cout << x << ' ';
-        cout << -1;
+        for (auto& x : v) cout << x + 1 << ' ';
+        cout << "-1\n";
     }
-    return 0;
 }
