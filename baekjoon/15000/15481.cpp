@@ -1,70 +1,69 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-const int mxN = 2e5;
-
 struct edge {
-    int u, v, w, i;
+    int u, v, w, id;
 };
 
-edge e[mxN];
-int ans[mxN];
-
 struct disjoint_set {
-    int64_t mst;
     vector<int> par, dist;
-    disjoint_set(int n) {
-        mst = 0;
-        par.resize(n, -1);
-        dist.resize(n, 0x3f3f3f3f);
-    }
+    disjoint_set(int n) : par(n, -1), dist(n, 0x3f3f3f3f) {}
     int find(int u) {
         while (par[u] >= 0) u = par[u];
         return u;
     }
-    void merge(edge& e) {
-        int u = find(e.u), v = find(e.v);
-        if (u == v) return;
+    bool merge(int u, int v, int w) {
+        u = find(u), v = find(v);
+        if (u == v) return false;
 
         if (par[u] > par[v]) swap(u, v);
         par[u] += par[v];
         par[v] = u;
-        dist[v] = e.w;
-        mst += e.w;
+
+        dist[v] = w;
+        return true;
     }
     int query(int u, int v) {
-        int ans;
+        int ret;
         for (; u != v; u = par[u]) {
             if (dist[u] > dist[v]) swap(u, v);
-            ans = dist[u];
+            ret = dist[u];
         }
-        return ans;
+        return ret;
     }
 };
+
 int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(nullptr);
-#ifndef ONLINE_JUDGE
+    cin.tie(nullptr)->sync_with_stdio(false);
+#ifdef home
     freopen("in", "r", stdin);
     freopen("out", "w", stdout);
 #endif
-    int N, M;
-    cin >> N >> M;
+    int n, m;
+    cin >> n >> m;
 
-    for (int i = 0; i < M; ++i) {
+    vector<edge> e(m);
+    for (int i = 0; i < m; ++i) {
         cin >> e[i].u >> e[i].v >> e[i].w;
-        --e[i].u, --e[i].v, e[i].i = i;
+        --e[i].u, --e[i].v, e[i].id = i;
     }
 
-    sort(e, e + M, [&](auto& a, auto& b) {
+    sort(e.begin(), e.end(), [&](auto& a, auto& b) {
         return a.w < b.w;
     });
 
-    disjoint_set dsu(N);
-    for (int i = 0; i < M; ++i)
-        dsu.merge(e[i]);
-    for (int i = 0; i < M; i++)
-        ans[e[i].i] = e[i].w - dsu.query(e[i].u, e[i].v);
-    for (int i = 0; i < M; ++i)
-        cout << dsu.mst + ans[i] << '\n';
+    vector<int> ans(m, -1);
+    disjoint_set dsu(n);
+    int64_t mst = 0;
+
+    for (const auto& [u, v, w, id] : e)
+        if (dsu.merge(u, v, w))
+            mst += w, ans[id] = 0;
+
+    for (const auto& [u, v, w, id] : e)
+        if (ans[id] == -1)
+            ans[id] = w - dsu.query(u, v);
+
+    for (const auto& x : ans)
+        cout << mst + x << '\n';
 }
