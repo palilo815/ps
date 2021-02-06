@@ -1,17 +1,13 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-const int mxN = 1e5;
-const int mxM = 2e5;
-
 struct edge {
-    int u, v, w, i;
+    int u, v, id;
 };
+
 struct disjoint_set {
     vector<int> par;
-    disjoint_set(int n) {
-        par.resize(n, -1);
-    }
+    disjoint_set(int n) : par(n, -1) {}
     void reset() {
         fill(par.begin(), par.end(), -1);
     }
@@ -29,77 +25,73 @@ struct disjoint_set {
     }
 };
 
-edge e[mxM];
-vector<pair<int, int>> adj[mxN];
-bitset<mxM> used;
-int par[mxN], dep[mxN], link[mxN], ans[mxM];
-
-void dfs(int u) {
-    for (auto& [v, i] : adj[u])
-        if (v != par[u]) {
-            par[v] = u, dep[v] = dep[u] + 1, link[v] = i;
-            dfs(v);
-        }
-}
 int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(nullptr);
-#ifndef ONLINE_JUDGE
+    cin.tie(nullptr)->sync_with_stdio(false);
+#ifdef home
     freopen("in", "r", stdin);
     freopen("out", "w", stdout);
 #endif
     int n, m;
     cin >> n >> m;
 
+    vector<edge> e(m);
+    vector<int> weight(m);
     for (int i = 0; i < m; ++i) {
-        cin >> e[i].u >> e[i].v >> e[i].w;
-        --e[i].u, --e[i].v, e[i].i = i;
+        cin >> e[i].u >> e[i].v >> weight[i];
+        --e[i].u, --e[i].v, e[i].id = i;
     }
 
-    sort(e, e + m, [&](auto& a, auto& b) {
-        return a.w < b.w;
+    sort(e.begin(), e.end(), [&](auto& a, auto& b) {
+        return weight[a.id] < weight[b.id];
     });
 
-    int64_t mst = 0;
+    vector<vector<pair<int, int>>> adj(n);
+    vector<int> ans(m, -1);
     disjoint_set dsu(n);
-    for (int i = 0; i < m; ++i)
-        if (dsu.merge(e[i].u, e[i].v)) {
-            mst += e[i].w;
-            used[i] = true;
-            adj[e[i].u].emplace_back(e[i].v, i);
-            adj[e[i].v].emplace_back(e[i].u, i);
-        }
+    int64_t mst = 0;
 
-    dfs(0);
+    for (const auto [u, v, id] : e)
+        if (dsu.merge(u, v)) {
+            mst += weight[id];
+            adj[u].emplace_back(id, v);
+            adj[v].emplace_back(id, u);
+        } else
+            ans[id] = 0;
 
-    memset(ans, -1, sizeof(int) * m);
+    vector<int> par(n), dep(n), holding_edge(n);
+    auto dfs = [&](auto self, int u) -> void {
+        for (auto& [id, v] : adj[u])
+            if (v != par[u]) {
+                par[v] = u, dep[v] = dep[u] + 1, holding_edge[v] = id;
+                self(self, v);
+            }
+    };
+    dfs(dfs, 0);
+
     dsu.reset();
-    for (int i = 0; i < m; ++i) {
-        if (used[i]) continue;
-        ans[e[i].i] = 0;
-        int u = dsu.find(e[i].u), v = dsu.find(e[i].v);
-        while (u != v) {
-            if (dep[u] > dep[v])
-                u = dsu.find(par[u]);
-            else if (dep[u] < dep[v])
-                v = dsu.find(par[v]);
-            else
-                u = dsu.find(par[u]), v = dsu.find(par[v]);
-        }
+    for (auto [u, v, id] : e) {
+        if (ans[id] == -1) continue;
+
+        const int u0 = dsu.find(u), v0 = dsu.find(v);
+        for (u = u0, v = v0; u != v; u = dsu.find(par[u]))
+            if (dep[u] < dep[v])
+                swap(u, v);
 
         int lca = u, p;
-        for (u = dsu.find(e[i].u); u != lca; u = p) {
+        for (u = u0; u != lca; u = p) {
             p = dsu.find(par[u]);
             dsu.par[u] = lca;
-            ans[e[link[u]].i] = e[i].w - e[link[u]].w;
+            if (ans[holding_edge[u]] == -1)
+                ans[holding_edge[u]] = weight[id] - weight[holding_edge[u]];
         }
-        for (v = dsu.find(e[i].v); v != lca; v = p) {
+        for (v = v0; v != lca; v = p) {
             p = dsu.find(par[v]);
             dsu.par[v] = lca;
-            ans[e[link[v]].i] = e[i].w - e[link[v]].w;
+            if (ans[holding_edge[v]] == -1)
+                ans[holding_edge[v]] = weight[id] - weight[holding_edge[v]];
         }
     }
 
-    for (int i = 0; i < m; ++i)
-        cout << (ans[i] == -1 ? -1 : mst + ans[i]) << '\n';
+    for (int& x : ans)
+        cout << (x == -1 ? -1 : mst + x) << '\n';
 }
