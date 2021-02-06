@@ -1,101 +1,103 @@
 #include <bits/stdc++.h>
-#define loop(i,n) for(int i=0;i<n;++i)
+#define loop(i, n) for (int i = 0; i < n; ++i)
 using namespace std;
-struct p {
-    int u, v;
-    p(int u = 0, int v = 0) : u(u), v(v) {}
+
+constexpr int mxN = 1e3;
+
+struct edge {
+    int u, v, w;
+    edge(int u, int v, int w) : u(u), v(v), w(w) {}
 };
 
-const int mov[8][2] = { -1, -1, -1, 0, -1, 1, 0, -1, 0, 1, 1, -1, 1, 0, 1, 1};
-const int max_N = 1e3;
-const int max_Q = 3e5;
-const int mod = 1024;
-const int M = max_N >> 1;
+struct disjoint_set {
+    vector<int> par, dist;
+    disjoint_set(int n) : par(n, -1), dist(n) {}
+    int find(int u) {
+        while (par[u] >= 0) u = par[u];
+        return u;
+    }
+    void merge(int u, int v, int w) {
+        u = find(u), v = find(v);
+        if (u == v) return;
 
-char mat[max_N][max_N];
-int N, len[max_N][max_N];
-vector<p> e[max_N];
+        if (par[u] > par[v]) swap(u, v);
+        par[u] += par[v];
+        par[v] = u;
 
-p q[max_Q];
-int lo[max_Q], hi[max_Q];
+        dist[v] = w;
+    }
+    int query(int u, int v) {
+        int ret = -1;
+        for (; u != v && ret; u = par[u]) {
+            if (dist[u] < dist[v]) swap(u, v);
+            ret = dist[u];
+        }
+        return ret ? (ret << 1) - 1 : 0;
+    }
+};
 
-int parent[mod * mod];
+char mat[mxN][mxN];
+int dist[mxN][mxN];
 
-int _find(int u) {
-    if (~parent[u]) return parent[u] = _find(parent[u]);
-    return u;
-}
-void bfs() {
+void bfs(int n) {
     queue<pair<int, int>> q;
-    memset(len, 0x3f, sizeof(len));
-    loop(i, N) loop(j, N) if (mat[i][j] == '#') {
+    memset(dist, 0x3f, sizeof(dist));
+    loop(i, n) loop(j, n) if (mat[i][j] == '#') {
         q.emplace(i, j);
-        len[i][j] = -1;
+        dist[i][j] = 0;
     }
 
     while (!q.empty()) {
-        auto [r, c] = q.front(); q.pop();
-        loop(i, 8) {
-            int R = r + mov[i][0], C = c + mov[i][1];
-            if (~R && R ^ N && ~C && C ^ N && mat[R][C] == '.' && len[R][C] > len[r][c] + 1) {
-                len[R][C] = len[r][c] + 1;
-                q.emplace(R, C);
-            }
-        }
-    }
+        auto [r, c] = q.front();
+        q.pop();
 
-    loop(i, N) loop(j, N) if (~len[i][j])
-        len[i][j] = min({i, j, N - 1 - i, N - 1 - j, len[i][j]});
+        for (int R = r - 1; R <= r + 1; ++R)
+            for (int C = c - 1; C <= c + 1; ++C)
+                if (~R && R != n && ~C && C != n && mat[R][C] == '.' && dist[R][C] > dist[r][c] + 1) {
+                    dist[R][C] = dist[r][c] + 1;
+                    q.emplace(R, C);
+                }
+    }
 }
 int main() {
-    cin.tie(0), cout.tie(0);
-    ios::sync_with_stdio(0);
+    cin.tie(nullptr)->sync_with_stdio(false);
+#ifdef home
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int n;
+    cin >> n;
 
-    cin >> N;
-    loop(i, N) loop(j, N) cin >> mat[i][j];
+    loop(i, n) loop(j, n) cin >> mat[i][j];
 
-    bfs();
+    bfs(n);
 
-    loop(i, N) loop(j, N) if (~len[i][j]) {
-        if (j + 1 ^ N && ~len[i][j + 1])
-            e[M - 1 - min(len[i][j], len[i][j + 1])].emplace_back(i * mod + j, i * mod + j + 1);
-        if (i + 1 ^ N && ~len[i + 1][j])
-            e[M - 1 - min(len[i][j], len[i + 1][j])].emplace_back(i * mod + j, (i + 1) * mod + j);
+    loop(i, n) loop(j, n) if (~dist[i][j])
+        dist[i][j] = min({i + 1, j + 1, n - i, n - j, dist[i][j]});
+
+    vector<edge> e;
+    loop(i, n) loop(j, n) {
+        if (dist[i][j] == -1) continue;
+        if (j != n - 1 && ~dist[i][j + 1])
+            e.emplace_back(i * n + j, i * n + (j + 1), min(dist[i][j], dist[i][j + 1]));
+        if (i != n - 1 && ~dist[i + 1][j])
+            e.emplace_back(i * n + j, (i + 1) * n + j, min(dist[i][j], dist[i + 1][j]));
     }
 
-    int Q; cin >> Q;
-    loop(i, Q) {
-        int r1, c1, r2, c2; cin >> r1 >> c1 >> r2 >> c2;
-        q[i].u = --r1 * mod + --c1, q[i].v = --r2 * mod + --c2;
-    }
-    fill_n(hi, Q, M);
-    /*
-    length:0 -> square 1        [499]   1
-    length:1 -> square 3
-    length:2 -> square 5
-    ...
-    ...                         [1]     997
-    length:499 -> square 999    [0]     999
-    */
-    while (1) {
-        vector<vector<int>> vt(M);
-        bool done = true;
-        loop(i, Q) if (lo[i] ^ hi[i]) {
-            vt[(lo[i] + hi[i]) >> 1].emplace_back(i);
-            done = false;
-        }
-        if (done) break;
+    sort(e.begin(), e.end(), [&](auto& a, auto& b) {
+        return a.w > b.w;
+    });
 
-        memset(parent, -1, sizeof(parent));
-        loop(m, M) {
-            for (auto [u, v] : e[m]) {
-                u = _find(u), v = _find(v);
-                if (u ^ v) parent[u] = v;
-            }
-            for (int& i : vt[m])
-                _find(q[i].u) ^ _find(q[i].v) ? (lo[i] = m + 1) : (hi[i] = m);
-        }
+    disjoint_set dsu(n * n);
+    for (const auto [u, v, w] : e)
+        dsu.merge(u, v, w);
+
+    int q;
+    cin >> q;
+
+    for (int r1, c1, r2, c2; q--;) {
+        cin >> r1 >> c1 >> r2 >> c2;
+        --r1, --c1, --r2, --c2;
+        cout << dsu.query(r1 * n + c1, r2 * n + c2) << '\n';
     }
-    loop(i, Q) cout << (lo[i] == M ? 0 : max_N - 1 - (lo[i] << 1)) << '\n';
-    return 0;
 }
