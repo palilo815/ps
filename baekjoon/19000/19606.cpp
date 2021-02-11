@@ -1,12 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-constexpr int mxN = 1e3;
-constexpr int mask = (1 << 10) - 1;
-
-int mat[mxN][mxN];
-bool visited[mxN][mxN];
-
 int main() {
     cin.tie(nullptr)->sync_with_stdio(false);
 #ifdef home
@@ -16,46 +10,37 @@ int main() {
     int n, m;
     cin >> n >> m;
 
-    for (int i = 0; i < n; ++i)
-        for (int j = 0; j < m; ++j)
-            cin >> mat[i][j];
+    vector<pair<int, int>> vt;
+    vt.reserve(n * m + 1);
+    for (int i = 1, x; i <= n; ++i)
+        for (int j = 1; j <= m; ++j) {
+            cin >> x;
+            vt.emplace_back(x, i * j);
+        }
+    vt.emplace_back(INT_MAX, 0); // sentinel
 
-    vector<int> ord(n * m);
-    for (int i = 0; i < n; ++i)
-        move(mat[i], mat[i] + m, ord.begin() + i * m);
+    sort(vt.begin(), vt.end(), [&](auto& a, auto& b) {
+        return a.first < b.first;
+    });
 
-    sort(ord.begin(), ord.end());
-    ord.erase(unique(ord.begin(), ord.end()), ord.end());
-
-    for (int i = 0; i < n; ++i)
-        for (int j = 0; j < m; ++j)
-            mat[i][j] = lower_bound(ord.begin(), ord.end(), mat[i][j]) - ord.begin();
-
-    vector<vector<int>> adj(ord.size());
-    for (int i = 0; i < int(ord.size()); ++i)
-        for (int x = 1; x * x <= ord[i]; ++x)
-            if (ord[i] % x == 0)
-                adj[i].emplace_back(x);
+    vector<bool> visited(n * m + 1);
+    visited[n * m] = true;
 
     queue<int> q;
-    q.emplace(0);
-    visited[0][0] = true;
+    q.emplace(n * m);
 
     while (!q.empty()) {
-        int r = q.front() >> 10, c = q.front() & mask;
+        int u = q.front();
         q.pop();
 
-        for (auto x : adj[mat[r][c]]) {
-            auto y = ord[mat[r][c]] / x;
-            if (x == n && y == m || x == m && y == n) return cout << "yes", 0;
-            --x, --y;
-            if (x < n && y < m && !visited[x][y]) {
-                visited[x][y] = true;
-                q.emplace(x << 10 | y);
-            }
-            if (y < n && x < m && !visited[y][x]) {
-                visited[y][x] = true;
-                q.emplace(y << 10 | x);
+        auto it = lower_bound(vt.begin(), vt.end(), u, [&](const auto& val, const auto& key) {
+            return val.first < key;
+        });
+        for (; it->first == u; ++it) {
+            if (it->second == 1) return cout << "yes", 0;
+            if (!visited[it->second]) {
+                visited[it->second] = true;
+                q.emplace(it->second);
             }
         }
     }
