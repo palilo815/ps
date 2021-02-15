@@ -9,7 +9,8 @@ struct disjoint_set {
     vector<int> par, dist;
     disjoint_set(int n) : par(n, -1), dist(n) {}
     int find(int u) {
-        return par[u] < 0 ? u : par[u] = find(par[u]);
+        while (par[u] >= 0) u = par[u];
+        return u;
     }
     void merge(int u, int v, int w) {
         u = find(u), v = find(v);
