@@ -34,18 +34,18 @@ int main(int argc, char* argv[]) {
     }
     for (int i = 0, white; i < n; ++i) {
         cin >> white;
-        score[cnt[i] += white] -= 5;
+        score[cnt[i] + white] -= 5;
     }
 
     partial_sum(score, score + mxCan * 3, score);
 
-    int m;
-    cin >> m;
-
     for (int i = 1; i <= mxCan * 3; ++i)
         bit[i] = i & -i;
 
-    for (int h, res; m--;) {
+    int m;
+    cin >> m;
+
+    for (int h; m--;) {
         cin >> h, --h;
         cout << score[kth(h)] << '\n';
     }
