@@ -1,104 +1,93 @@
 #include <bits/stdc++.h>
 using namespace std;
-using p = pair<int, int>;
 
-const int mxN = 1e5;
-const int sgN = 131072;
+struct query {
+    int t, u, v;
+};
 
 struct disjoint_set {
-    vector<int> par, rank;
+    vector<int> par;
     vector<pair<int, int>> stk;
 
-    void init(int n) {
-        par = vector<int>(n, -1);
-        rank = vector<int>(n);
-    }
+    disjoint_set(int n) : par(n, -1) {}
     int find(int u) {
-        return ~par[u] ? find(par[u]) : u;
+        while (par[u] >= 0) u = par[u];
+        return u;
     }
-    void merge(int u, int v) {
+    bool merge(int u, int v, bool f) {
         u = find(u), v = find(v);
-        if (u == v) return;
+        if (u == v) return false;
 
-        if (rank[u] < rank[v]) swap(u, v);
+        if (par[u] > par[v]) swap(u, v);
+        if (f) stk.emplace_back(v, par[v]);
+        par[u] += par[v];
         par[v] = u;
-
-        if (rank[u] == rank[v]) {
-            ++rank[u];
-            u = -u, v = -v;
-        }
-        stk.emplace_back(u, v);
+        return true;
     }
-    void rollback(int checkpoint) {
-        while (stk.size() != checkpoint) {
-            auto [u, v] = stk.back();
-            stk.pop_back();
-            if (u < 0) {
-                u = -u, v = -v;
-                --rank[u];
-            }
-            par[v] = -1;
+    void roll_back(size_t check_point) {
+        for (; stk.size() != check_point; stk.pop_back()) {
+            const auto [u, sz] = stk.back();
+            par[par[u]] -= sz, par[u] = sz;
         }
     }
 };
 
-disjoint_set uf;
-vector<p> segT[sgN << 1];
-p query[mxN];
-int t;
-
-void add_edge(int l, int r, p edge) {
-    for (l += sgN, r += sgN; l != r; l >>= 1, r >>= 1) {
-        if (l & 1) segT[l++].emplace_back(edge);
-        if (r & 1) segT[--r].emplace_back(edge);
-    }
-}
-void solve(int l, int r, int i) {
-    if (t <= l) return;
-
-    int checkpoint = uf.stk.size();
-    for (auto& [u, v] : segT[i])
-        uf.merge(u, v);
-
-    if (l + 1 == r) cout << (uf.find(query[l].first) == uf.find(query[l].second)) << '\n';
-    else {
-        int m = (l + r) >> 1;
-        solve(l, m, i << 1);
-        solve(m, r, i << 1 | 1);
-    }
-    uf.rollback(checkpoint);
-}
 int main() {
-    ios::sync_with_stdio(0);
-    cin.tie(0);
-#ifndef ONLINE_JUDGE
+    cin.tie(nullptr)->sync_with_stdio(false);
+#ifdef home
     freopen("in", "r", stdin);
     freopen("out", "w", stdout);
 #endif
-    int N, M;
-    cin >> N >> M;
+    int n, m;
+    cin >> n >> m;
 
-    unordered_map<int64_t, int> mp;
-    char op;
-
-    for (int u, v; M--;) {
-        cin >> op >> u >> v;
+    vector<query> q(m);
+    for (auto& [t, u, v] : q) {
+        cin >> t >> u >> v, --u, --v;
         if (u > v) swap(u, v);
-        int64_t key = (int64_t)u << 32 | v;
-
-        switch (op) {
-        case '1': mp[key] = t; break;
-        case '2':
-            add_edge(mp[key], t, make_pair(u, v));
-            mp.erase(key);
-            break;
-        default: query[t++] = {u, v};
-        }
     }
-    for (auto [key, s] : mp)
-        add_edge(s, t, make_pair(key >> 32, key));
 
-    uf.init(N + 1);
+    vector<int> psum(m + 1);
+    unordered_map<int, int> mp;
+    for (int i = m; i--;) {
+        auto& [t, u, v] = q[i];
+        if (t == 1) {
+            if (auto it = mp.find(u << 17 | v); it != mp.end())
+                t = it->second, q[it->second].t = ~i;
+            else
+                t = m;
+        } else if (t == 2)
+            mp[u << 17 | v] = i;
+        else
+            t = 0, psum[i + 1] = 1;
+    }
+    unordered_map<int, int>().swap(mp);
 
-    solve(0, sgN, 1);
+    partial_sum(psum.begin(), psum.end(), psum.begin());
+    auto cnt = [&](int l, int r) { return psum[r] - psum[l]; };
+
+    disjoint_set dsu(n);
+    function<void(int, int, bool)> solve = [&](int l, int r, bool f) {
+        if (l + 1 == r) {
+            cout << (dsu.find(q[l].u) == dsu.find(q[l].v)) << '\n';
+            return;
+        }
+
+        int m = l + r >> 1;
+        if (cnt(l, m)) {
+            auto check_point = dsu.stk.size();
+            for (int i = m; i < r; ++i)
+                if (q[i].t < 0 && ~q[i].t <= l)
+                    dsu.merge(q[i].u, q[i].v, true);
+            solve(l, m, true);
+            dsu.roll_back(check_point);
+        }
+        if (cnt(m, r)) {
+            for (int i = l; i < m; ++i)
+                if (q[i].t > 0 && r <= q[i].t)
+                    dsu.merge(q[i].u, q[i].v, f);
+            solve(m, r, f);
+        }
+    };
+    solve(0, m, false);
 }
