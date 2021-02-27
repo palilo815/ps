@@ -55,6 +55,7 @@ int main() {
             lv = k++;
     }
 
+    vector<int> psum(m + 1);
     unordered_map<int, int> mp;
     for (int i = m; i--;) {
         auto& [t, u, v, lv] = q[i];
@@ -66,34 +67,38 @@ int main() {
         } else if (t == 1)
             mp[u << 17 | v] = i;
         else
-            t = 0;
+            t = 0, psum[i + 1] = 1;
     }
     unordered_map<int, int>().swap(mp);
+
+    partial_sum(psum.begin(), psum.end(), psum.begin());
+    auto cnt = [&](int l, int r) { return psum[r] - psum[l]; };
 
     vector<int> ans(k, -1);
     disjoint_set dsu(n);
     int level = 0;
     function<void(int, int, bool)> solve = [&](int l, int r, bool f) {
         if (l + 1 == r) {
-            if (q[l].t == 0 && ans[q[l].lv] == -1 && dsu.find(q[l].u) == dsu.find(q[l].v))
+            if (ans[q[l].lv] == -1 && dsu.find(q[l].u) == dsu.find(q[l].v))
                 ans[q[l].lv] = level;
             return;
         }
 
         int m = l + r >> 1;
-        auto check_point = dsu.stk.size();
-
-        for (int i = m; i < r; ++i)
-            if (q[i].t < 0 && ~q[i].t <= l && q[i].lv <= level)
-                dsu.merge(q[i].u, q[i].v, true);
-        solve(l, m, true);
-
-        dsu.roll_back(check_point);
-
-        for (int i = l; i < m; ++i)
-            if (q[i].t > 0 && r <= q[i].t && q[i].lv <= level)
-                dsu.merge(q[i].u, q[i].v, f);
-        solve(m, r, f);
+        if (cnt(l, m)) {
+            auto check_point = dsu.stk.size();
+            for (int i = m; i < r; ++i)
+                if (q[i].t < 0 && ~q[i].t <= l && q[i].lv <= level)
+                    dsu.merge(q[i].u, q[i].v, true);
+            solve(l, m, true);
+            dsu.roll_back(check_point);
+        }
+        if (cnt(m, r)) {
+            for (int i = l; i < m; ++i)
+                if (q[i].t > 0 && r <= q[i].t && q[i].lv <= level)
+                    dsu.merge(q[i].u, q[i].v, f);
+            solve(m, r, f);
+        }
     };
 
     for (; level < 10; ++level) {
