@@ -1,43 +1,45 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+constexpr auto mod = 2147483647u;
+
 int main() {
     cin.tie(nullptr)->sync_with_stdio(false);
 #ifdef home
     freopen("in", "r", stdin);
     freopen("out", "w", stdout);
 #endif
-    int n;
+    unsigned n;
     cin >> n;
 
-    vector<int> a(n + 1);
+    vector<unsigned> a(n + 1);
     for (auto& x : a) cin >> x, --x;
 
-    vector<int64_t> dp(n + 1), prv(n + 1);
+    vector<unsigned> dp(n + 1), prv(n + 1);
     dp[a[0]] = 1;
 
-    for (int i = 1; i < n; ++i) {
+    for (unsigned i = 1; i < n; ++i) {
         dp.swap(prv);
         fill(dp.begin(), dp.end(), 0);
 
-        for (int j = 0; j <= n; ++j)
+        for (unsigned j = 0; j <= n; ++j)
             if (prv[j]) {
                 const auto& [mn, mx] = minmax(j, a[i]);
                 if (mn < a[i + 1]) {
                     dp[mn] += prv[j];
-                    if (dp[mn] >= INT_MAX) dp[mn] -= INT_MAX;
+                    if (dp[mn] >= mod) dp[mn] -= mod;
                 }
                 if (a[i + 1] < mx) {
                     dp[mx] += prv[j];
-                    if (dp[mx] >= INT_MAX) dp[mx] -= INT_MAX;
+                    if (dp[mx] >= mod) dp[mx] -= mod;
                 }
             }
     }
 
-    int64_t ans = 0;
+    unsigned ans = 0;
     for (const auto& x : dp) {
         ans += x;
-        if (ans >= INT_MAX) ans -= INT_MAX;
+        if (ans >= mod) ans -= mod;
     }
     cout << ans;
 }
