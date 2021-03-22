@@ -18,17 +18,17 @@ struct lazy_seg {
         fill(tree.begin(), tree.end(), 0);
         fill(lazy.begin(), lazy.end(), 0);
     }
-    void apply(int l, int r, int val) {
+    void apply(int l, int r, node_t val) {
         apply(l, r, val, 0, mxX, 1);
     }
-    int all_prod() { return tree[1]; }
+    node_t all_prod() { return tree[1]; }
 
 private:
     const int n, height, size;
     vector<node_t> tree;
     vector<tag_t> lazy;
 
-    void apply(int ql, int qr, int qv, int l, int r, int i) {
+    void apply(int ql, int qr, node_t qv, int l, int r, int i) {
         if (qr <= l || r <= ql) return;
         if (ql <= l && r <= qr) {
             tree[i] += qv;
