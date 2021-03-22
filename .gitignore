@@ -1,12 +1,7 @@
-Baekjoon/a.exe
+Baekjoon/.vscode/*
+Baekjoon/sol.exe
 Baekjoon/in
 Baekjoon/out
-Algorithm/berlekamp_massey.cpp
-.gitignore
-.vscode/c_cpp_properties.json
-*.json
-Baekjoon/0_codeforce/*
-Baekjoon/sol.exe
 Baekjoon/sol.cpp
 Baekjoon/A.cpp
 Baekjoon/B.cpp
