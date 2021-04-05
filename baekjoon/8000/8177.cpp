@@ -1,28 +1,26 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-struct full_seg {
-    struct node_t {
-        int64_t sum, lmax, mmax, rmax;
-    };
-    full_seg(int _n) : n(_n), height(__lg(_n - 1) + 1), size(1 << height),
-                       tree(size << 1, e) {}
+template <typename node_t>
+struct segtree {
+    segtree(int _n) : n(_n), height(__lg(_n - 1) + 1), size(1 << height),
+                      tree(size << 1, e) {}
 
 #define lson (i << 1)
 #define rson (i << 1 | 1)
+    node_t& operator[](int i) { return tree[size + i]; }
     void build(int k) {
         fill(tree.begin() + size, tree.end(), node_t {-k, -k, -k, -k});
         for (int i = size - 1; i; --i)
             pull(i);
     }
-    void update(int idx, int64_t val) {
+    void set(int idx, int64_t val) {
         assert(0 <= idx and idx < n);
 
-        val += tree[idx += size].sum;
-        tree[idx] = {val, val, val, val};
+        tree[idx += size] = {val, val, val, val};
         while (idx >>= 1) pull(idx);
     }
-    int64_t prod() {
+    int64_t all_prod() {
         return tree[1].mmax;
     }
 
@@ -54,13 +52,16 @@ int main() {
     int n, m, k, d;
     cin >> n >> m >> k >> d;
 
-    const auto mx = int64_t(k) * d;
-
-    full_seg seg(n);
+    struct node_t {
+        int64_t sum, lmax, mmax, rmax;
+    };
+    segtree<node_t> seg(n);
     seg.build(k);
+
+    const auto mx = int64_t(k) * d;
     for (int foot, x; m--;) {
         cin >> foot >> x, --foot;
-        seg.update(foot, x);
-        cout << (seg.prod() > mx ? "NIE\n" : "TAK\n");
+        seg.set(foot, seg[foot].sum + x);
+        cout << (seg.all_prod() > mx ? "NIE\n" : "TAK\n");
     }
 }
