@@ -1,50 +1,42 @@
 #include <bits/stdc++.h>
-#define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
-struct edge {
-    int u, v, w;
-};
-
-const int mxN = 500;
-
-int x[mxN], y[mxN];
-double dist[mxN], ans[mxN];
-bool conn[mxN];
 
 void solve() {
-    int S, N; cin >> S >> N;
-    loop(i, N) cin >> x[i] >> y[i];
+    int s, n;
+    cin >> s >> n;
 
-    fill(dist, dist + N, DBL_MAX);
+    vector<pair<int, int>> a(n);
+    for (auto& [x, y] : a) cin >> x >> y;
+
+    vector<double> dist(n, DBL_MAX);
     dist[0] = 0;
 
-    memset(conn, 0, N);
-
-    int cnt = N;
-    loop(j, N) {
+    vector<bool> con(n);
+    for (int t = n; t--;) {
         int k = -1;
-        loop(i, N) if (!conn[i] && (k == -1 || dist[i] < dist[k]))
-            k = i;
+        for (int i = 0; i < n; ++i)
+            if (!con[i] && (k == -1 || dist[i] < dist[k]))
+                k = i;
 
-        ans[j] = dist[k];
-        conn[k] = true;
+        assert(~k);
+        con[k] = true;
 
-        loop(i, N) if (!conn[i]) {
-            int dx = x[i] - x[k], dy = y[i] - y[k];
-            double d = sqrt(dx * dx + dy * dy);
-            if (dist[i] > d) dist[i] = d;
-        }
+        for (int i = 0; i < n; ++i)
+            if (!con[i])
+                dist[i] = min(dist[i], hypot(a[i].first - a[k].first, a[i].second - a[k].second));
     }
 
-    sort(ans, ans + N);
+    nth_element(dist.begin(), dist.end() - s, dist.end());
     cout << fixed << setprecision(2)
-         << ans[N - S] << '\n';
+         << dist.end()[-s] << '\n';
 }
 int main() {
-    cin.tie(0), cout.tie(0);
-    ios::sync_with_stdio(0);
-
-    int T; cin >> T;
+    cin.tie(nullptr)->sync_with_stdio(false);
+#ifdef home
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int T;
+    cin >> T;
     while (T--) solve();
-    return 0;
 }
