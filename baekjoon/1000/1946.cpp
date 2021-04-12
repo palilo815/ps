@@ -1,34 +1,31 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
 
-map<int, int> mp;
+void solve() {
+    int n;
+    cin >> n;
 
-bool poor(int a, int b) {
-    auto it = mp.lower_bound(a);
-    if (it == mp.begin()) return false;
-    return b > (--it)->second;
-}
-void drop(int a, int b) {
-    auto it = mp.upper_bound(a);
-    for (auto it =  mp.upper_bound(a); it != mp.end(); it = mp.erase(it))
-        if (it->second < b)
-            break;
+    vector<int> a(n);
+    for (int i = 0, x, y; i < n; ++i) {
+        cin >> x >> y, --x, --y;
+        a[x] = y;
+    }
+
+    int ans = 0, mn_y = INT_MAX;
+    for (const auto& y : a) {
+        if (y > mn_y) continue;
+        ++ans;
+        mn_y = y;
+    }
+    cout << ans << '\n';
 }
 int main() {
-    cin.tie(0), cout.tie(0);
-    ios::sync_with_stdio(0);
-
-    int T; cin >> T;
-    while (T--) {
-        mp.clear();
-        int N; cin >> N;
-        while (N--) {
-            int a, b; cin >> a >> b;
-            if (poor(a, b)) continue;
-            mp[a] = b;
-            drop(a, b);
-        }
-        cout << mp.size() << '\n';
-    }
-    return 0;
+    cin.tie(nullptr)->sync_with_stdio(false);
+#ifdef home
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int T;
+    cin >> T;
+    while (T--) solve();
 }
