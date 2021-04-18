@@ -28,8 +28,7 @@ int main() {
     int64_t pos = 0;
     int ans = 0;
     for (const auto& x : a) {
-        if (pos >= mid) break;
-        if (x <= d - pos) return cout << 0, 0;
+        if (pos >= mid || x <= d - pos) break;
         pos += x - (d - pos);
         ++ans;
     }
