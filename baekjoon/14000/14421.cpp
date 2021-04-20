@@ -25,7 +25,7 @@ int main() {
     auto ok = [&](int lim) {
         int64_t pivot = m;
         for (const auto& v : h) {
-            pivot = min(pivot, find_if(v.begin(), v.begin() + pivot, [&](auto& x) { return x > mn_h + lim; }) - v.begin());
+            pivot = find_if(v.begin(), v.begin() + pivot, [&](auto& x) { return x > mn_h + lim; }) - v.begin();
             if (any_of(v.begin() + pivot, v.end(), [&](auto& x) { return x < mx_h - lim; }))
                 return false;
         }
