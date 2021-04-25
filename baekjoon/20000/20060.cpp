@@ -37,6 +37,6 @@ string guess_sequence(int n) {
         guess_mid();
 
     // last
-    if (n != 1) guess_endpoint();
+    guess_endpoint();
     return ans;
 }
