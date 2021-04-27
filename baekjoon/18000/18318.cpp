@@ -40,10 +40,6 @@ int main() {
                 (get<1>(a[i << 1 | 1]) - get<1>(a[i << 1]));
     }
 
-    // a[] = {x, y, ~i} -> i번 스프링의 시작점 (x, y)
-    // a[] = {x, y,  i} -> i번 스프링의 도착점 (x, y)
-    // dp[i] = i번 스프링을 사용해서 얻을 수 있는 최대 이득(얼마나 걸음 수를 줄였나)
-
     // compress y-coordinates
     vector<int> ord(p << 1);
     for (int i = 0; i < p << 1; ++i)
@@ -51,15 +47,15 @@ int main() {
     sort(ord.begin(), ord.end());
     ord.erase(unique(ord.begin(), ord.end()), ord.end());
 
+    for (auto& [x, y, i] : a)
+        y = lower_bound(ord.begin(), ord.end(), y) - ord.begin();
     sort(a.begin(), a.end());
 
     BIT<int> bit(ord.size());
-    for (const auto& [x, y, i] : a) {
-        const auto compressed_y = lower_bound(ord.begin(), ord.end(), y) - ord.begin();
+    for (const auto& [x, y, i] : a)
         if (i < 0)
-            dp[~i] += bit.query(compressed_y + 1);
+            dp[~i] += bit.query(y + 1);
         else
-            bit.update(compressed_y, dp[i]);
-    }
+            bit.update(y, dp[i]);
     cout << (n << 1) - bit.query(ord.size());
 }
