@@ -1,70 +1,68 @@
 #include <bits/stdc++.h>
-#define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
-typedef pair<int, int> p;
 
-const int max_N = 1001;
-const int max_M = 100000;
-const int max_Q = 200000;
-const int INF = 0x3f3f3f3f;
+constexpr int INF = 0x3f3f3f3f;
 
-vector<int> adj[max_N];
-p edge[max_M];
-int query[max_Q];
-
-int dist[max_N];
-queue<int> q;
-
-void BFS(int src) {
-    q.emplace(src);
-    while (!q.empty()) {
-        int u = q.front(); q.pop();
-        for (int v : adj[u])
-            if (dist[v] > dist[u] + 1) {
-                dist[v] = dist[u] + 1;
-                q.emplace(v);
-            }
-    }
-}
 int main() {
-    cin.tie(0), cout.tie(0);
-    ios::sync_with_stdio(0);
+    cin.tie(nullptr)->sync_with_stdio(false);
+#ifdef home
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int n, m, q;
+    cin >> n >> m >> q;
 
-    int N, M, Q; cin >> N >> M >> Q;
-    loop(i, M) cin >> edge[i].first >> edge[i].second;
-    loop(i, Q) {
-        char q; int x; cin >> q >> x;
-        if (q == 'E') query[i] = x;
-        else {
-            edge[x - 1].first *= -1;
-            edge[x - 1].second *= -1;
-            query[i] = -x;
+    vector<pair<int, int>> edge(m);
+    for (auto& [u, v] : edge) cin >> u >> v, --u, --v;
+
+    vector<bool> erased(m);
+    vector<int> query(q);
+    for (auto& x : query) {
+        char type;
+        cin >> type >> x, --x;
+        type == 'U' ? (erased[x] = true) : (x = ~x);
+    }
+
+    vector<vector<int>> adj(n);
+    for (int i = 0; i < m; ++i)
+        if (!erased[i])
+            adj[edge[i].first].emplace_back(edge[i].second);
+
+    vector dist(n, INF);
+    dist[0] = 0;
+
+    auto bfs = [&](int s) {
+        queue<int> q;
+        q.emplace(s);
+
+        while (!q.empty()) {
+            const auto u = q.front();
+            q.pop();
+
+            for (const auto& v : adj[u])
+                if (dist[v] > dist[u] + 1) {
+                    dist[v] = dist[u] + 1;
+                    q.emplace(v);
+                }
         }
-    }
+    };
 
-    loop(i, M) if (edge[i].first > 0)
-        adj[edge[i].first].emplace_back(edge[i].second);
+    bfs(0);
 
-    memset(dist + 1, 0x3f, sizeof(int)* N);
-    dist[1] = 0;
+    vector<int> ans;
+    ans.reserve(q - count(erased.begin(), erased.end(), true));
 
-    BFS(1);
-
-    stack<int> ans;
-    for (int i = Q - 1; i >= 0; --i) {
-        if (query[i] > 0)
-            ans.emplace(dist[query[i]] == INF ? -1 : dist[query[i]]);
+    // query[i] =  x -> x번 간선 재생성
+    // qeury[i] = ~x -> 0 to x 최단경로
+    for (int i = q; i--;)
+        if (query[i] < 0) ans.emplace_back(dist[~query[i]] == INF ? -1 : dist[~query[i]]);
         else {
-            auto& [u, v] = edge[-query[i] - 1];
-            u = -u, v = -v;
-            adj[u].emplace_back(v);
-            BFS(u);
+            adj[edge[query[i]].first].emplace_back(edge[query[i]].second);
+            bfs(edge[query[i]].first);
         }
-    }
 
-    while (!ans.empty()) {
-        cout << ans.top() << '\n';
-        ans.pop();
-    }
-    return 0;
+    reverse(ans.begin(), ans.end());
+
+    for (const auto& x : ans)
+        cout << x << '\n';
 }
