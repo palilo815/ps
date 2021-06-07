@@ -1,32 +1,35 @@
 #include <bits/stdc++.h>
-#define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
 
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+int main() {
+    cin.tie(nullptr)->sync_with_stdio(false);
+#ifdef home
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+
+    constexpr array ans = {
+        "Not a pangram\n",
+        "Pangram!\n",
+        "Double pangram!!\n",
+        "Triple pangram!!!\n"};
+
+    int T;
+    cin >> T;
+    cin.ignore();
 
     string s;
-    int arr[26];
-    int T; cin >> T; cin.ignore();
+    array<int, 26> cnt;
+
     for (int t = 1; t <= T; ++t) {
-        memset(arr, 0, sizeof(arr));
         getline(cin, s);
-        int Len = s.size();
-        loop(i, Len) {
-            char c = s[i];
-            if (c >= 'a' && c <= 'z') ++arr[c - 'a'];
-            else if (c >= 'A' && c <= 'Z') ++arr[c - 'A'];
-        }
-        int ans = 3;
-        loop(i, 26)
-            ans = min(ans, arr[i]);
-        cout << "Case " << t << ": ";
-        if (ans == 3) cout << "Triple pangram!!!\n";
-        else if (ans == 2) cout << "Double pangram!!\n";
-        else if (ans == 1) cout << "Pangram!\n";
-        else cout << "Not a pangram\n";
+        fill(cnt.begin(), cnt.end(), 0);
+
+        for (const auto& c : s)
+            if (isalpha(c))
+                ++cnt[c - (islower(c) ? 'a' : 'A')];
+
+        cout << "Case " << t << ": "
+             << ans[*min_element(cnt.begin(), cnt.end())];
     }
-    return 0;
 }
