@@ -25,7 +25,7 @@ int main() {
         }
     }
 
-    stable_sort(a.begin(), a.end(), [&](const auto& lhs, const auto& rhs) {
+    sort(a.begin(), a.end(), [&](const auto& lhs, const auto& rhs) {
         return lhs.first > rhs.first;
     });
     a.resize(min(a.size(), size_t(k)));
