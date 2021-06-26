@@ -1,41 +1,59 @@
 #include <bits/stdc++.h>
-#define loop(i,n) for(int i=0;i<n;++i)
 using namespace std;
-typedef long long ll;
 
-const int max_N = 500;
-const int max_M = 6000;
-const ll INF = 0x3f3f3f3f3f3f3f3f;
+template <typename T, typename edge_t>
+vector<pair<T, int>> bellman_ford(int n, vector<edge_t>& edges, int s) {
+    const T inf = numeric_limits<T>::max();
 
-int edge[max_M][3];
-ll dist[max_N + 1];
+    vector nodes(n, pair(inf, -1));
+    nodes[s].first = 0;
 
-int main() {
-    cin.tie(0), cout.tie(0);
-    ios::sync_with_stdio(0);
+    sort(edges.begin(), edges.end(), [&](const auto& lhs, const auto& rhs) {
+        return (lhs.u < lhs.v ? lhs.u : ~lhs.u) < (rhs.u < rhs.v ? rhs.u : ~rhs.u);
+    });
 
-    int N, M; cin >> N >> M;
-    loop(i, M) loop(j, 3) cin >> edge[i][j];
-
-    memset(dist, 0x3f, sizeof(dist));
-    dist[1] = 0;
-
-    bool update = false;
-    int cnt = N;
-    while (cnt--) {
-        update = false;
-        loop(i, M) {
-            auto [u, v, w] = edge[i];
-            if (dist[u] != INF && dist[v] > dist[u] + w) {
-                dist[v] = dist[u] + w;
-                update = true;
+    const int lim = n / 2 + 2;
+    for (int i = 0; i < lim; ++i)
+        for (const auto& e : edges) {
+            auto &cur = nodes[e.u], &dest = nodes[e.v];
+            if (abs(cur.first) == inf) continue;
+            if (T d = cur.first + e.w; d < dest.first) {
+                dest.second = e.u;
+                dest.first = (i == lim - 1 ? -inf : d);
             }
         }
-        if (!update) break;
-    }
 
-    if (update) cout << -1;
-    else for (int i = 2; i <= N; ++i)
-        cout << (dist[i] == INF ? -1 : dist[i]) << '\n';
-    return 0;
+    for (int i = 0; i < lim; ++i)
+        for (const auto& e : edges)
+            if (nodes[e.u].first == -inf)
+                nodes[e.v].first = -inf;
+
+    return nodes;
+}
+
+int main() {
+    cin.tie(nullptr)->sync_with_stdio(false);
+#ifdef palilo
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+
+    int n, m;
+    cin >> n >> m;
+
+    struct edge {
+        int u, v, w;
+    };
+
+    vector<edge> edges(m);
+    for (auto& [u, v, w] : edges)
+        cin >> u >> v >> w, --u, --v;
+
+    auto res = bellman_ford<int64_t>(n, edges, 0);
+
+    if (find_if(res.begin(), res.end(), [&](auto& x) { return x.first == -LLONG_MAX; }) != res.end())
+        return cout << -1, 0;
+
+    for (int i = 1; i < n; ++i)
+        cout << (res[i].first == LLONG_MAX ? -1 : res[i].first) << '\n';
 }
