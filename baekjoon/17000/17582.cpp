@@ -1,11 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-template <class T>
-bool chmin(T& _old, T _new) { return _old > _new && (_old = _new, true); }
-template <class T>
-bool chmax(T& _old, T _new) { return _old < _new && (_old = _new, true); }
-
 constexpr int MX_N = 300;
 
 int adj[MX_N][MX_N], par[MX_N];
