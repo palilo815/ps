@@ -46,18 +46,18 @@ TOP:;
             not_found[missing_count++] = a[i];
 
     if (missing_count) {
-        set<int> candidate;
+        vector<int> candidate;
+        candidate.reserve(k << 1);
         for (int i = 0; i < k; ++i) {
-            candidate.emplace(abs(not_found[0] - sum[i]));
-            candidate.emplace(not_found[0] + sum[i]);
+            candidate.emplace_back(abs(not_found[0] - sum[i]));
+            candidate.emplace_back(not_found[0] + sum[i]);
         }
         for (int i = 1; i < missing_count; ++i)
-            for (auto it = candidate.begin(); it != candidate.end();)
-                if (binary_search(sum, sum + k, abs(*it - not_found[i])) || binary_search(sum, sum + k, *it + not_found[i]))
-                    ++it;
-                else
-                    it = candidate.erase(it);
-        cout << (candidate.empty() ? -1 : *candidate.begin());
+            candidate.erase(remove_if(candidate.begin(), candidate.end(), [&](const auto& x) {
+                return !binary_search(sum, sum + k, abs(x - not_found[i])) && !binary_search(sum, sum + k, x + not_found[i]);
+            }),
+                candidate.end());
+        cout << (candidate.empty() ? -1 : *min_element(candidate.begin(), candidate.end()));
     } else {
         cout << 0;
     }
