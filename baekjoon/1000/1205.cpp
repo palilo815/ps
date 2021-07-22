@@ -7,12 +7,15 @@ int main() {
     freopen("in", "r", stdin);
     freopen("out", "w", stdout);
 #endif
-    int n;
-    cin >> n;
-    vector<int> a(n);
-    for (auto& x : a) {
-        cin >> x;
+    int n, s, p;
+    cin >> n >> s >> p;
+    vector a(p, -1);
+    for (int i = 0; i < n; ++i) {
+        cin >> a[i];
     }
-    sort(a.begin(), a.end());
-    cout << a[(n - 1) / 2];
+    if (upper_bound(a.begin(), a.end(), s, greater()) == a.end()) {
+        cout << -1;
+    } else {
+        cout << lower_bound(a.begin(), a.end(), s, greater()) - a.begin() + 1;
+    }
 }
