@@ -1,40 +1,29 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+template <class T>
+bool chmin(T& _old, T _new) { return _old > _new && (_old = _new, true); }
+template <class T>
+bool chmax(T& _old, T _new) { return _old < _new && (_old = _new, true); }
+
 int main() {
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
-
-    vector<int> acid, base;
-    int N; cin >> N;
-    while (N--) {
-        int x; cin >> x;
-        if (x > 0) acid.push_back(x);
-        else base.push_back(-x);
-    }
-    sort(acid.begin(), acid.end());
-    sort(base.begin(), base.end());
-
-    int A = 1e9 + 1, B = 1e9 + 1;
-    if (acid.size() >= 2)
-        B = acid[0], A = acid[1];
-    if (base.size() >= 2 && base[0] + base[1] < abs(A + B))
-        B = -base[1], A = -base[0];
-
-    for (int a : acid) {
-        auto it = lower_bound(base.begin(), base.end(), a);
-        if (it != base.end()) {
-            int b = -(*it);
-            if (abs(a + b) < abs(A + B))
-                A = a, B = b;
+    cin.tie(nullptr)->sync_with_stdio(false);
+#ifdef palilo
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int n;
+    cin >> n;
+    vector<int> a(n);
+    for (auto& x : a) cin >> x;
+    sort(a.begin(), a.end());
+    int abs_min = INT_MAX;
+    pair best(0, 0);
+    for (int i = 0, j = n - 1; i < j;) {
+        if (chmin(abs_min, abs(a[i] + a[j]))) {
+            best = {a[i], a[j]};
         }
-        if (it != base.begin()) {
-            --it;
-            int b = -(*it);
-            if (abs(a + b) < abs(A + B))
-                A = a, B = b;
-        }
+        a[i] + a[j] < 0 ? ++i : --j;
     }
-    cout << B << ' ' << A;
-    return 0;
+    cout << best.first << ' ' << best.second;
 }
