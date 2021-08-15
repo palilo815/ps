@@ -12,8 +12,6 @@ int main() {
     vector<int> p(n), q(n);
     for (auto& x : p) cin >> x;
     for (auto& x : q) cin >> x;
-    transform(p.begin(), p.end(), p.begin(), [&](const auto& x) { return x << 1; });
-    transform(q.begin(), q.end(), q.begin(), [&](const auto& x) { return x << 1; });
     vector<int> r(n), s(n);
     transform(p.begin(), p.end(), q.begin(), r.begin(), plus());
     transform(p.begin(), p.end(), q.begin(), s.begin(), minus());
@@ -25,5 +23,5 @@ int main() {
         }
         return ret;
     };
-    cout << f(p) + f(q) - (f(r) + f(s)) / 2;
+    cout << 2 * (f(p) + f(q)) - (f(r) + f(s));
 }
