@@ -1,30 +1,32 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef long long ll;
 
-const int max_N = 20000;
-
-int arr[max_N];
-ll DP[max_N + 1];
+template <class T>
+bool chmin(T& _old, T _new) { return _old > _new && (_old = _new, true); }
+template <class T>
+bool chmax(T& _old, T _new) { return _old < _new && (_old = _new, true); }
 
 int main() {
-    cin.tie(0), cout.tie(0);
-    ios::sync_with_stdio(0);
-    
-    memset(DP, 0x3f, sizeof(DP));
-    DP[0] = 0;
-
-    int N, M, K; cin >> N >> M >> K;
-    for (int i = 0; i < N; ++i) {
-        cin >> arr[i];
-        int a = arr[i], b = arr[i];
-
-        for (int j = i; j >= 0 && j > i - M; --j) {
-            a = max(a, arr[j]), b = min(b, arr[j]);
-            ll cost = K + (i - j + 1ll) * (a - b);
-            DP[i + 1] = min(DP[i + 1], DP[j] + cost);
-        }
-    }
-    cout << DP[N];
-    return 0;
+	cin.tie(nullptr)->sync_with_stdio(false);
+#ifdef palilo
+	freopen("in", "r", stdin);
+	freopen("out", "w", stdout);
+#endif
+	constexpr int64_t INF = 0x3f3f3f3f3f3f3f3f;
+	int n, m, k;
+	cin >> n >> m >> k;
+	vector<int> a(n);
+	for (auto& x : a) {
+		cin >> x;
+	}
+	vector dp(n + 1, INF);
+	dp[0] = 0;
+	for (int i = 0; i < n; ++i) {
+		int mn = INT_MAX, mx = INT_MIN;
+		for (int j = i + 1, ed = min(i + m, n); j <= ed; ++j) {
+			chmin(mn, a[j - 1]), chmax(mx, a[j - 1]);
+			chmin(dp[j], dp[i] + k + int64_t(j - i) * (mx - mn));
+		}
+	}
+	cout << dp.back();
 }
