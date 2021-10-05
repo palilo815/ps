@@ -10,25 +10,24 @@ void solve() {
         cin >> x;
     }
     sort(a.begin(), a.end());
-    auto ptr = a.begin();
-    priority_queue<int> pq;
-    while (ptr != a.end() && *ptr <= k) {
-        pq.emplace(*ptr++);
-    }
     auto sum = accumulate(a.begin(), a.end(), int64_t(0));
+    auto ptr = find_if(a.begin(), a.end(), [&](const auto& x) {
+        return x > k;
+    });
+    auto top = ptr;
     for (int i = 0;; ++i) {
         if (k >= sum) {
             cout << i << '\n';
             return;
         }
-        if (pq.empty()) {
+        if (top == a.begin()) {
             cout << "-1\n";
             return;
         }
-        k += pq.top(), sum -= pq.top();
-        pq.pop();
-        while (ptr != a.end() && *ptr <= k) {
-            pq.emplace(*ptr++);
+        --top;
+        k += *top, sum -= *top;
+        for (; ptr != a.end() && *ptr <= k; ++top, ++ptr) {
+            *top = *ptr;
         }
     }
 }
