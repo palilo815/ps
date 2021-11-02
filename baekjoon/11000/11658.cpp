@@ -1,49 +1,72 @@
-#include <iostream>
+#include <bits/stdc++.h>
 using namespace std;
 
-const int max_N = 1024;
+template <typename T>
+class binary_indexed_tree {
+    const size_t n;
+    vector<vector<T>> tree;
 
-int N;
-int arr[max_N][max_N];
-int fenwick[max_N + 1][max_N + 1];
-
-void update(int r, int c, int val)
-{
-    for (int i = r; i <= N; i += i & -i)
-        for (int j = c; j <= N; j += j & -j)
-            fenwick[i][j] += val;
-}
-int read(int r, int c)
-{
-    int ret = 0;
-    for (int i = r; i; i -= i & -i)
-        for (int j = c; j; j -= j & -j)
-            ret += fenwick[i][j];
-    return ret;
-}
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
-
-    int Q; cin >> N >> Q;
-    for (int i = 0; i < N; ++i)
-        for (int j = 0; j < N; ++j) {
-            cin >> arr[i][j];
-            update(i + 1, j + 1, arr[i][j]);
+public:
+    binary_indexed_tree(size_t n) : n(n), tree(n + 1) {
+        for (size_t i = 1; i <= n; ++i) {
+            tree[i].resize(n + 1);
+            for (size_t j = 1; j <= n; ++j) {
+                cin >> tree[i][j];
+            }
+            for (size_t j = 1; j <= n; ++j) {
+                if (j + (j & -j) <= n) {
+                    tree[i][j + (j & -j)] += tree[i][j];
+                }
+            }
         }
-
-    while (Q--) {
-        int q, a, b, c; cin >> q >> a >> b >> c;
-        if (q) {
-            int d; cin >> d;
-            cout << read(c, d) - read(c, b - 1) - read(a - 1, d) + read(a - 1, b - 1) << '\n';
-        }
-        else {
-            int val = c - arr[a - 1][b - 1];
-            arr[a - 1][b - 1] = c;
-            update(a, b, val);
+        for (size_t j = 1; j <= n; ++j) {
+            for (size_t i = 1; i <= n; ++i) {
+                if (i + (i & -i) <= n) {
+                    tree[i + (i & -i)][j] += tree[i][j];
+                }
+            }
         }
     }
-    return 0;
+
+    void update(size_t x, size_t y, T val) {
+        for (auto i = x + 1; i <= n; i += i & -i) {
+            for (auto j = y + 1; j <= n; j += j & -j) {
+                tree[i][j] += val;
+            }
+        }
+    }
+    T prod(size_t x, size_t y) const {
+        T ret {};
+        for (auto i = x; i; i &= i - 1) {
+            for (auto j = y; j; j &= j - 1) {
+                ret += tree[i][j];
+            }
+        }
+        return ret;
+    }
+    T prod(size_t x1, size_t y1, size_t x2, size_t y2) const {
+        return prod(x1, y1) - prod(x1, y2) - prod(x2, y1) + prod(x2, y2);
+    }
+};
+
+int main() {
+    cin.tie(nullptr)->sync_with_stdio(false);
+#ifdef palilo
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int n, m;
+    cin >> n >> m;
+    binary_indexed_tree<int> bit_2d(n);
+    char op;
+    for (int x1, x2, y1, y2; m--;) {
+        cin >> op >> x1 >> y1, --x1, --y1;
+        if (op == '0') {
+            cin >> x2;
+            bit_2d.update(x1, y1, x2 - bit_2d.prod(x1, y1, x1 + 1, y1 + 1));
+        } else {
+            cin >> x2 >> y2;
+            cout << bit_2d.prod(x1, y1, x2, y2) << '\n';
+        }
+    }
 }
