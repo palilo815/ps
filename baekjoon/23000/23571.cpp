@@ -16,7 +16,7 @@ int main() {
     sort(b.begin(), b.end());
     auto parametric = [&](auto lo, auto hi) {
         auto f = [&](auto mid) -> bool {
-            const auto same = [&](const auto& x, const auto& y) { return abs(x - y) <= mid; };
+            auto same = [&](const auto& x, const auto& y) { return abs(x - y) <= mid; };
             const auto l = mismatch(a.begin(), prev(a.end()), b.begin(), same);
             const auto r = mismatch(a.rbegin(), make_reverse_iterator(next(l.first)), b.rbegin(), same);
             return equal(l.first, prev(r.first.base()), next(l.second), same) ||
@@ -30,7 +30,7 @@ int main() {
         return lo;
     };
     const auto best = parametric(0, int(1e9));
-    const auto same = [&](const auto& x, const auto& y) { return abs(x - y) <= best; };
+    auto same = [&](const auto& x, const auto& y) { return abs(x - y) <= best; };
     const auto base = mismatch(a.rbegin(), prev(a.rend()), b.rbegin(), same);
     const auto ans1 = [&]() {
         // case 1:  || \\\\ ||
