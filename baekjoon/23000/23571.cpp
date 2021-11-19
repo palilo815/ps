@@ -16,24 +16,11 @@ int main() {
     sort(b.begin(), b.end());
     auto parametric = [&](auto lo, auto hi) {
         auto f = [&](auto mid) -> bool {
-            int l = 0, r = n;
-            while (l != n && abs(a[l] - b[l]) <= mid) ++l;
-            while (l != r && abs(a[r - 1] - b[r - 1]) <= mid) --r;
-            bool ok = true;
-            for (int i = l; i < r - 1; ++i) {
-                if (abs(a[i] - b[i + 1]) > mid) {
-                    ok = false;
-                    break;
-                }
-            }
-            if (exchange(ok, true)) return true;
-            for (int i = l + 1; i < r; ++i) {
-                if (abs(a[i] - b[i - 1]) > mid) {
-                    ok = false;
-                    break;
-                }
-            }
-            return ok;
+            const auto same = [&](const auto& x, const auto& y) { return abs(x - y) <= mid; };
+            const auto l = mismatch(a.begin(), prev(a.end()), b.begin(), same);
+            const auto r = mismatch(a.rbegin(), make_reverse_iterator(next(l.first)), b.rbegin(), same);
+            return equal(l.first, prev(r.first.base()), next(l.second), same) ||
+                   equal(next(l.first), r.first.base(), l.second, same);
         };
         // first true
         while (lo != hi) {
@@ -43,29 +30,17 @@ int main() {
         return lo;
     };
     const auto best = parametric(0, int(1e9));
-    int r = n - 1;
-    while (r && abs(a[r] - b[r]) <= best) {
-        --r;
-    }
-    // case 1: "\\\\"
-    int p1 = r, ans1 = a[p1];
-    while (p1 && abs(a[p1 - 1] - b[p1]) <= best) --p1;
-    for (int i = 0; i < p1; ++i) {
-        if (abs(a[i] - b[i]) > best) {
-            ans1 = INT_MAX;
-            break;
-        }
-    }
-    // case 2: "////"
-    int p2 = r;
-    while (p2 && abs(a[p2] - b[p2 - 1]) <= best) --p2;
-    int ans2 = a[p2];
-    for (int i = 0; i < p2; ++i) {
-        if (abs(a[i] - b[i]) > best) {
-            ans2 = INT_MAX;
-            break;
-        }
-    }
-    assert(ans1 != INT_MAX || ans2 != INT_MAX);
+    const auto same = [&](const auto& x, const auto& y) { return abs(x - y) <= best; };
+    const auto base = mismatch(a.rbegin(), prev(a.rend()), b.rbegin(), same);
+    const auto ans1 = [&]() {
+        // case 1:  || \\\\ ||
+        auto [i, j] = mismatch(next(base.first), a.rend(), base.second, same);
+        return equal(i, a.rend(), next(j), same) ? *base.first : INT_MAX;
+    }();
+    const auto ans2 = [&]() {
+        // case 1:  || //// ||
+        auto [i, j] = mismatch(base.first, prev(a.rend()), next(base.second), same);
+        return equal(next(i), a.rend(), j, same) ? *i : INT_MAX;
+    }();
     cout << min(ans1, ans2);
 }
