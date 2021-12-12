@@ -72,7 +72,7 @@ fn main() {
     let mut out = std::io::BufWriter::new(out.lock());
     input! {
         n: usize,
-        a: [(i32,i32,i32); n],
+        a: [(i32, i32, i32); n],
     }
     let mut a = a;
     a.sort_unstable_by_key(|&x| x.0);
