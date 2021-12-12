@@ -63,7 +63,7 @@ fn main() {
             'H' => 'n',
             'P' => 'r',
             'C' => 's',
-            'y' => 'u',
+            'Y' => 'u',
             'X' => 'h',
             _ => x.to_lowercase().next().unwrap(),
         };
