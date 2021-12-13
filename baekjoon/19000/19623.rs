@@ -73,23 +73,14 @@ fn main() {
         n: usize,
         a: [(u32, u32, u32); n],
     }
-    let mut vals = a.iter().map(|x| x.0).collect::<Vec<_>>();
-    vals.append(&mut a.iter().map(|x| x.1).collect::<Vec<_>>());
-    vals.sort_unstable();
-    let n = n << 1;
-    let mut nxt = vec![(0, 0); n];
-    for &(x, y, z) in a.iter() {
-        let x = vals.binary_search(&x).unwrap();
-        let y = vals.binary_search(&y).unwrap();
-        nxt[x] = (y, z);
-    }
-    let mut dp = vec![0; n];
-    let mut best = 0;
+    let mut a = a;
+    a.sort_unstable();
+    let mut dp = vec![0; n + 1];
     for i in 0..n {
-        best.chmax(dp[i]);
-        if nxt[i].0 != 0 {
-            dp[nxt[i].0] = best + nxt[i].1;
-        }
+        let cur = dp[i];
+        dp[i + 1].chmax(cur);
+        let idx = a[(i + 1)..n].binary_search(&(a[i].1, 0, 0)).unwrap_err() + i + 1;
+        dp[idx].chmax(cur + a[i].2);
     }
-    writeln!(out, "{}", best).ok();
+    writeln!(out, "{}", dp[n]).ok();
 }
