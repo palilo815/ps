@@ -10,5 +10,7 @@ EXTENSION=${FILE##*.} # rs, cpp, py, txt ...
 let D=$2/1000*1000
 
 cp $FILE $D/$2.$EXTENSION
-gaa
-gcmsg '$3'
+git add all
+git commit -m '$3'
+
+echo "done"
