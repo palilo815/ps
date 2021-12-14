@@ -30,6 +30,10 @@ impl DisjointSet {
         self.p[v] = u as i32;
         true
     }
+    pub fn same(&mut self, u: usize, v: usize) -> bool {
+        assert!(u < self.p.len() && v < self.p.len());
+        self.find(u) == self.find(v)
+    }
     pub fn size(&mut self, u: usize) -> usize {
         assert!(u < self.p.len());
         let root = self.find(u);
