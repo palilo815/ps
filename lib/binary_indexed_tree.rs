@@ -65,7 +65,7 @@ mod binary_indexed_tree {
 }
 
 // TODO
-impl Monoid for u64 {
+impl Monoid for TODO {
     fn id() -> Self {
         // TODO
     }

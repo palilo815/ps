@@ -69,7 +69,7 @@ mod segment_tree {
 }
 
 // TODO
-impl Monoid for T {
+impl Monoid for TODO {
     fn id() -> Self {
         // TODO
     }
