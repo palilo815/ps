@@ -4,15 +4,13 @@ pub trait Monoid: std::clone::Clone + std::marker::Copy {
     fn rev_op(lhs: &Self, rhs: &Self) -> Self;
 }
 
+#[allow(dead_code)]
 mod binary_indexed_tree {
     use crate::Monoid;
-
     pub struct BinaryIndexedTree<T: Monoid> {
         n: usize,
         tree: Vec<T>,
     }
-
-    #[allow(dead_code)]
     impl<T: Monoid> BinaryIndexedTree<T> {
         pub fn new(n: usize) -> Self {
             Self {
@@ -41,7 +39,7 @@ mod binary_indexed_tree {
             }
         }
         pub fn update(&mut self, mut i: usize, x: T) {
-            assert!(i < self.n);
+            assert!(i <= self.n);
             i += 1;
             while i <= self.n {
                 self.tree[i] = T::op(&self.tree[i], &x);
@@ -49,7 +47,7 @@ mod binary_indexed_tree {
             }
         }
         pub fn prefix(&self, mut i: usize) -> T {
-            assert!(i < self.n);
+            assert!(i <= self.n);
             let mut ret = T::id();
             while i != 0 {
                 ret = T::op(&ret, &self.tree[i]);
@@ -60,6 +58,9 @@ mod binary_indexed_tree {
         pub fn product(&self, l: usize, r: usize) -> T {
             assert!(l <= r);
             T::rev_op(&self.prefix(l), &self.prefix(r))
+        }
+        pub fn clear(&mut self) {
+            self.tree.fill(T::id());
         }
     }
 }
