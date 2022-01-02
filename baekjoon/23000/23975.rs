@@ -94,10 +94,12 @@ fn run<W: Write>(sc: &mut scanner::Scanner, out: &mut std::io::BufWriter<W>) {
         }
         par
     };
-    let mut par = vec![-1; n];
-    for u in 0..n {
-        if a[u] == 0 {
-            par[u] = prv[u]
+    let mut par = (0..n)
+        .map(|i| if a[i] == 0 { prv[i] } else { -1 })
+        .collect::<Vec<_>>();
+    for i in 1..n {
+        if prv[i] == -1 {
+            a[i] = 0;
         }
     }
     for _ in 0..k {
@@ -110,7 +112,7 @@ fn run<W: Write>(sc: &mut scanner::Scanner, out: &mut std::io::BufWriter<W>) {
             u = p;
         }
         let ans = {
-            if (u != 0 && prv[u] == -1) || a[u] == 0 {
+            if a[u] == 0 {
                 -1
             } else {
                 a[u] -= 1;
