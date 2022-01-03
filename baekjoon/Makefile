@@ -1,0 +1,9 @@
+  # compiler
+  CC = g++
+
+  # compiler flags:
+  CFLAGS  = -std=c++20 -Dpalilo -lm -Wall -O2
+
+  all: a.cpp
+	$(CC) $(CFLAGS) -o a a.cpp
+	
