@@ -12,10 +12,9 @@ int main() {
     vector<int> a(n), b(n);
     for (auto& x : a) cin >> x;
     for (auto& x : b) cin >> x;
-    int m = n;
-    while (m && a[m - 1] == b[m - 1]) --m;
-    sort(a.begin(), a.begin() + m);
-    while (m && a[m - 1] == b[m - 1]) --m;
+    while (n && a[n - 1] == b[n - 1]) --n;
+    sort(a.begin(), a.begin() + n);
+    while (n && a[n - 1] == b[n - 1]) --n;
     const auto [a_st, b_st] = ranges::mismatch(a, b);
-    cout << (a_st == a.end() || (*a_st < *b_st && equal(b_st, b.begin() + m, next(a_st))));
+    cout << (a_st == a.end() || (*a_st < *b_st && equal(b_st, b.begin() + n, next(a_st))));
 }
