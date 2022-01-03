@@ -7,4 +7,3 @@
   all: a.cpp
 	clang-format -i a.cpp
 	$(CC) $(CFLAGS) -o a a.cpp
-	
