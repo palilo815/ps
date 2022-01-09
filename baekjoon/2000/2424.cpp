@@ -1,89 +1,103 @@
 #include <bits/stdc++.h>
-#define loop(i,n) for(int i=0;i<n;++i)
-using namespace std;
-typedef pair<int, int> p;
 
-const int MAX = 700;
-const int mov[4][2] = { -1,0,0,-1,0,1,1,0 };
+template <class T>
+bool chmin(T& _old, T _new) { return _old > _new && (_old = _new, true); }
+template <class T>
+bool chmax(T& _old, T _new) { return _old < _new && (_old = _new, true); }
 
-int row, col;
-char board[MAX][MAX];
-bool visited[MAX][MAX];
-int v_time[MAX][MAX];
-
-bool is_out(int r, int c) {
-    return r < 0 || r >= row || c < 0 || c >= col || board[r][c] == 'I';
-}
-void record_time(int r, int c, int t) {
-    loop(d, 4) {
-        int R = r + mov[d][0], C = c + mov[d][1];
-        while (!is_out(R, C)) {
-            v_time[R][C] = min(v_time[R][C], t);
-            R += mov[d][0], C += mov[d][1];
-        }
-    }
-}
 int main() {
-    cin.tie(0), cout.tie(0);
-    ios::sync_with_stdio(0);
-
-    cin >> row >> col;
-    int sr, sc, vr, vc;
-    loop(i, row) loop(j, col) {
-        cin >> board[i][j];
-        if (board[i][j] == 'Y')
-            sr = i, sc = j;
-        else if (board[i][j] == 'V')
-            vr = i, vc = j;
+    using namespace std;
+    cin.tie(nullptr)->sync_with_stdio(false);
+#ifdef palilo
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int n, m;
+    cin >> n >> m;
+    vector<string> grid(n);
+    for (auto& x : grid) {
+        cin >> x;
     }
-
-    memset(v_time, 0x3f, sizeof(v_time));
-    v_time[vr][vc] = 0;
-
-    queue<p> q;
-    q.emplace(vr, vc), q.emplace(-1, -1);
-    visited[vr][vc] = true;
-    int t = 0;
-
-    while (1) {
-        auto [r, c] = q.front(); q.pop();
-        if (r == -1) {
-            if (q.empty()) break;
-            ++t; q.emplace(-1, -1);
-            continue;
+    constexpr array<pair<int, int>, 4> MOVE {{{-1, 0}, {0, -1}, {0, 1}, {1, 0}}};
+    vector seen(n, vector(m, INT_MAX));
+    vector dist(n, vector<int>(m));
+    queue<pair<int, int>> q;
+    auto bfs = [&](int sx, int sy) {
+        ranges::for_each(dist, [&](auto& x) {
+            ranges::fill(x, -1);
+        });
+        q.emplace(sx, sy);
+        dist[sx][sy] = 0;
+        while (!q.empty()) {
+            const auto [x, y] = q.front();
+            q.pop();
+            for (const auto& [dx, dy] : MOVE) {
+                const auto xx = x + dx, yy = y + dy;
+                if (xx == -1 || xx == n || yy == -1 || yy == m || grid[xx][yy] == 'I' || ~dist[xx][yy] || dist[x][y] + 1 >= seen[xx][yy]) continue;
+                dist[xx][yy] = dist[x][y] + 1;
+                q.emplace(xx, yy);
+            }
         }
-        record_time(r, c, t);
-
-        loop(i, 4) {
-            int R = r + mov[i][0], C = c + mov[i][1];
-            if (is_out(R, C) || visited[R][C]) continue;
-            visited[R][C] = true;
-            q.emplace(R, C);
-        }
-    }
-
-    memset(visited, 0, sizeof(visited));
-    visited[sr][sc] = true;
-    t = 0;
-    q.emplace(sr, sc), q.emplace(-1, -1);
-
-    while (1) {
-        auto [r, c] = q.front(); q.pop();
-        if (r == -1) {
-            if (q.empty()) { cout << "NO"; return 0; }
-            ++t; q.emplace(-1, -1);
-            continue;
-        }
-        if (v_time[r][c] <= t && (sr != r || sc != c)) continue;
-        if (board[r][c] == 'T') break;
-
-        loop(i, 4) {
-            int R = r + mov[i][0], C = c + mov[i][1];
-            if (is_out(R, C) || visited[R][C] || v_time[R][C] <= t) continue;
-            visited[R][C] = true;
-            q.emplace(R, C);
+    };
+    for (int i = 0; i != n; ++i) {
+        for (int j = 0; j != m; ++j) {
+            if (grid[i][j] == 'V') {
+                bfs(i, j);
+            }
         }
     }
-    cout << "YES";
-    return 0;
+    for (int i = 0; i != n; ++i) {
+        for (int j = 0, dp = INT_MAX; j != m; ++j) {
+            if (dist[i][j] == -1) {
+                dp = INT_MAX;
+            } else {
+                chmin(dp, dist[i][j]);
+            }
+            chmin(seen[i][j], dp);
+        }
+    }
+    for (int i = 0; i != n; ++i) {
+        for (int j = m, dp = INT_MAX; j--;) {
+            if (dist[i][j] == -1) {
+                dp = INT_MAX;
+            } else {
+                chmin(dp, dist[i][j]);
+            }
+            chmin(seen[i][j], dp);
+        }
+    }
+    for (int j = 0; j != m; ++j) {
+        for (int i = 0, dp = INT_MAX; i != n; ++i) {
+            if (dist[i][j] == -1) {
+                dp = INT_MAX;
+            } else {
+                chmin(dp, dist[i][j]);
+            }
+            chmin(seen[i][j], dp);
+        }
+    }
+    for (int j = 0; j != m; ++j) {
+        for (int i = n, dp = INT_MAX; i--;) {
+            if (dist[i][j] == -1) {
+                dp = INT_MAX;
+            } else {
+                chmin(dp, dist[i][j]);
+            }
+            chmin(seen[i][j], dp);
+        }
+    }
+    for (int i = 0; i != n; ++i) {
+        for (int j = 0; j != m; ++j) {
+            if (grid[i][j] == 'Y') {
+                bfs(i, j);
+            }
+        }
+    }
+    for (int i = 0; i != n; ++i) {
+        for (int j = 0; j != m; ++j) {
+            if (grid[i][j] == 'T') {
+                return cout << (~dist[i][j] ? "YES" : "NO"), 0;
+            }
+        }
+    }
 }
