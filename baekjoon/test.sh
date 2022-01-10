@@ -8,17 +8,11 @@ PASSED=$1
 if [[ -d $PASSED ]]; then
     # multiple tests in directory
     echo "run all tests in directory:$PASSED"
-    for file in "$PASSED"/*
+    for IN in "$PASSED"/*
     do
-        if [[ "$file" =~ "in" ]]; then
-            echo "$file is input!"
-            #out=("${file//in/out}")
-            #if [ -e $out ]
-            #then
-            #    ./a < $file > out && diff out $out
-            #else
-            #    echo "oops... output does not exist"
-            #fi
+        if [[ "$IN" =~ "in" ]]; then
+            OUT=("${IN//in/out}")
+            ./a < $IN > out && diff out $OUT
         fi
     done
 elif [[ -f $PASSED ]]; then
