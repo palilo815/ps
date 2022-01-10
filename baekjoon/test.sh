@@ -1,8 +1,7 @@
-#if [ $# -ne 3 ]; then
-#    echo "Usage --- {file name} {problem #} {'problem name'}"
-#    echo "e.g. ---- a.rs 1000 'A + B'"
-#    exit 1
-#fi
+if [ $# -ne 1 ]; then
+    echo "Usage --- {file or directory}"
+    exit 1
+fi
 
 PASSED=$1
 
