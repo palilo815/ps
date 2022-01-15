@@ -34,7 +34,7 @@ where
             op,
         }
     }
-    pub fn build_with(leaves: Vec<T>, id: T, op: F) -> Self {
+    pub fn from(leaves: Vec<T>, id: T, op: F) -> Self {
         let size = leaves.len().next_power_of_two();
         let mut tree = vec![id; size << 1];
         tree[n..].copy_from_slice(&leaves);

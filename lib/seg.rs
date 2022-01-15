@@ -33,7 +33,7 @@ where
             op,
         }
     }
-    pub fn build_with(leaves: Vec<T>, id: T, op: F) -> Self {
+    pub fn from(leaves: Vec<T>, id: T, op: F) -> Self {
         let size = leaves.len();
         let mut tree = leaves;
         tree.extend_from_within(..);
