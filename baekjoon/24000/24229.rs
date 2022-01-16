@@ -89,14 +89,15 @@ fn main() {
     if united.0 != -1 {
         b.push(united);
     }
-    let mut ans = b[0].1;
-    for &inter in b.iter() {
-        if ans < inter.0 {
+    let mut ans = 0;
+    for (i, &inter) in b.iter().enumerate() {
+        if ans < i {
             break;
         }
         let dest = inter.1 + inter.1 - inter.0;
-        let dest = b.partition_point(|&(x, _)| x <= dest) - 1;
-        ans.chmax(b[dest].1);
+        while ans + 1 != b.len() && b[ans + 1].0 <= dest {
+            ans += 1;
+        }
     }
-    writeln!(out, "{}", ans).ok();
+    writeln!(out, "{}", b[ans].1).ok();
 }
