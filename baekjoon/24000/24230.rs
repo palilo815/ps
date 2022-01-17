@@ -40,28 +40,8 @@ fn main() {
 fn run<W: Write>(sc: &mut scanner::Scanner, out: &mut std::io::BufWriter<W>) {
     let n = sc.next::<usize>();
     let colour = sc.next_vec::<u32>(n);
-    let mut adj = vec![vec![]; n];
-    for _ in 1..n {
-        let u = sc.next::<usize>() - 1;
-        let v = sc.next::<usize>() - 1;
-        adj[u].push(v);
-        adj[v].push(u);
-    }
-    let mut stack = vec![0];
-    let mut par = vec![usize::MAX; n];
-    while let Some(u) = stack.pop() {
-        if let Some(p) = adj[u].iter().position(|&x| x == par[u]) {
-            adj[u].swap_remove(p);
-        }
-        for &v in adj[u].iter() {
-            par[v] = u;
-            stack.push(v);
-        }
-    }
-    writeln!(
-        out,
-        "{}",
-        (1..n).filter(|&x| colour[x] != colour[par[x]]).count() + (colour[0] != 0) as usize
-    )
-    .ok();
+    let ans = (1..n).fold((colour[0] != 0) as u32, |acc, _| {
+        acc + (colour[sc.next::<usize>() - 1] != colour[sc.next::<usize>() - 1]) as u32
+    });
+    writeln!(out, "{}", ans).ok();
 }
