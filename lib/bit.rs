@@ -1,79 +1,92 @@
-pub trait Monoid: std::clone::Clone + std::marker::Copy {
-    fn id() -> Self;
-    fn op(lhs: &Self, rhs: &Self) -> Self;
-    fn rev_op(lhs: &Self, rhs: &Self) -> Self;
+pub struct BinaryIndexedTree<T> {
+    size: usize,
+    tree: Vec<T>,
+    id: T,
 }
 
 #[allow(dead_code)]
-mod binary_indexed_tree {
-    use crate::Monoid;
-    pub struct BinaryIndexedTree<T: Monoid> {
-        n: usize,
-        tree: Vec<T>,
-    }
-    impl<T: Monoid> BinaryIndexedTree<T> {
-        pub fn new(n: usize) -> Self {
-            Self {
-                n,
-                tree: vec![T::id(); n + 1],
-            }
-        }
-        pub fn build_with(data: Vec<T>) -> Self {
-            let n = data.len();
-            let mut a = vec![T::id(); n + 1];
-            a[1..].copy_from_slice(&data);
-            for i in 1..=n {
-                let j = i + (i & i.wrapping_neg());
-                if j <= n {
-                    a[j] = T::op(&a[i], &a[j]);
-                }
-            }
-            Self { n, tree: a }
-        }
-        pub fn get(&self, i: usize) -> T {
-            assert!(i < self.n);
-            if i & 1 == 0 {
-                self.product(i, i + 1)
-            } else {
-                self.tree[i + 1]
-            }
-        }
-        pub fn update(&mut self, mut i: usize, x: T) {
-            assert!(i <= self.n);
-            i += 1;
-            while i <= self.n {
-                self.tree[i] = T::op(&self.tree[i], &x);
-                i += i & i.wrapping_neg();
-            }
-        }
-        pub fn prefix(&self, mut i: usize) -> T {
-            assert!(i <= self.n);
-            let mut ret = T::id();
-            while i != 0 {
-                ret = T::op(&ret, &self.tree[i]);
-                i &= i - 1;
-            }
-            ret
-        }
-        pub fn product(&self, l: usize, r: usize) -> T {
-            assert!(l <= r);
-            T::rev_op(&self.prefix(l), &self.prefix(r))
-        }
-        pub fn clear(&mut self) {
-            self.tree.fill(T::id());
+impl<T> BinaryIndexedTree<T>
+where
+    T: std::clone::Clone
+        + std::cmp::PartialOrd
+        + std::marker::Copy
+        + std::ops::AddAssign
+        + std::ops::SubAssign
+        + std::ops::Sub<Output = T>,
+{
+    pub fn new(size: usize, id: T) -> Self {
+        BinaryIndexedTree {
+            size,
+            tree: vec![id; size + 1],
+            id,
         }
     }
-}
-
-// TODO
-impl Monoid for TODO {
-    fn id() -> Self {
-        // TODO
+    pub fn build(&mut self) {
+        for i in 1..self.size {
+            let val = self.tree[i];
+            let idx = i + (i & i.wrapping_neg());
+            if idx <= self.size {
+                self.tree[idx] += val;
+            }
+        }
     }
-    fn op(lhs: &Self, rhs: &Self) -> Self {
-        // TODO
+    pub fn clear(&mut self) {
+        self.tree[1..].fill(self.id);
     }
-    fn rev_op(lhs: &Self, rhs: &Self) -> Self {
-        // TODO
+    pub fn get(&self, i: usize) -> T {
+        assert!(i < self.size);
+        if i & 1 == 0 {
+            self.product(i, i + 1)
+        } else {
+            self.tree[i + 1]
+        }
+    }
+    pub fn fake_update(&mut self, i: usize, x: T) {
+        self.tree[i + 1] += x;
+    }
+    pub fn update(&mut self, mut i: usize, x: T) {
+        assert!(i <= self.size);
+        i += 1;
+        while i <= self.size {
+            self.tree[i] += x;
+            i += i & i.wrapping_neg();
+        }
+    }
+    pub fn prefix(&self, mut i: usize) -> T {
+        assert!(i <= self.size);
+        let mut ret = self.id;
+        while i != 0 {
+            ret += self.tree[i];
+            i &= i - 1;
+        }
+        ret
+    }
+    pub fn product(&self, l: usize, r: usize) -> T {
+        assert!(l <= r);
+        self.prefix(r) - self.prefix(l)
+    }
+    pub fn lower_bound(&self, mut k: T) -> usize {
+        let mut i = 0;
+        let mut pw = 1 << 20;
+        while pw != 0 {
+            if (i | pw) <= self.size && self.tree[i | pw] < k {
+                i |= pw;
+                k -= self.tree[i];
+            }
+            pw >>= 1;
+        }
+        i
+    }
+    pub fn upper_bound(&self, mut k: T) -> usize {
+        let mut i = 0;
+        let mut pw = 1 << 20;
+        while pw != 0 {
+            if (i | pw) <= self.size && self.tree[i | pw] <= k {
+                i |= pw;
+                k -= self.tree[i];
+            }
+            pw >>= 1;
+        }
+        i
     }
 }
