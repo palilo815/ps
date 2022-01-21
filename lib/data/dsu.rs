@@ -3,8 +3,8 @@ pub struct DisjointSet {
 }
 
 impl DisjointSet {
-    pub fn new(n: usize) -> DisjointSet {
-        DisjointSet { p: vec![-1; n] }
+    pub fn new(n: usize) -> Self {
+        Self { p: vec![-1; n] }
     }
     pub fn find(&mut self, mut u: usize) -> usize {
         assert!(u < self.p.len());
@@ -17,7 +17,6 @@ impl DisjointSet {
         u
     }
     pub fn unite(&mut self, u: usize, v: usize) -> bool {
-        assert!(u < self.p.len() && v < self.p.len());
         let mut u = self.find(u);
         let mut v = self.find(v);
         if u == v {
@@ -31,11 +30,9 @@ impl DisjointSet {
         true
     }
     pub fn same(&mut self, u: usize, v: usize) -> bool {
-        assert!(u < self.p.len() && v < self.p.len());
         self.find(u) == self.find(v)
     }
     pub fn size(&mut self, u: usize) -> usize {
-        assert!(u < self.p.len());
         let root = self.find(u);
         (-self.p[root]) as usize
     }
