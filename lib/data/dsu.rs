@@ -1,3 +1,8 @@
+/**
+* @date     2022-01-21
+* @author   palilo
+* @brief    disjoint-set-union (a.k.a. union-find)
+*/
 pub struct DisjointSet {
     p: Vec<i32>,
 }
@@ -32,8 +37,11 @@ impl DisjointSet {
     pub fn same(&mut self, u: usize, v: usize) -> bool {
         self.find(u) == self.find(v)
     }
-    pub fn size(&mut self, u: usize) -> usize {
+    pub fn size_of(&mut self, u: usize) -> usize {
         let root = self.find(u);
         (-self.p[root]) as usize
+    }
+    pub fn num_components(&self) -> usize {
+        self.p.iter().filter(|x| x.is_negative()).count()
     }
 }
