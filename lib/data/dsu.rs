@@ -11,15 +11,14 @@ impl DisjointSet {
     pub fn new(n: usize) -> Self {
         Self { p: vec![-1; n] }
     }
-    pub fn find(&mut self, mut u: usize) -> usize {
-        assert!(u < self.p.len());
-        while self.p[u] >= 0 {
-            if self.p[self.p[u] as usize] >= 0 {
-                self.p[u] = self.p[self.p[u] as usize];
-            }
-            u = self.p[u] as usize;
+    pub fn find(&mut self, u: usize) -> usize {
+        if self.p[u] < 0 {
+            u
+        } else {
+            let rt = self.find(self.p[u] as usize);
+            self.p[u] = rt as i32;
+            rt
         }
-        u
     }
     pub fn unite(&mut self, u: usize, v: usize) -> bool {
         let mut u = self.find(u);
