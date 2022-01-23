@@ -3,6 +3,10 @@
 * @author   palilo
 * @brief    sparse table 
 *           a data structure that can answer overlap-friendly operation in O(1) time
+* @comment  `(31 or 63) ^ x.leading_zeros()` is equivalent to `x.leading_zeros().log2()`
+*           `log2` is nightly-only API now.
+* @usage    `let sparse = SparseTable::new(a, |&lhs, &rhs| lhs.min(rhs));`
+*               -> range minimum query for `a`
 */
 pub struct SparseTable<T, F> {
     size: usize,
