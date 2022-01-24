@@ -53,31 +53,14 @@ fn main() {
         a2: i32,
         a1: i32,
         a0: i32,
-        c1: i32,
-        c2: i32,
+        c: i32,
         n0: i32,
     }
+    let a = c - a2;
     let b = -a1;
     let c = -a0;
-    let o = {
-        let a = c2 - a2;
-        if a < 0 {
-            // 위로 볼록
-            false
-        } else if a == 0 {
-            // 일차함수
-            b >= 0 && b * n0 + c >= 0
-        } else {
-            // 극소: x = -b / 2a
-            if n0 * 2 * a < -b {
-                a * b * b - b * b * 2 * a + c * 2 * a * 2 * a >= 0
-            } else {
-                a * n0 * n0 + b * n0 + c >= 0
-            }
-        }
-    };
-    let omega = {
-        let a = c1 - a2;
+    // ax^2 + bx + c가 n0 <= x에서 항상 0 이하인가?
+    let ans = {
         if a > 0 {
             // 아래로 볼록
             false
@@ -93,5 +76,5 @@ fn main() {
             }
         }
     };
-    writeln!(out, "{}", (o && omega) as u32).ok();
+    writeln!(out, "{}", ans as u32).ok();
 }
