@@ -43,4 +43,7 @@ impl DisjointSet {
     pub fn num_components(&self) -> usize {
         self.p.iter().filter(|x| x.is_negative()).count()
     }
+    pub fn clear(&mut self) {
+        self.p.fill(-1);
+    }
 }
