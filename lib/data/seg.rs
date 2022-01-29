@@ -1,4 +1,4 @@
-pub struct SegmentTree<T, F> {
+struct SegmentTree<T, F> {
     size: usize,
     tree: Vec<T>,
     id: T,
@@ -8,13 +8,11 @@ pub struct SegmentTree<T, F> {
 impl<T, F> std::ops::Index<usize> for SegmentTree<T, F> {
     type Output = T;
     fn index(&self, i: usize) -> &T {
-        assert!(i < self.size);
         &self.tree[i + self.size]
     }
 }
 impl<T, F> std::ops::IndexMut<usize> for SegmentTree<T, F> {
     fn index_mut(&mut self, i: usize) -> &mut T {
-        assert!(i < self.size);
         &mut self.tree[i + self.size]
     }
 }
@@ -25,7 +23,7 @@ where
     T: Clone + std::marker::Copy,
     F: Fn(&T, &T) -> T,
 {
-    pub fn new(size: usize, id: T, op: F) -> Self {
+    fn new(size: usize, id: T, op: F) -> Self {
         SegmentTree {
             size,
             tree: vec![id; size << 1],
@@ -33,7 +31,7 @@ where
             op,
         }
     }
-    pub fn from(leaves: Vec<T>, id: T, op: F) -> Self {
+    fn from(leaves: Vec<T>, id: T, op: F) -> Self {
         let size = leaves.len();
         let mut tree = leaves;
         tree.extend_from_within(..);
@@ -43,12 +41,15 @@ where
         tree[0] = id;
         Self { size, tree, id, op }
     }
-    pub fn build(&mut self) {
+    fn build(&mut self) {
         for i in (1..self.size).rev() {
             self.tree[i] = (self.op)(&self.tree[i << 1], &self.tree[i << 1 | 1]);
         }
     }
-    pub fn set(&mut self, mut i: usize, x: T) {
+    fn clear(&mut self) {
+        self.tree[1..].fill(self.id);
+    }
+    fn set(&mut self, mut i: usize, x: T) {
         assert!(i < self.size);
         i += self.size;
         self.tree[i] = x;
@@ -57,7 +58,7 @@ where
             self.tree[i] = (self.op)(&self.tree[i << 1], &self.tree[i << 1 | 1]);
         }
     }
-    pub fn update(&mut self, mut i: usize, x: T) {
+    fn update(&mut self, mut i: usize, x: T) {
         assert!(i < self.size);
         i += self.size;
         self.tree[i] = (self.op)(&self.tree[i], &x);
@@ -66,7 +67,7 @@ where
             self.tree[i] = (self.op)(&self.tree[i << 1], &self.tree[i << 1 | 1]);
         }
     }
-    pub fn product(&self, mut l: usize, mut r: usize) -> T {
+    fn product(&self, mut l: usize, mut r: usize) -> T {
         assert!(l <= r && r <= self.size);
         let mut ret = self.id;
         l += self.size;
@@ -85,7 +86,7 @@ where
         }
         ret
     }
-    pub fn all_prod(&self) -> T {
+    fn all_product(&self) -> T {
         self.tree[1]
     }
 }
