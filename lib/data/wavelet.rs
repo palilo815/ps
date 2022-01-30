@@ -3,9 +3,10 @@
 * @author   palilo
 * @test     `kth_smallest`  https://judge.yosupo.jp/submission/76253
 *                           https://www.acmicpc.net/source/38330373
+*           `rank`          https://judge.yosupo.jp/submission/76312    -> RE if n == 0, fixed now.
 */
 mod wavelet {
-    type T = i32;
+    type T = u32;
 
     #[derive(Clone)]
     struct BitVec {
@@ -57,8 +58,9 @@ mod wavelet {
     #[allow(dead_code)]
     impl Matrix {
         pub fn new(mut data: Vec<T>) -> Self {
+            assert!(!data.is_empty());
             let size = data.len();
-            let height = 32 - data.iter().max().unwrap().leading_zeros() as usize;
+            let height = 32 - (*data.iter().max().unwrap() + 1).leading_zeros() as usize;
             let mut matrix = vec![BitVec::new(size); height];
             let mut fence = vec![0; height];
             let mut buf = vec![0; size];
