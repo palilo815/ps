@@ -60,7 +60,7 @@ fn main() {
     for (l, d) in a {
         h += d as u64;
         pq.push(d);
-        while h > l + d as u64 {
+        if h > l + d as u64 {
             h -= pq.pop().unwrap() as u64;
         }
     }
