@@ -1,7 +1,9 @@
+main*
 tmp*
-a
-a.*
 in
 out
+Cargo*
 .ccls
 tc
+src
+target
