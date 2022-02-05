@@ -119,7 +119,7 @@ where
         let m = (l + r) >> 1;
         let lson = &self._product(ql, qr, l, m, i << 1);
         let rson = &self._product(ql, qr, m, r, i << 1 | 1);
-        (self.op)(&lson, &rson)
+        (self.op)(lson, rson)
     }
     fn _pull(&mut self, i: usize) {
         self.tree[i] = (self.op)(&self.tree[i << 1], &self.tree[i << 1 | 1]);
