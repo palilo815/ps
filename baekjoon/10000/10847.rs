@@ -56,13 +56,17 @@ impl std::cmp::PartialOrd for HeapNode {
 fn run<W: Write>(sc: &mut scanner::Scanner, out: &mut std::io::BufWriter<W>) {
     let n = sc.next::<usize>();
     let m = sc.next::<usize>();
-    let mut doges = vec![std::collections::BTreeSet::new(); n];
+    let mut doges = vec![vec![]; n];
     let s = sc.next::<usize>();
-    doges[s].insert(sc.next::<usize>());
+    doges[s].push(sc.next::<usize>());
     let t = sc.next::<usize>();
-    doges[t].insert(sc.next::<usize>());
+    doges[t].push(sc.next::<usize>());
     for _ in 2..m {
-        doges[sc.next::<usize>()].insert(sc.next::<usize>());
+        doges[sc.next::<usize>()].push(sc.next::<usize>());
+    }
+    for x in doges.iter_mut() {
+        x.sort_unstable();
+        x.dedup();
     }
     const INF: i32 = 0x3f3f3f3f;
     let mut dist = vec![INF; n];
@@ -79,7 +83,7 @@ fn run<W: Write>(sc: &mut scanner::Scanner, out: &mut std::io::BufWriter<W>) {
                     dist[v] = d + jump;
                     pq.push(HeapNode(dist[v], v));
                 }
-                if doges[v].contains(p) {
+                if doges[v].binary_search(p).is_ok() {
                     break;
                 }
             }
@@ -88,7 +92,7 @@ fn run<W: Write>(sc: &mut scanner::Scanner, out: &mut std::io::BufWriter<W>) {
                     dist[v] = d + jump;
                     pq.push(HeapNode(dist[v], v));
                 }
-                if doges[v].contains(p) {
+                if doges[v].binary_search(p).is_ok() {
                     break;
                 }
             }
