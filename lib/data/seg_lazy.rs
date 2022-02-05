@@ -1,10 +1,9 @@
 /**
-* @date     2022-01-29
+* @date     2022-02-05
 * @author   palilo
 * @brief    range update & range query segment tree
-* @usage    `let sparse = SparseTable::new(a, |&lhs, &rhs| lhs.min(rhs));`
-*               -> range minimum query for `a`
-* @test     https://judge.yosupo.jp/submission/76204
+* @test     http://boj.kr/cbe56bb9938b4c5fba9d239cd76d2684
+* @warning  `from` is not tested
 */
 struct LazySeg<T, U, F1, F2, F3> {
     size: usize,
@@ -52,23 +51,10 @@ where
         }
     }
     fn from(leaves: Vec<T>, id: T, off: U, op: F1, mapping: F2, composition: F3) -> Self {
-        let size = leaves.len().next_power_of_two();
-        let mut tree = vec![id; size << 1];
-        tree[size..(size + leaves.len())].copy_from_slice(&leaves);
-        for i in (1..size).rev() {
-            tree[i] = op(&tree[i << 1], &tree[i << 1 | 1]);
-        }
-        let lazy = vec![off; size];
-        Self {
-            size,
-            tree,
-            lazy,
-            id,
-            off,
-            op,
-            mapping,
-            composition,
-        }
+        let mut seg = Self::new(leaves.len(), id, off, op, mapping, composition);
+        seg.tree[seg.size..seg.size + leaves.len()].copy_from_slice(&leaves);
+        seg.build();
+        seg
     }
     fn build(&mut self) {
         for i in (1..self.size).rev() {
