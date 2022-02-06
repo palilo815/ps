@@ -1,58 +1,53 @@
 #include <bits/stdc++.h>
-using namespace std;
-
-struct edge {
-    int u, v, w;
-};
-
-struct disjoint_set {
-    vector<int> par, dist;
-    disjoint_set(int n) : par(n, -1), dist(n) {}
-    int find(int u) {
-        while (par[u] >= 0) u = par[u];
-        return u;
-    }
-    void merge(int u, int v, int w) {
-        u = find(u), v = find(v);
-        if (u == v) return;
-
-        if (par[u] > par[v]) swap(u, v);
-        par[u] += par[v];
-        par[v] = u;
-        dist[v] = w;
-    }
-    int query(int u, int v) {
-        int ret;
-        for (; u != v; u = par[u]) {
-            if (dist[u] < dist[v]) swap(u, v);
-            ret = dist[u];
-        }
-        return ret;
-    }
-};
 
 int main() {
+    using namespace std;
     cin.tie(nullptr)->sync_with_stdio(false);
-#ifdef home
+#ifdef palilo
     freopen("in", "r", stdin);
     freopen("out", "w", stdout);
 #endif
     int n, m;
     cin >> n >> m;
-
-    vector<edge> e(m);
-    for (auto& [u, v, w] : e)
+    vector<vector<pair<int, int>>> adj(n);
+    for (int u, v, w; m--;) {
         cin >> u >> v >> w, --u, --v;
-
-    sort(e.begin(), e.end(), [&](auto& a, auto& b) {
-        return a.w > b.w;
-    });
-
-    disjoint_set dsu(n);
-    for (const auto& [u, v, w] : e)
-        dsu.merge(u, v, w);
-
-    int u, v;
-    cin >> u >> v, --u, --v;
-    cout << dsu.query(u, v) << '\n';
+        adj[u].emplace_back(w, v);
+        adj[v].emplace_back(w, u);
+    }
+    int s, t;
+    cin >> s >> t, --s, --t;
+    auto parametric = [&]<typename T>(T lo, T hi) {
+        vector<uint_fast8_t> visited(n);
+        vector<int> stk;
+        auto f = [&](T mid) -> bool {
+            auto ok = [&](const auto& edge) { return edge.first >= mid; };
+            ranges::fill(visited, 0);
+            visited[s] = 1;
+            stk.emplace_back(s);
+            while (!stk.empty()) {
+                const auto u = stk.back();
+                stk.pop_back();
+                for (const auto& [w, v] : adj[u] | ranges::views::filter(ok)) {
+                    if (!visited[v]) {
+                        visited[v] = 1;
+                        stk.emplace_back(v);
+                    }
+                }
+            }
+            return visited[t];
+        };
+        // // first true
+        // while (lo != hi) {
+        //     auto mid = lo + (hi - lo) / 2;
+        //     f(mid) ? hi = mid : lo = mid + 1;
+        // }
+        // last true
+        while (lo != hi) {
+            auto mid = hi - (hi - lo) / 2;
+            f(mid) ? lo = mid : hi = mid - 1;
+        }
+        return lo;
+    };
+    cout << parametric(1, int(1e9)) << '\n';
 }
