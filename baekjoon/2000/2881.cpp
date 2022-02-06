@@ -1,48 +1,32 @@
 #include <bits/stdc++.h>
-using namespace std;
-struct ord_x {
-    int x, y;
-    bool operator<(const ord_x& rhs) const {
-        return x == rhs.x ? y < rhs.y : x < rhs.x;
-    }
-};
-struct ord_y {
-    int x, y;
-    bool operator<(const ord_y& rhs) const {
-        return y == rhs.y ? x < rhs.x : y < rhs.y;
-    }
-};
-
-const int mxN = 3e5;
-
-ord_x x[mxN];
-ord_y y[mxN];
 
 int main() {
-    ios::sync_with_stdio(0);
-    cin.tie(0);
-#ifndef ONLINE_JUDGE
+    using namespace std;
+    cin.tie(nullptr)->sync_with_stdio(false);
+#ifdef palilo
     freopen("in", "r", stdin);
     freopen("out", "w", stdout);
 #endif
-    int N;
-    cin >> N;
-    for (int i = 0; i < N; ++i)
-        cin >> x[i].x >> x[i].y;
-
-    memmove(y, x, sizeof(ord_x) * N);
-    sort(x, x + N);
-    sort(y, y + N);
-
-    int Q;
-    cin >> Q;
-    for (int x1, x2, y1, y2, ans; Q--;) {
+    int n;
+    cin >> n;
+    vector<pair<int, int>> sorted_by_xy(n);
+    for (auto& [x, y] : sorted_by_xy) {
+        cin >> x >> y;
+    }
+    auto sorted_by_yx(sorted_by_xy);
+    auto cmp_yx = [&](const auto& lhs, const auto& rhs) {
+        return lhs.second == rhs.second ? lhs.first < rhs.first : lhs.second < rhs.second;
+    };
+    ranges::sort(sorted_by_xy);
+    ranges::sort(sorted_by_yx, cmp_yx);
+    int q;
+    cin >> q;
+    for (int x1, y1, x2, y2; q--;) {
         cin >> x1 >> y1 >> x2 >> y2;
-        ans = upper_bound(y, y + N, ord_y {x2, y1}) - lower_bound(y, y + N, ord_y {x1, y1}) +
-              upper_bound(y, y + N, ord_y {x2, y2}) - lower_bound(y, y + N, ord_y {x1, y2}) +
-              upper_bound(x, x + N, ord_x {x1, y2 - 1}) - lower_bound(x, x + N, ord_x {x1, y1 + 1}) +
-              upper_bound(x, x + N, ord_x {x2, y2 - 1}) - lower_bound(x, x + N, ord_x {x2, y1 + 1});
+        const auto ans = ranges::upper_bound(sorted_by_xy, pair(x1, y2)) - ranges::lower_bound(sorted_by_xy, pair(x1, y1)) 
+                       + ranges::upper_bound(sorted_by_xy, pair(x2, y2)) - ranges::lower_bound(sorted_by_xy, pair(x2, y1))
+                       + ranges::upper_bound(sorted_by_yx, pair(x2 - 1, y1), cmp_yx) - ranges::lower_bound(sorted_by_yx, pair(x1 + 1, y1), cmp_yx) 
+                       + ranges::upper_bound(sorted_by_yx, pair(x2 - 1, y2), cmp_yx) - ranges::lower_bound(sorted_by_yx, pair(x1 + 1, y2), cmp_yx);
         cout << ans << '\n';
     }
-    return 0;
 }
