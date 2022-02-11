@@ -1,92 +1,71 @@
 #include <bits/stdc++.h>
-using namespace std;
-#define loop(i,n) for(int i=0;i<n;++i)
 
-int mov[4][2] = { -1,0,0,-1,0,1,1,0 };
-int row, col;
-int ice[300][300], sink[300][300];
-bool visited[300][300];
-
-void AfterYear()
-{
-    // 해당 칸의 sink만큼 ice 감소
-    // 올해에 다 녹게 된 ice는 음수로 만든다.
-    loop(r, row) loop(c, col)
-        if (ice[r][c] > 0) {
-            ice[r][c] -= sink[r][c];
-            if (ice[r][c] == 0) --ice[r][c];
+int main() {
+    using namespace std;
+    cin.tie(nullptr)->sync_with_stdio(false);
+#ifdef palilo
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    constexpr size_t MAX_N = 300;
+    array<array<int16_t, MAX_N>, MAX_N> grid, next_grid;
+    array<array<int8_t, MAX_N>, MAX_N> visited;
+    int n, m;
+    cin >> n >> m;
+    for (auto& row : grid | ranges::views::take(n)) {
+        for (auto& cell : row | ranges::views::take(m)) {
+            cin >> cell;
         }
-
-    // ice < 0 : 올해에 다 녹은 얼음
-    // ice == 0 : 이전에 녹은 얼음
-    loop(r, row) loop(c, col)
-        // 빙산이 하나 없어졌으므로 주변 칸의 sink도 1씩 증가해야 한다.
-        if (ice[r][c] < 0) {
-            ice[r][c] = 0;
-            loop(i, 4) {
-                int R = r + mov[i][0], C = c + mov[i][1];
-                ++sink[R][C];
+    }
+    constexpr array<pair<int, int>, 4> MOVE {{{-1, 0}, {0, -1}, {0, 1}, {1, 0}}};
+    vector<pair<int, int>> stk;
+    auto sink = [&]() {
+        memcpy(next_grid.data(), grid.data(), sizeof grid);
+        bool found = false;
+        for (const auto x : views::iota(1, n - 1)) {
+            for (const auto y : views::iota(1, m - 1)) {
+                if (grid[x][y] > 0) {
+                    found = true;
+                    for (const auto& [dx, dy] : MOVE) {
+                        next_grid[x][y] -= grid[x + dx][y + dy] <= 0;
+                    }
+                }
             }
         }
-}
-
-void DFS(int r, int c)
-{
-    visited[r][c] = true;
-    loop(i, 4) {
-        int R = r + mov[i][0], C = c + mov[i][1];
-        if (ice[R][C] > 0 && !visited[R][C])
-            DFS(R, C);
+        grid.swap(next_grid);
+        return found;
+    };
+    auto divided = [&]() {
+        auto dfs = [&](int sx, int sy) {
+            visited[sx][sy] = 1;
+            stk.emplace_back(sx, sy);
+            while (!stk.empty()) {
+                const auto [x, y] = stk.back();
+                stk.pop_back();
+                for (const auto& [dx, dy] : MOVE) {
+                    const auto xx = x + dx, yy = y + dy;
+                    if (grid[xx][yy] > 0 && !visited[xx][yy]) {
+                        visited[xx][yy] = 1;
+                        stk.emplace_back(xx, yy);
+                    }
+                }
+            }
+        };
+        bool found = false;
+        memset(visited.data(), 0, sizeof visited);
+        for (const auto x : views::iota(1, n - 1)) {
+            for (const auto y : views::iota(1, m - 1)) {
+                if (grid[x][y] > 0 && !visited[x][y]) {
+                    if (found) return true;
+                    found = true;
+                    dfs(x, y);
+                }
+            }
+        }
+        return false;
+    };
+    for (int ans = 1;; ++ans) {
+        if (!sink()) return cout << 0, 0;
+        if (divided()) return cout << ans, 0;
     }
-}
-
-bool OnePiece()
-{
-    memset(visited, 0, sizeof(visited));
-    // 빙산 한 조각 발견
-    loop(i, row) loop(j, col)
-        if (ice[i][j] > 0) {
-            DFS(i, j);
-            goto OUT;
-        }
-    // 전부 녹았다.
-    return false;
-OUT:;
-    // 만약 방문 안한 새로운 빙산조각을 발견한다면,
-    // 빙산이 분리되었단 뜻이다.
-    loop(i, row) loop(j, col)
-        if (ice[i][j] > 0 && !visited[i][j])
-            return false;
-    // 아직 분리되지 않았다.
-    return true;
-}
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
-
-    cin >> row >> col;
-    loop(i, row) loop(j, col)
-        cin >> ice[i][j];
-    for (int r = 1; r < row - 1; ++r)
-        for (int c = 1; c < col - 1; ++c)
-            loop(i, 4) {
-            int R = r + mov[i][0], C = c + mov[i][1];
-            if (ice[R][C] == 0)++sink[r][c];
-        }
-
-    int ans = 0;
-    do {
-        AfterYear();
-        ++ans;
-    } while (OnePiece());
-
-    loop(i, row) loop(j, col)
-        if (ice[i][j] > 0) {
-            cout << ans;
-            goto RET;
-        }
-    cout << 0;
-RET:;
-    return 0;
 }
