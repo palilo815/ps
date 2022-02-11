@@ -12,13 +12,13 @@ if [[ -d $PASSED ]]; then
     do
         if [[ "$IN" =~ "in" ]]; then
             OUT=("${IN//in/out}")
-            ./a < $IN > out && diff out $OUT
+            ./main < $IN > out && diff -b out $OUT
         fi
     done
 elif [[ -f $PASSED ]]; then
     # single test
     OUT=("${PASSED//in/out}")
-    ./a < $PASSED > out && diff out $OUT
+    ./main < $PASSED > out && diff -b out $OUT
 else
     echo "$PASSED is not valid"
     exit 1
