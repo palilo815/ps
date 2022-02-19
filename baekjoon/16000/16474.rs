@@ -70,9 +70,10 @@ fn run<W: Write>(sc: &mut scanner::Scanner, out: &mut std::io::BufWriter<W>) {
     for (_, x) in edges {
         if x > *dp.last().unwrap() {
             dp.push(x);
+        } else {
+            let i = dp.partition_point(|&elem| elem < x);
+            dp[i] = x;
         }
-        let i = dp.partition_point(|&elem| elem < x);
-        dp[i] = x;
     }
     writeln!(out, "{}", k - dp.len()).ok();
 }
