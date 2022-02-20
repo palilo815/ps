@@ -11,6 +11,7 @@ if [[ -d $PASSED ]]; then
     for IN in "$PASSED"/*
     do
         if [[ "$IN" =~ "in" ]]; then
+            echo "Run $IN"
             OUT=("${IN//in/out}")
             ./main < $IN > out && diff -b out $OUT
         fi
