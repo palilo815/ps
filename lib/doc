@@ -1,0 +1,14 @@
+/**
+* @date     2022-00-00
+* @source   .
+* @test     .
+* ----------
+* @author   palilo
+* @brief    disjoint-set-union (a.k.a. union-find)
+* @time     `O(n)`
+* @detail
+* @usage
+* ----------
+* @todo     .
+* @warning  .
+*/
