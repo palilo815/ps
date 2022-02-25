@@ -6,7 +6,7 @@
 * @author   palilo
 * @brief    Dinitz's algorithm (a.k.a. Dinic)
 * @time     `O(V^2 E)`      in general
-*           `O(\sqrt{V} E)`  if unit-network
+*           `O(\sqrt{V} E)` if unit-network
 *           *unit-network*: all edges have unit capacity and for any vertex except `s` and `t` either incoming or outgoing edge is unique
 *                           equivalent to maximum matching problem
 * @detail   .
