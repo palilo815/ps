@@ -1,12 +1,28 @@
 /**
-* @date     2022-02-05
-* @author   palilo
-* @brief    range update & range query segment tree
-* @test     http://boj.kr/cbe56bb9938b4c5fba9d239cd76d2684
-* @warning  `from` is not tested
+* @date     2022-02-27
+* @source   atcoder library
+* @test     used a lot
+* ----------
+* @author   yosupo
+* @brief    segment tree with lazy propagation
+* @time     `O(\log n)` for `apply` and `product`
+* @detail   .
+* @usage    // range add and range sum queries
+            let mut seg = LazySeg::new(
+                n,
+                (0, 0),
+                0,
+                |lhs, rhs| (lhs.0 + rhs.0, lhs.1 + rhs.1),
+                |node, tag| node.0 += node.1 * tag,
+                |tag, f| *tag += f,
+            );
+* ----------
+* @todo     binary search on tree
+* @warning  .
 */
 struct LazySeg<T, U, F1, F2, F3> {
     size: usize,
+    height: usize,
     tree: Vec<T>,
     lazy: Vec<U>,
     id: T,
@@ -39,8 +55,10 @@ where
 {
     fn new(size: usize, id: T, off: U, op: F1, mapping: F2, composition: F3) -> Self {
         let size = size.next_power_of_two();
+        let height = size.trailing_zeros() as usize + 1;
         LazySeg {
             size,
+            height,
             tree: vec![id; size << 1],
             lazy: vec![off; size],
             id,
@@ -50,62 +68,86 @@ where
             composition,
         }
     }
-    fn from(leaves: Vec<T>, id: T, off: U, op: F1, mapping: F2, composition: F3) -> Self {
-        let mut seg = Self::new(leaves.len(), id, off, op, mapping, composition);
-        seg.tree[seg.size..seg.size + leaves.len()].copy_from_slice(&leaves);
-        seg.build();
-        seg
-    }
     fn build(&mut self) {
-        for i in (1..self.size).rev() {
-            self.tree[i] = (self.op)(&self.tree[i << 1], &self.tree[i << 1 | 1]);
-        }
+        (1..self.size).rev().for_each(|i| self._pull(i));
     }
     fn clear(&mut self) {
         self.tree[1..].fill(self.id);
         self.lazy[1..].fill(self.off);
     }
-    fn apply(&mut self, l: usize, r: usize, f: U) {
+    fn apply(&mut self, mut l: usize, mut r: usize, f: U) {
         assert!(l <= r && r <= self.size);
-        self._apply(l, r, f, 0, self.size, 1);
+        if l == r {
+            return;
+        }
+        l |= self.size;
+        r |= self.size;
+        for i in (1..self.height).rev() {
+            if (l >> i << i) != l {
+                self._push(l >> i);
+            }
+            if (r >> i << i) != r {
+                self._push((r - 1) >> i);
+            }
+        }
+        {
+            let mut l = l;
+            let mut r = r;
+            while l != r {
+                if l & 1 == 1 {
+                    self._all_apply(l, f);
+                    l += 1;
+                }
+                if r & 1 == 1 {
+                    r -= 1;
+                    self._all_apply(r, f);
+                }
+                l >>= 1;
+                r >>= 1;
+            }
+        }
+        for i in 1..self.height {
+            if (l >> i << i) != l {
+                self._pull(l >> i)
+            };
+            if (r >> i << i) != r {
+                self._pull((r - 1) >> i)
+            };
+        }
     }
-    fn product(&mut self, l: usize, r: usize) -> T {
+    fn product(&mut self, mut l: usize, mut r: usize) -> T {
         assert!(l <= r && r <= self.size);
-        self._product(l, r, 0, self.size, 1)
+        if l == r {
+            return self.id;
+        }
+        l |= self.size;
+        r |= self.size;
+        for i in (1..self.height).rev() {
+            if (l >> i << i) != l {
+                self._push(l >> i);
+            }
+            if (r >> i << i) != r {
+                self._push((r - 1) >> i);
+            }
+        }
+        let mut res_l = self.id;
+        let mut res_r = self.id;
+        while l != r {
+            if l & 1 == 1 {
+                res_l = (self.op)(&res_l, &self.tree[l]);
+                l += 1;
+            }
+            if r & 1 == 1 {
+                r -= 1;
+                res_r = (self.op)(&self.tree[r], &res_r);
+            }
+            l >>= 1;
+            r >>= 1;
+        }
+        (self.op)(&res_l, &res_r)
     }
     fn all_product(&self) -> T {
         self.tree[1]
-    }
-    fn _apply(&mut self, ql: usize, qr: usize, f: U, l: usize, r: usize, i: usize) {
-        if qr <= l || r <= ql {
-            return;
-        }
-        if ql <= l && r <= qr {
-            self._all_apply(i, f);
-            return;
-        }
-        if self.lazy[i] != self.off {
-            self._push(i);
-        }
-        let m = (l + r) >> 1;
-        self._apply(ql, qr, f, l, m, i << 1);
-        self._apply(ql, qr, f, m, r, i << 1 | 1);
-        self._pull(i);
-    }
-    fn _product(&mut self, ql: usize, qr: usize, l: usize, r: usize, i: usize) -> T {
-        if qr <= l || r <= ql {
-            return self.id;
-        }
-        if ql <= l && r <= qr {
-            return self.tree[i];
-        };
-        if self.lazy[i] != self.off {
-            self._push(i);
-        }
-        let m = (l + r) >> 1;
-        let lson = &self._product(ql, qr, l, m, i << 1);
-        let rson = &self._product(ql, qr, m, r, i << 1 | 1);
-        (self.op)(lson, rson)
     }
     fn _pull(&mut self, i: usize) {
         self.tree[i] = (self.op)(&self.tree[i << 1], &self.tree[i << 1 | 1]);
