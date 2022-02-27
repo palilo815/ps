@@ -1,3 +1,19 @@
+/**
+* @date     2022-02-27
+* @source   my brain
+* @test     used a lot
+* ----------
+* @author   palilo
+* @brief    binary indexed tree (a.k.a. fenwick tree)
+* @time     `O(\log n)` for queries
+* @detail   binary indexed tree is the optimized version of segment tree
+*           BUT only can handle prefix query
+* @usage    http://boj.kr/3fbc78d3a3bc4bddafbe8f24456b61aa
+* ----------
+* @todo     .
+* @warning  beware binary search fns.
+*           `pw` is safe?
+*/
 pub struct BinaryIndexedTree<T> {
     size: usize,
     tree: Vec<T>,
@@ -15,7 +31,7 @@ where
         + std::ops::Sub<Output = T>,
 {
     pub fn new(size: usize, id: T) -> Self {
-        BinaryIndexedTree {
+        Self {
             size,
             tree: vec![id; size + 1],
             id,
@@ -42,7 +58,9 @@ where
         }
     }
     pub fn fake_update(&mut self, i: usize, x: T) {
-        self.tree[i + 1] += x;
+        if i < self.size {
+            self.tree[i + 1] += x;
+        }
     }
     pub fn update(&mut self, mut i: usize, x: T) {
         assert!(i <= self.size);
