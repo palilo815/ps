@@ -9,7 +9,7 @@
 * @detail   it can handle complex operations even if...
 *               1. they are NON-commutative
 *               2. fn arguments must have same length
-*           if you operation does not have such properties use `seg.rs` instead
+*           if your operation does not have such properties, use `seg.rs` instead
 * @usage    // range sum queries
             let mut seg = LazySeg::new(
                 n,
