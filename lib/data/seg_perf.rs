@@ -1,3 +1,26 @@
+/**
+* @date     2022-02-27
+* @source   my brain
+* @test     used a lot
+* ----------
+* @author   palilo
+* @brief    segment tree implemented as perfect binary tree
+* @time     `O(\log n)` for queries
+* @detail   it can handle complex operations even if...
+*               1. they are NON-commutative
+*               2. fn arguments must have same length
+*           if you operation does not have such properties use `seg.rs` instead
+* @usage    // range sum queries
+            let mut seg = LazySeg::new(
+                n,
+                0,
+                |lhs, rhs| *lhs + *rhs,
+            );
+* ----------
+* @todo     binary search on tree
+* @warning  whenever edit this code, beware the bitwise operations
+*           `r | size` is wrong if r == size.
+*/
 struct PerfectSeg<T, F> {
     size: usize,
     tree: Vec<T>,
@@ -71,7 +94,7 @@ where
         assert!(l <= r && r <= self.size);
         let mut res_l = self.id;
         let mut res_r = self.id;
-        l += self.size;
+        l |= self.size;
         r += self.size;
         while l != r {
             if l & 1 == 1 {

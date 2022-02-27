@@ -18,7 +18,8 @@
             );
 * ----------
 * @todo     binary search on tree
-* @warning  .
+* @warning  whenever edit this code, beware the bitwise operations
+*           `r | size` is wrong if r == size.
 */
 struct LazySeg<T, U, F1, F2, F3> {
     size: usize,
@@ -81,7 +82,7 @@ where
             return;
         }
         l |= self.size;
-        r |= self.size;
+        r += self.size;
         for i in (1..self.height).rev() {
             if (l >> i << i) != l {
                 self._push(l >> i);
@@ -121,7 +122,7 @@ where
             return self.id;
         }
         l |= self.size;
-        r |= self.size;
+        r += self.size;
         for i in (1..self.height).rev() {
             if (l >> i << i) != l {
                 self._push(l >> i);
