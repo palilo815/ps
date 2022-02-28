@@ -48,18 +48,22 @@ fn run<W: Write>(sc: &mut scanner::Scanner, out: &mut std::io::BufWriter<W>) {
         adj[u].push(v);
         adj[v].push(u);
     }
-    adj.iter_mut().for_each(|x| x.sort_unstable());
-    fn dfs(adj: &[Vec<usize>], dep: &mut [i32], u: usize) {
-        for &v in adj[u].iter() {
+    adj.iter_mut()
+        .for_each(|x| x.sort_unstable_by(|l, r| r.cmp(l)));
+    let mut dep = vec![-1; n];
+    dep[s] = 0;
+    let mut stk = Vec::with_capacity(n);
+    stk.push(s);
+    while let Some(u) = stk.pop() {
+        while let Some(v) = adj[u].pop() {
             if dep[v] == -1 {
                 dep[v] = dep[u] + 1;
-                dfs(adj, dep, v);
+                stk.push(u);
+                stk.push(v);
+                break;
             }
         }
     }
-    let mut dep = vec![-1; n];
-    dep[s] = 0;
-    dfs(&adj, &mut dep, s);
     for x in dep {
         writeln!(out, "{}", x).ok();
     }
