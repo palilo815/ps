@@ -53,17 +53,13 @@ fn main() {
         n: usize,
         a: [i32; n],
     }
-    let mut stk = vec![];
-    let mut ans = vec![-1; n];
-    for (i, &x) in a.iter().enumerate() {
-        if !stk.is_empty() && a[*stk.last().unwrap()] != x {
-            for j in stk.drain(..) {
-                ans[j] = i as i32 + 1;
-            }
+    let mut i = 0;
+    while i != n {
+        let cnt = a[i..].iter().position(|&x| x != a[i]).unwrap_or(n - i);
+        i += cnt;
+        let ans = if i == n { -1 } else { i as i32 + 1 };
+        for _ in 0..cnt {
+            write!(out, "{} ", ans).ok();
         }
-        stk.push(i);
-    }
-    for x in ans {
-        write!(out, "{} ", x).ok();
     }
 }
