@@ -1,36 +1,57 @@
 #include <bits/stdc++.h>
-using namespace std;
-typedef pair<int, int> p;
 
-const int max_N = 100000;
+template <typename T>
+class SegmentTree {
+    const size_t size;
+    std::vector<T> tree;
 
-int arr[max_N + 1];
+public:
+    SegmentTree() = default;
+    SegmentTree(size_t n, const T& ID) : size(1 << (n ? std::__lg(n - 1) + 1 : 0)), tree(size << 1, ID) {}
 
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+    T& operator[](size_t i) { return tree[i | size]; }
 
-    priority_queue<p, vector<p>, greater<p>> pq;
-
-    int N; cin >> N;
-    for (int i = 1; i <= N; ++i) {
-        cin >> arr[i];
-        pq.push({ arr[i],i });
-    }
-
-    int Q; cin >> Q;
-    while (Q--) {
-        int q; cin >> q;
-        if (q == 1) {
-            int i, v; cin >> i >> v;
-            arr[i] = v;
-            pq.push({ v,i });
-        }
-        else {
-            while (arr[pq.top().second] != pq.top().first) pq.pop();
-            cout << pq.top().second << '\n';
+    void build() {
+        for (auto i {size}; --i;) {
+            tree[i] = std::min(tree[i << 1], tree[i << 1 | 1]);
         }
     }
-    return 0;
+    void update(size_t i, T val) {
+        tree[i |= size] = val;
+        while (i >>= 1) tree[i] = std::min(tree[i << 1], tree[i << 1 | 1]);
+    }
+    size_t query() const {
+        size_t i {1};
+        while (!(i & size)) {
+            if (tree[i << 1] > tree[i << 1 | 1]) {
+                i = i << 1 | 1;
+            } else {
+                i = i << 1;
+            }
+        }
+        return i - size;
+    }
+};
+
+int main() {
+    using namespace std;
+    cin.tie(nullptr)->sync_with_stdio(false);
+    int n;
+    cin >> n;
+    SegmentTree seg(n, INT_MAX);
+	for (auto i : views::iota(0, n)) {
+        cin >> seg[i];
+    }
+    seg.build();
+    int m;
+    cin >> m;
+    for (char op; m--;) {
+        if (cin >> op; op == '1') {
+            int i, v;
+            cin >> i >> v, --i;
+            seg.update(i, v);
+        } else {
+            cout << seg.query() + 1 << '\n';
+        }
+    }
 }
