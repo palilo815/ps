@@ -8,30 +8,35 @@ int main() {
     vector<int> k(m), s(n);
     for (auto& x : k) cin >> x;
     for (auto& x : s) cin >> x;
-    auto comp {k};
-    sort(comp.begin(), comp.end());
-    comp.erase(unique(comp.begin(), comp.end()), comp.end());
-    for (auto& x : k) {
-        x = lower_bound(comp.begin(), comp.end(), x) - comp.begin();
-    }
-    vector<int> prv(comp.size()), nxt(comp.size());
-    iota(prv.begin(), prv.end(), -1);
-    iota(nxt.begin(), nxt.end(), 1);
-    nxt.back() = -1;
-    vector<forward_list<int>> indexes(comp.size());
-    for (int i {}; i < m; ++i) {
-        indexes[k[i]].emplace_front(i);
-    }
+    const auto comp_sz {[&]() {
+        auto comp {k};
+        sort(comp.begin(), comp.end());
+        comp.erase(unique(comp.begin(), comp.end()), comp.end());
+        for (auto& x : k) {
+            x = lower_bound(comp.begin(), comp.end(), x) - comp.begin();
+        }
+        return comp.size();
+    }()};
     vector<int> l(m), r(m), c(m);
-    for (auto i {m}; i--;) {
-        if (~prv[k[i]]) l[i] = i - indexes[prv[k[i]]].front();
-        if (~nxt[k[i]]) r[i] = i - indexes[nxt[k[i]]].front();
-        indexes[k[i]].pop_front();
-        if (indexes[k[i]].empty()) {
-            if (~prv[k[i]]) nxt[prv[k[i]]] = nxt[k[i]];
-            if (~nxt[k[i]]) prv[nxt[k[i]]] = prv[k[i]];
-        } else {
-            c[i] = i - indexes[k[i]].front();
+    {
+        vector<int> prv(comp_sz), nxt(comp_sz);
+        iota(prv.begin(), prv.end(), -1);
+        iota(nxt.begin(), nxt.end(), 1);
+        nxt.back() = -1;
+        vector<forward_list<int>> indice(comp_sz);
+        for (int i {}; i < m; ++i) {
+            indice[k[i]].emplace_front(i);
+        }
+        for (auto i {m}; i--;) {
+            if (~prv[k[i]]) l[i] = i - indice[prv[k[i]]].front();
+            if (~nxt[k[i]]) r[i] = i - indice[nxt[k[i]]].front();
+            indice[k[i]].pop_front();
+            if (indice[k[i]].empty()) {
+                if (~prv[k[i]]) nxt[prv[k[i]]] = nxt[k[i]];
+                if (~nxt[k[i]]) prv[nxt[k[i]]] = prv[k[i]];
+            } else {
+                c[i] = i - indice[k[i]].front();
+            }
         }
     }
     auto ok = [&](const int* value, int j) {
