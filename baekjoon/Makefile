@@ -8,7 +8,7 @@ CC = g++
 # for i in *.txt; do mv -- "$i"  "${i%.txt}.out"; done
 
 # compiler flags:
-CFLAGS  = -std=c++20 -Dpalilo -lm -Wall -O2
+CFLAGS	= -Dpalilo -std=c++20 -O2 -lm -Wall -Wextra -pedantic -Wshadow -Wformat=2 -Wfloat-equal -Wconversion
 
 all: src/main.cpp
 	clang-format -i src/main.cpp
