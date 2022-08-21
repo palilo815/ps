@@ -34,13 +34,12 @@ fn run<W: Write>(sc: &mut Scanner, out: &mut BufWriter<W>) {
     }
     xs.sort_unstable();
     ys.sort_unstable();
-    let x = xs
+    let ans = xs
         .into_iter()
+        .zip(ys.into_iter())
         .enumerate()
-        .fold(0, |acc, (i, x)| acc + (i as i64 - x as i64).abs());
-    let y = ys
-        .into_iter()
-        .enumerate()
-        .fold(0, |acc, (i, y)| acc + (i as i64 - y as i64).abs());
-    writeln!(out, "{}", x + y).ok();
+        .fold(0, |acc, (i, (x, y))| {
+            acc + (i as i64 - x as i64).abs() + (i as i64 - y as i64).abs()
+        });
+    writeln!(out, "{}", ans).ok();
 }
