@@ -33,16 +33,10 @@ fn run<W: Write>(sc: &mut Scanner, out: &mut BufWriter<W>) {
         let l = sc.read::<u32>();
         let r = sc.read::<u32>();
         intervals.insert((l, r));
-        if let Some(x) = l_to.get_mut(&l) {
-            *x = r.max(*x);
-        } else {
-            l_to.insert(l, r);
-        }
-        if let Some(x) = r_to.get_mut(&r) {
-            *x = l.min(*x);
-        } else {
-            r_to.insert(r, l);
-        }
+        let x = l_to.entry(l).or_insert(u32::MIN);
+        *x = r.max(*x);
+        let x = r_to.entry(r).or_insert(u32::MAX);
+        *x = l.min(*x);
     }
     let n = sc.read::<usize>();
     for _ in 0..n {
