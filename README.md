@@ -1,10 +1,14 @@
-# PS
+# problem solving
 
 ## atcoder (TODO)
 
 ## baekjoon
 
-solved problems in https://www.acmicpc.net/
+https://www.acmicpc.net
+
+## cses
+
+https://cses.fi/problemset/list
 
 ## codeforces (TODO)
 
