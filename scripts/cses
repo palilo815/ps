@@ -1,0 +1,25 @@
+#/usr/bin/bash
+
+loc="cses"
+
+if [ $# -ne 3 ]; then
+    echo "Usage --- {source code} {'topic'} {'problem name'}"
+    echo "e.g. ---- src/main.rs 'Introductory Problems' 'Weird Algorithm'"
+    exit 1
+fi
+
+file=$1 # src/main.cpp
+ext=${file##*.} # rs, cpp, py, txt ...
+topic=$(echo $2 | sed 's/[A-Z]/\l&/g' | sed 's/\ /_/g') # UPPERCASE to lowercase
+problem=$(echo $3 | sed 's/[A-Z]/\l&/g' | sed 's/\ /_/g') # space to _
+
+if [[ ! -d $loc/$topic ]]; then
+    echo "make new directory $topic"
+    mkdir $loc/$topic
+fi
+
+cp $file $loc/$topic/$problem.$ext
+git add $loc/$topic/$problem.$ext
+git commit -m "$3"
+
+echo "done"
