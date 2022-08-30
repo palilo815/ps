@@ -1,9 +1,10 @@
-main*
-tmp*
-in
-out
-Cargo*
-.ccls
-tc
+# executables
+main
+
+# directories
 src
+tc
+
+# rust files
+Cargo*
 target
