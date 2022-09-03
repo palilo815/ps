@@ -26,9 +26,10 @@ where
         let mut k = 1;
         for i in 1..table.capacity() {
             table.push(
-                (0..=(size - (k << 1)))
-                    .map(|j| op(&table[i - 1][j], &table[i - 1][j + k]))
-                    .collect::<Vec<_>>(),
+                table[i - 1]
+                    .windows(k + 1)
+                    .map(|x| op(&x[0], &x[k]))
+                    .collect(),
             );
             k <<= 1;
         }
