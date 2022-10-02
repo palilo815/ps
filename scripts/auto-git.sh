@@ -9,9 +9,9 @@ EXTENSION=${FILE##*.} # rs, cpp, py, txt ...
 
 let D=$2/1000*1000
 
-cp $FILE "baekjoon/$D/$2.$EXTENSION"
+cp $FILE baekjoon/$D/$2.$EXTENSION
 # git add --all
-git add "baekjoon$D/$2.$EXTENSION"
+git add baekjoon/$D/$2.$EXTENSION
 git commit -m "$3"
 
 echo "done"
