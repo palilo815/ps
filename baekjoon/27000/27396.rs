@@ -13,8 +13,8 @@ impl<'a> Scanner<'a> {
     fn read<T: std::str::FromStr>(&mut self) -> T {
         self.it.next().unwrap().parse::<T>().ok().unwrap()
     }
-    fn read_chars(&mut self) -> Vec<char> {
-        self.it.next().unwrap().chars().collect()
+    fn read_bytes(&mut self) -> Vec<u8> {
+        self.it.next().unwrap().bytes().collect()
     }
 }
 
@@ -24,28 +24,30 @@ fn main() {
         stdin().read_to_string(&mut S).unwrap();
         (Scanner::new(&S), BufWriter::new(stdout().lock()))
     };
-    let s = sc.read_chars();
+    let s = sc.read_bytes();
     let n = sc.read::<usize>();
-    let mut table = ['?'; 'z' as usize + 1];
-    for c in ('A'..='Z').chain('a'..='z') {
+    let mut table = [0; 'z' as usize + 1];
+    for c in (b'A'..=b'Z').chain(b'a'..=b'z') {
         table[c as usize] = c;
     }
     for _ in 0..n {
         match sc.read::<char>() {
             '1' => {
-                let u = sc.read::<char>();
-                let v = sc.read::<char>();
-                for c in ('A'..='Z').chain('a'..='z') {
+                let u = sc.read::<char>() as u8;
+                let v = sc.read::<char>() as u8;
+                for c in (b'A'..=b'Z').chain(b'a'..=b'z') {
                     if table[c as usize] == u {
                         table[c as usize] = v;
                     }
                 }
             }
             _ => {
-                s.iter().for_each(|&x| {
-                    write!(out, "{}", table[x as usize]).ok();
-                });
-                writeln!(out).ok();
+                writeln!(
+                    out,
+                    "{}",
+                    String::from_utf8(s.iter().map(|x| table[*x as usize]).collect()).unwrap()
+                )
+                .ok();
             }
         }
     }
