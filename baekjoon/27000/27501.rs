@@ -16,15 +16,11 @@ impl<'a> Scanner<'a> {
 }
 
 fn main() {
-    let mut s = String::new();
-    stdin().read_to_string(&mut s).unwrap();
-    let mut sc = Scanner::new(&s);
-    let out = stdout();
-    let mut out = BufWriter::new(out.lock());
-    run(&mut sc, &mut out);
-}
-
-fn run<W: Write>(sc: &mut Scanner, out: &mut BufWriter<W>) {
+    let (mut sc, mut out) = unsafe {
+        static mut S: String = String::new();
+        stdin().read_to_string(&mut S).unwrap();
+        (Scanner::new(&S), BufWriter::new(stdout().lock()))
+    };
     let n = sc.read::<usize>();
     let mut adj = vec![vec![]; n];
     for _ in 1..n {
@@ -34,7 +30,7 @@ fn run<W: Write>(sc: &mut Scanner, out: &mut BufWriter<W>) {
         adj[v].push(u);
     }
     let val = (0..n)
-        .map(|_| (sc.read::<u32>(), sc.read::<u32>(), sc.read::<u32>()))
+        .map(|_| [sc.read::<u32>(), sc.read::<u32>(), sc.read::<u32>()])
         .collect::<Vec<_>>();
     let mut topo = Vec::with_capacity(n);
     topo.push(0);
@@ -48,20 +44,17 @@ fn run<W: Write>(sc: &mut Scanner, out: &mut BufWriter<W>) {
     }
     let mut dp = vec![[0; 3]; n];
     for &u in topo.iter().rev() {
-        dp[u][0] = adj[u]
-            .iter()
-            .fold(val[u].0, |acc, &v| acc + dp[v][1].max(dp[v][2]));
-        dp[u][1] = adj[u]
-            .iter()
-            .fold(val[u].1, |acc, &v| acc + dp[v][2].max(dp[v][0]));
-        dp[u][2] = adj[u]
-            .iter()
-            .fold(val[u].2, |acc, &v| acc + dp[v][0].max(dp[v][1]));
+        dp[u] = adj[u].iter().fold(val[u], |acc, &v| {
+            [
+                acc[0] + dp[v][1].max(dp[v][2]),
+                acc[1] + dp[v][2].max(dp[v][0]),
+                acc[2] + dp[v][0].max(dp[v][1]),
+            ]
+        });
     }
     const RGB: [u8; 3] = [b'R', b'G', b'B'];
     let mut trace = vec![0; n];
-    writeln!(out, "{}", dp[0].iter().max().unwrap()).ok();
-    for u in topo {
+    for u in topo.into_iter() {
         let i = dp[u]
             .iter()
             .enumerate()
@@ -73,5 +66,6 @@ fn run<W: Write>(sc: &mut Scanner, out: &mut BufWriter<W>) {
             dp[v][i] = 0;
         }
     }
+    writeln!(out, "{}", dp[0].iter().max().unwrap()).ok();
     writeln!(out, "{}", String::from_utf8(trace).unwrap()).ok();
 }
