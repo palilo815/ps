@@ -12,9 +12,9 @@ https://cses.fi/problemset/list
 
 ## codeforces (TODO)
 
-## lib
+## ~~lib~~
 
-my competitive programming library (written in Rust)
+~~my competitive programming library (written in Rust)~~
 
-https://github.com/palilo815/Team-Library (written in cpp, outdated)
+~~https://github.com/palilo815/Team-Library (written in cpp, outdated)~~
 
