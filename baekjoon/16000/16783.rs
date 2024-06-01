@@ -1,168 +1,79 @@
-macro_rules! input {
-    (source = $s:expr, $($r:tt)*) => {
-        let mut iter = $s.split_whitespace();
-        input_inner!{iter, $($r)*}
-    };
-    ($($r:tt)*) => {
-        let s = {
-            use std::io::Read;
-            let mut s = String::new();
-            std::io::stdin().read_to_string(&mut s).unwrap();
-            s
-        };
-        let mut iter = s.split_whitespace();
-        input_inner!{iter, $($r)*}
-    };
+use std::io::*;
+
+struct Scanner {
+    it: std::str::SplitAsciiWhitespace<'static>,
 }
 
-macro_rules! input_inner {
-    ($iter:expr) => {};
-    ($iter:expr, ) => {};
-    ($iter:expr, $var:ident : $t:tt $($r:tt)*) => {
-        let $var = read_value!($iter, $t);
-        input_inner!{$iter $($r)*}
-    };
+impl Scanner {
+    fn new() -> Self {
+        let mut s = String::new();
+        stdin().read_to_string(&mut s).ok();
+        Self {
+            it: s.leak().split_ascii_whitespace(),
+        }
+    }
+    fn read<T: std::str::FromStr>(&mut self) -> T {
+        self.it.next().unwrap().parse::<T>().ok().unwrap()
+    }
 }
 
-macro_rules! read_value {
-    ($iter:expr, ( $($t:tt),* )) => {
-        ( $(read_value!($iter, $t)),* )
-    };
-    ($iter:expr, [ $t:tt ; $len:expr ]) => {
-        (0..$len).map(|_| read_value!($iter, $t)).collect::<Vec<_>>()
-    };
-    ($iter:expr, chars) => {
-        read_value!($iter, String).chars().collect::<Vec<char>>()
-    };
-    ($iter:expr, bytes) => {
-        read_value!($iter, String).bytes().collect::<Vec<u8>>()
-    };
-    ($iter:expr, usize1) => {
-        read_value!($iter, usize) - 1
-    };
-    ($iter:expr, $t:ty) => {
-        $iter.next().unwrap().parse::<$t>().expect("Parse error")
-    };
-}
-
-pub struct PerfectSeg<T, F> {
+struct SegmentTree<T, F> {
     size: usize,
-    tree: Vec<T>,
-    id: T,
-    op: F,
+    data: Box<[T]>,
+    f: F,
 }
 
-impl<T, F> std::ops::Index<usize> for PerfectSeg<T, F> {
+impl<T, F> std::ops::Index<usize> for SegmentTree<T, F> {
     type Output = T;
     fn index(&self, i: usize) -> &T {
-        assert!(i < self.size);
-        &self.tree[i | self.size]
+        &self.data[i + self.size]
     }
 }
-impl<T, F> std::ops::IndexMut<usize> for PerfectSeg<T, F> {
+impl<T, F> std::ops::IndexMut<usize> for SegmentTree<T, F> {
     fn index_mut(&mut self, i: usize) -> &mut T {
-        assert!(i < self.size);
-        &mut self.tree[i | self.size]
+        &mut self.data[i + self.size]
     }
 }
 
-#[allow(dead_code)]
-impl<T, F> PerfectSeg<T, F>
+impl<T, F> SegmentTree<T, F>
 where
-    T: Clone + std::marker::Copy,
-    F: Fn(&T, &T) -> T,
+    T: Clone + Copy,
+    F: Fn(T, T) -> T,
 {
-    pub fn new(size: usize, id: T, op: F) -> Self {
+    fn new(size: usize, e: T, f: F) -> Self {
         let size = size.next_power_of_two();
-        PerfectSeg {
+        Self {
             size,
-            tree: vec![id; size << 1],
-            id,
-            op,
+            data: vec![e; size << 1].into(),
+            f,
         }
     }
-    pub fn build(&mut self) {
+    fn build(&mut self) {
         for i in (1..self.size).rev() {
-            self.tree[i] = (self.op)(&self.tree[i << 1], &self.tree[i << 1 | 1]);
+            self.data[i] = (self.f)(self.data[i << 1], self.data[i << 1 | 1]);
         }
     }
-    pub fn clear(&mut self) {
-        self.tree[1..].fill(self.id);
-    }
-    pub fn set(&mut self, mut i: usize, x: T) {
+    fn set(&mut self, mut i: usize, x: T) {
         assert!(i < self.size);
-        i |= self.size;
-        self.tree[i] = x;
+        i += self.size;
+        self.data[i] = x;
         while i != 1 {
             i >>= 1;
-            self.tree[i] = (self.op)(&self.tree[i << 1], &self.tree[i << 1 | 1]);
+            self.data[i] = (self.f)(self.data[i << 1], self.data[i << 1 | 1]);
         }
     }
-    pub fn update(&mut self, mut i: usize, x: T) {
-        assert!(i < self.size);
-        i |= self.size;
-        self.tree[i] = (self.op)(&self.tree[i], &x);
-        while i != 1 {
-            i >>= 1;
-            self.tree[i] = (self.op)(&self.tree[i << 1], &self.tree[i << 1 | 1]);
-        }
-    }
-    pub fn product(&self, mut l: usize, mut r: usize) -> T {
-        assert!(l <= r && r <= self.size);
-        let mut res_l = self.id;
-        let mut res_r = self.id;
-        l += self.size;
-        r += self.size;
-        while l != r {
-            if l & 1 == 1 {
-                res_l = (self.op)(&res_l, &self.tree[l]);
-                l += 1;
-            }
-            if r & 1 == 1 {
-                r -= 1;
-                res_r = (self.op)(&self.tree[r], &res_r);
-            }
-            l >>= 1;
-            r >>= 1;
-        }
-        (self.op)(&res_l, &res_r)
-    }
-    pub fn all_prod(&self) -> T {
-        self.tree[1]
-    }
-}
-
-trait ChMinMax {
-    fn chmin(&mut self, x: Self) -> bool;
-    fn chmax(&mut self, x: Self) -> bool;
-}
-
-impl<T: PartialOrd> ChMinMax for T {
-    fn chmin(&mut self, x: Self) -> bool {
-        *self > x && {
-            *self = x;
-            true
-        }
-    }
-    fn chmax(&mut self, x: Self) -> bool {
-        *self < x && {
-            *self = x;
-            true
-        }
+    fn all_prod(&mut self) -> T {
+        self.data[1]
     }
 }
 
 fn main() {
-    use std::io::Write;
-    let out = std::io::stdout();
-    let mut out = std::io::BufWriter::new(out.lock());
-    input! {
-        n: usize,
-        a: [(i64,i64,i64); n],
-    }
-    let mut a = a;
-    a.sort_unstable_by_key(|&(x, y, _)| (x, y));
-    let mut slopes = vec![];
+    let mut sc = Scanner::new();
+    let mut bw = BufWriter::new(stdout().lock());
+    let n = sc.read::<usize>();
+    let mut a = (0..n).map(|_| (sc.read::<i64>(), sc.read::<i64>(), sc.read::<i64>())).collect::<Vec<_>>();
+    a.sort_unstable_by(|l, r| l.0.cmp(&r.0).then(l.1.cmp(&r.1)));
+    let mut slopes = Vec::with_capacity(n * (n - 1) / 2);
     for j in 1..n {
         for i in 0..j {
             if a[i].0 == a[j].0 {
@@ -171,18 +82,10 @@ fn main() {
             slopes.push((a[j].1 - a[i].1, a[j].0 - a[i].0, i, j));
         }
     }
-    slopes.sort_unstable_by(|lhs, rhs| {
-        (lhs.0 * rhs.1)
-            .cmp(&(rhs.0 * lhs.1))
-            .then_with(|| (lhs.2, lhs.3).cmp(&(rhs.2, rhs.3)))
-    });
+    slopes.sort_unstable_by(|l, r| (l.0 * r.1).cmp(&(r.0 * l.1)).then((l.2, l.3).cmp(&(r.2, r.3))));
     const INF: i64 = 0x3f3f3f3f3f3f3f3f;
-    let mut seg = PerfectSeg::new(n + 1, (INF, !INF, 0), |&lhs, &rhs| {
-        (
-            lhs.0.min(rhs.0),
-            lhs.1.max(rhs.1),
-            (rhs.1 - lhs.0).max(std::cmp::max(lhs.2, rhs.2)),
-        )
+    let mut seg = SegmentTree::new(n + 1, (INF, !INF, 0), |l, r| {
+        (l.0.min(r.0), l.1.max(r.1), (r.1 - l.0).max(l.2.max(r.2)))
     });
     seg[0] = (0, 0, 0);
     for i in 0..n {
@@ -202,7 +105,7 @@ fn main() {
             idx.swap(slopes[i].2, slopes[i].3);
             i += 1;
         }
-        ans.chmax(seg.all_prod().2);
+        ans = ans.max(seg.all_prod().2);
     }
-    writeln!(out, "{}", ans).ok();
+    writeln!(bw, "{ans}").ok();
 }
