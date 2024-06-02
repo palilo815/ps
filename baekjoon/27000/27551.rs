@@ -17,19 +17,20 @@ impl Scanner {
     }
 }
 
-struct FenwickTree<T> {
+struct DynamicKth<T> {
     size: usize,
     data: Box<[T]>,
 }
 
-impl<T> FenwickTree<T>
+impl<T> DynamicKth<T>
 where
-    T: Clone + Copy + std::ops::AddAssign + std::ops::Sub<Output = T> + std::cmp::PartialOrd,
+    T: Clone + Copy + Default + std::ops::AddAssign + std::ops::SubAssign + std::cmp::PartialOrd,
 {
-    fn new(size: usize, e: T) -> Self {
+    fn new(size: usize) -> Self {
+        let size = size.next_power_of_two();
         Self {
             size,
-            data: vec![e; size + 1].into(),
+            data: vec![T::default(); size + 1].into(),
         }
     }
     fn add(&mut self, mut i: usize, x: T) {
@@ -42,12 +43,13 @@ where
     }
     fn kth(&self, mut k: T) -> usize {
         let mut i = 0;
-        for p in (0..(self.size).ilog2() + 1).rev() {
-            let len = 1 << p;
-            if i | len <= self.size && self.data[i | len] < k {
+        let mut len = self.size >> 1;
+        while len != 0 {
+            if self.data[i | len] < k {
                 i |= len;
-                k = k - self.data[i];
+                k -= self.data[i];
             }
+            len >>= 1;
         }
         i
     }
@@ -62,11 +64,11 @@ fn main() {
     val.sort_unstable();
     val.dedup();
     a.iter_mut().for_each(|x| x.0 = val.partition_point(|&v| v < x.0));
-    let mut fw = FenwickTree::new(val.len(), 0);
+    let mut dk = DynamicKth::new(val.len());
     let mut total = 0;
     for (a, v) in a {
         total += v;
-        fw.add(a, v);
-        writeln!(bw, "{}", val[fw.kth((total + 1) / 2)]).ok();
+        dk.add(a, v);
+        writeln!(bw, "{}", val[dk.kth((total + 1) / 2)]).ok();
     }
 }
