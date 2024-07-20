@@ -8,9 +8,7 @@ impl Scanner {
     fn new() -> Self {
         let mut s = String::new();
         stdin().read_to_string(&mut s).ok();
-        Self {
-            it: s.leak().split_ascii_whitespace(),
-        }
+        Self { it: s.leak().split_ascii_whitespace() }
     }
     fn read<T: std::str::FromStr>(&mut self) -> T {
         self.it.next().unwrap().parse::<T>().ok().unwrap()
