@@ -1,44 +1,48 @@
-use std::io::Write;
+use std::io::*;
 
-pub struct Scanner<'a> {
-    it: std::str::SplitWhitespace<'a>,
+struct Scanner {
+    it: std::str::SplitAsciiWhitespace<'static>,
 }
 
-impl<'a> Scanner<'a> {
-    pub fn new(s: &'a str) -> Scanner<'a> {
-        Scanner {
-            it: s.split_whitespace(),
-        }
+impl Scanner {
+    fn new() -> Self {
+        let mut s = String::new();
+        stdin().read_to_string(&mut s).ok();
+        Self { it: s.leak().split_ascii_whitespace() }
     }
-    pub fn next<T: std::str::FromStr>(&mut self) -> T {
+    fn read<T: std::str::FromStr>(&mut self) -> T {
         self.it.next().unwrap().parse::<T>().ok().unwrap()
     }
-    pub fn next_bytes(&mut self) -> Vec<u8> {
-        self.it.next().unwrap().bytes().collect()
+    fn read_array<const N: usize>(&mut self) -> [u8; N] {
+        let s = self.it.next().unwrap();
+        let mut a = [0; N];
+        a[..s.len()].copy_from_slice(s.as_bytes());
+        a
     }
 }
 
 fn main() {
-    use std::io::Read;
-    let mut s = String::new();
-    std::io::stdin().read_to_string(&mut s).unwrap();
-    let mut sc = Scanner::new(&s);
-    let out = std::io::stdout();
-    let mut out = std::io::BufWriter::new(out.lock());
-    run(&mut sc, &mut out);
-}
-
-fn run<W: Write>(sc: &mut Scanner, out: &mut std::io::BufWriter<W>) {
+    let mut sc = Scanner::new();
+    let mut bw = BufWriter::new(stdout().lock());
+    const ENTER: [u8; 20] = {
+        let mut arr = [0; 20];
+        arr[0] = b'E';
+        arr[1] = b'N';
+        arr[2] = b'T';
+        arr[3] = b'E';
+        arr[4] = b'R';
+        arr
+    };
+    let n = sc.read::<usize>();
     let mut set = std::collections::HashSet::new();
-    let n = sc.next::<usize>();
     let mut ans = 0;
     for _ in 0..n {
-        let s = sc.next_bytes();
-        if s == b"ENTER" {
+        let s = sc.read_array::<20>();
+        if s == ENTER {
             set.clear();
-        } else {
-            ans += set.insert(s) as i32;
+        } else if set.insert(s) {
+            ans += 1;
         }
     }
-    writeln!(out, "{}", ans).ok();
+    writeln!(bw, "{ans}").ok();
 }
