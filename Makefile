@@ -11,7 +11,6 @@ CC = g++
 CFLAGS	= -Dpalilo -std=c++20 -O2 -lm -Wall -Wextra -pedantic -Wshadow -Wformat=2 -Wfloat-equal -Wconversion
 
 all: src/main.cpp
-	clang-format -i src/main.cpp
 	$(CC) $(CFLAGS) -o main src/main.cpp
 
 clean:
