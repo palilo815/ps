@@ -1,75 +1,40 @@
-macro_rules! input {
-    (source = $s:expr, $($r:tt)*) => {
-        let mut iter = $s.split_whitespace();
-        input_inner!{iter, $($r)*}
-    };
-    ($($r:tt)*) => {
-        let s = {
-            use std::io::Read;
-            let mut s = String::new();
-            std::io::stdin().read_to_string(&mut s).unwrap();
-            s
-        };
-        let mut iter = s.split_whitespace();
-        input_inner!{iter, $($r)*}
-    };
+use std::io::*;
+
+struct Scanner {
+    it: std::str::SplitAsciiWhitespace<'static>,
 }
 
-macro_rules! input_inner {
-    ($iter:expr) => {};
-    ($iter:expr, ) => {};
-    ($iter:expr, $var:ident:$t:tt $($r:tt)*) => {
-        let $var = read_value!($iter, $t);
-        input_inner!{$iter $($r)*}
-    };
-}
-
-macro_rules! read_value {
-    ($iter:expr, ($($t:tt), *)) => {
-        ($(read_value!($iter, $t)), *)
-    };
-    ($iter:expr, [$t:tt; $len:expr]) => {
-        (0..$len).map(|_| read_value!($iter, $t)).collect::<Vec<_>>()
-    };
-    ($iter:expr, chars) => {
-        read_value!($iter, String).chars().collect::<Vec<char>>()
-    };
-    ($iter:expr, bytes) => {
-        read_value!($iter, String).bytes().collect::<Vec<u8>>()
-    };
-    ($iter:expr, usize1) => {
-        read_value!($iter, usize) - 1
-    };
-    ($iter:expr, $t:ty) => {
-        $iter.next().unwrap().parse::<$t>().expect("Parse error")
-    };
+impl Scanner {
+    fn new() -> Self {
+        let mut s = String::new();
+        stdin().read_to_string(&mut s).ok();
+        Self { it: s.leak().split_ascii_whitespace() }
+    }
+    fn read<T: std::str::FromStr>(&mut self) -> T {
+        self.it.next().unwrap().parse::<T>().ok().unwrap()
+    }
+    fn read_vec<T: std::str::FromStr>(&mut self, len: usize) -> Vec<T> {
+        (0..len).map(|_| self.read()).collect()
+    }
 }
 
 fn main() {
-    use std::io::Write;
-    let out = std::io::stdout();
-    let mut out = std::io::BufWriter::new(out.lock());
-    input! {
-        n: usize,
-        k: usize,
-        jews: [(u32, u32); n],
-        bags: [u32; k],
-    }
-    let mut jews = jews;
-    let mut bags = bags;
-    jews.sort_unstable_by(|lhs, rhs| lhs.0.cmp(&rhs.0));
+    let mut sc = Scanner::new();
+    let mut bw = BufWriter::new(stdout().lock());
+    let n = sc.read::<usize>();
+    let k = sc.read::<usize>();
+    let mut jews = (0..n).map(|_| (sc.read::<u32>(), sc.read::<u32>())).collect::<Vec<_>>();
+    let mut bags = sc.read_vec::<u32>(k);
+    jews.sort_unstable_by(|l, r| l.0.cmp(&r.0));
     bags.sort_unstable();
     let mut pq = std::collections::BinaryHeap::new();
-    let mut i = 0;
+    let mut it = jews.into_iter().peekable();
     let mut ans = 0;
-    for c in bags.into_iter() {
-        while i != n && jews[i].0 <= c {
-            pq.push(jews[i].1);
-            i += 1;
+    for bag in bags {
+        while it.peek().is_some_and(|jew| jew.0 <= bag) {
+            pq.push(it.next().unwrap().1);
         }
-        if let Some(value) = pq.pop() {
-            ans += value as u64;
-        }
+        ans += pq.pop().unwrap_or_default() as u64;
     }
-    writeln!(out, "{}", ans).ok();
+    writeln!(bw, "{ans}").ok();
 }
