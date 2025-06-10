@@ -1,61 +1,48 @@
-#[allow(dead_code)]
-mod scanner {
-    use std::str::FromStr;
-    pub struct Scanner<'a> {
-        it: std::str::SplitWhitespace<'a>,
-    }
-    impl<'a> Scanner<'a> {
-        pub fn new(s: &'a String) -> Scanner<'a> {
-            Scanner {
-                it: s.split_whitespace(),
-            }
-        }
-        pub fn next<T: FromStr>(&mut self) -> T {
-            self.it.next().unwrap().parse::<T>().ok().unwrap()
-        }
-        pub fn next_bytes(&mut self) -> Vec<u8> {
-            self.it.next().unwrap().bytes().collect()
-        }
-        pub fn next_chars(&mut self) -> Vec<char> {
-            self.it.next().unwrap().chars().collect()
-        }
-        pub fn next_vec<T: FromStr>(&mut self, len: usize) -> Vec<T> {
-            (0..len).map(|_| self.next()).collect()
-        }
-    }
+use std::io::*;
+
+struct Scanner {
+    it: std::str::SplitAsciiWhitespace<'static>,
 }
 
-use std::io::Write;
+impl Scanner {
+    fn new() -> Self {
+        let mut s = String::new();
+        stdin().read_to_string(&mut s).ok();
+        Self { it: s.leak().split_ascii_whitespace() }
+    }
+    fn read<T: std::str::FromStr>(&mut self) -> T {
+        self.it.next().unwrap().parse::<T>().ok().unwrap()
+    }
+    fn read_array<const N: usize>(&mut self) -> [u8; N] {
+        let s = self.it.next().unwrap();
+        let mut a = [0; N];
+        a[..s.len()].copy_from_slice(s.as_bytes());
+        a
+    }
+}
 
 fn main() {
-    use std::io::Read;
-    let mut s = String::new();
-    std::io::stdin().read_to_string(&mut s).unwrap();
-    let mut sc = scanner::Scanner::new(&s);
-    let out = std::io::stdout();
-    let mut out = std::io::BufWriter::new(out.lock());
-    run(&mut sc, &mut out);
-}
-
-fn run<W: Write>(sc: &mut scanner::Scanner, out: &mut std::io::BufWriter<W>) {
-    let q = sc.next::<usize>();
-    let mut table = std::collections::HashMap::<Vec<u8>, std::collections::BinaryHeap<u32>>::new();
+    let mut sc = Scanner::new();
+    let mut bw = BufWriter::new(stdout().lock());
+    let q = sc.read::<usize>();
+    let mut map = std::collections::HashMap::new();
     let mut ans = 0;
     for _ in 0..q {
-        let t = sc.next::<u32>();
-        let s = sc.next_bytes();
-        let pq = table.entry(s).or_default();
-        if t == 1 {
-            let k = sc.next::<usize>();
-            for _ in 0..k {
-                pq.push(sc.next::<u32>());
+        let t = sc.read::<usize>();
+        let s = sc.read_array::<15>();
+        let pq = map.entry(s).or_insert(std::collections::BinaryHeap::new());
+        match t {
+            1 => {
+                let k = sc.read::<usize>();
+                pq.extend((0..k).map(|_| sc.read::<u32>()));
             }
-        } else {
-            let k = sc.next::<usize>();
-            for _ in 0..k.min(pq.len()) {
-                ans += pq.pop().unwrap() as u64;
+            _ => {
+                let k = sc.read::<usize>();
+                for _ in 0..k.min(pq.len()) {
+                    ans += pq.pop().unwrap() as u64;
+                }
             }
         }
     }
-    writeln!(out, "{}", ans).ok();
+    writeln!(bw, "{}", ans).ok();
 }
