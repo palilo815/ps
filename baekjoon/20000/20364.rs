@@ -1,59 +1,39 @@
-use std::io::Write;
+use std::io::*;
 
-#[allow(dead_code)]
-mod scanner {
-    use std::str::FromStr;
-    pub struct Scanner<'a> {
-        it: std::str::SplitWhitespace<'a>,
+struct Scanner {
+    it: std::str::SplitAsciiWhitespace<'static>,
+}
+
+impl Scanner {
+    fn new() -> Self {
+        let mut s = String::new();
+        stdin().read_to_string(&mut s).ok();
+        Self { it: s.leak().split_ascii_whitespace() }
     }
-    impl<'a> Scanner<'a> {
-        pub fn new(s: &'a str) -> Scanner<'a> {
-            Scanner {
-                it: s.split_whitespace(),
-            }
-        }
-        pub fn next<T: FromStr>(&mut self) -> T {
-            self.it.next().unwrap().parse::<T>().ok().unwrap()
-        }
-        pub fn next_bytes(&mut self) -> Vec<u8> {
-            self.it.next().unwrap().bytes().collect()
-        }
-        pub fn next_chars(&mut self) -> Vec<char> {
-            self.it.next().unwrap().chars().collect()
-        }
-        pub fn next_vec<T: FromStr>(&mut self, len: usize) -> Vec<T> {
-            (0..len).map(|_| self.next()).collect()
-        }
+    fn read<T: std::str::FromStr>(&mut self) -> T {
+        self.it.next().unwrap().parse::<T>().ok().unwrap()
     }
 }
 
 fn main() {
-    use std::io::Read;
-    let mut s = String::new();
-    std::io::stdin().read_to_string(&mut s).unwrap();
-    let mut sc = scanner::Scanner::new(&s);
-    let out = std::io::stdout();
-    let mut out = std::io::BufWriter::new(out.lock());
-    run(&mut sc, &mut out);
-}
-
-fn run<W: Write>(sc: &mut scanner::Scanner, out: &mut std::io::BufWriter<W>) {
-    let _ = sc.next::<u32>();
-    let q = sc.next::<u32>();
+    let mut sc = Scanner::new();
+    let mut bw = BufWriter::new(stdout().lock());
+    let _ = sc.read::<u32>();
+    let q = sc.read::<usize>();
     let mut has = [false; 1 << 20];
     for _ in 0..q {
-        let x = sc.next::<usize>();
+        let x = sc.read::<usize>();
         let mut i = x;
-        let mut occupied = 0;
+        let mut blocked = 0;
         while i != 1 {
             if has[i] {
-                occupied = i;
+                blocked = i;
             }
             i >>= 1;
         }
-        if occupied == 0 {
+        if blocked == 0 {
             has[x] = true;
         }
-        writeln!(out, "{}", occupied).ok();
+        writeln!(bw, "{}", blocked).ok();
     }
 }
