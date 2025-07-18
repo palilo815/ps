@@ -1,86 +1,48 @@
-macro_rules! input {
-    (source = $s:expr, $($r:tt)*) => {
-        let mut iter = $s.split_whitespace();
-        input_inner!{iter, $($r)*}
-    };
-    ($($r:tt)*) => {
-        let s = {
-            use std::io::Read;
-            let mut s = String::new();
-            std::io::stdin().read_to_string(&mut s).unwrap();
-            s
-        };
-        let mut iter = s.split_whitespace();
-        input_inner!{iter, $($r)*}
-    };
+use std::io::*;
+
+struct Scanner {
+    it: std::str::SplitAsciiWhitespace<'static>,
 }
 
-macro_rules! input_inner {
-    ($iter:expr) => {};
-    ($iter:expr, ) => {};
-    ($iter:expr, $var:ident : $t:tt $($r:tt)*) => {
-        let $var = read_value!($iter, $t);
-        input_inner!{$iter $($r)*}
-    };
-}
-
-macro_rules! read_value {
-    ($iter:expr, ( $($t:tt),* )) => {
-        ( $(read_value!($iter, $t)),* )
-    };
-    ($iter:expr, [ $t:tt ; $len:expr ]) => {
-        (0..$len).map(|_| read_value!($iter, $t)).collect::<Vec<_>>()
-    };
-    ($iter:expr, chars) => {
-        read_value!($iter, String).chars().collect::<Vec<char>>()
-    };
-    ($iter:expr, bytes) => {
-        read_value!($iter, String).bytes().collect::<Vec<u8>>()
-    };
-    ($iter:expr, usize1) => {
-        read_value!($iter, usize) - 1
-    };
-    ($iter:expr, $t:ty) => {
-        $iter.next().unwrap().parse::<$t>().expect("Parse error")
-    };
+impl Scanner {
+    fn new() -> Self {
+        let mut s = String::new();
+        stdin().read_to_string(&mut s).ok();
+        Self { it: s.leak().split_ascii_whitespace() }
+    }
+    fn read<T: std::str::FromStr>(&mut self) -> T {
+        self.it.next().unwrap().parse::<T>().ok().unwrap()
+    }
+    fn read_bytes(&mut self) -> Vec<u8> {
+        self.it.next().unwrap().bytes().collect()
+    }
 }
 
 fn main() {
-    use std::io::Write;
-    let out = std::io::stdout();
-    let mut out = std::io::BufWriter::new(out.lock());
-    input! {
-        n: usize,
-        m: usize,
-        grid: [chars; n],
-    }
-    let mut grid = grid;
-    let s = grid.iter().flatten().position(|&x| x == 'I').unwrap();
-    const MOVE: [(isize, isize); 4] = [(-1, 0), (0, -1), (0, 1), (1, 0)];
-    let mut stk = vec![];
-    stk.push((s / m, s % m));
-    let mut ans = 0;
-    while let Some((x, y)) = stk.pop() {
+    let mut sc = Scanner::new();
+    let mut bw = BufWriter::new(stdout().lock());
+    let n = sc.read::<usize>();
+    let m = sc.read::<usize>();
+    let mut grid = (0..n).map(|_| sc.read_bytes()).collect::<Vec<_>>();
+    let p1 = grid.iter().flatten().filter(|&&x| x == b'P').count();
+    let s = grid.iter().flatten().position(|&x| x == b'I').unwrap();
+    let s = (s / m, s % m);
+    const MOVE: [(usize, usize); 4] = [(usize::MAX, 0), (0, usize::MAX), (0, 1), (1, 0)];
+    let mut stack = vec![s];
+    while let Some((x, y)) = stack.pop() {
         for &(dx, dy) in MOVE.iter() {
-            let xx = x as isize + dx;
-            let yy = y as isize + dy;
-            if xx == -1 || yy == -1 {
-                continue;
-            }
-            let xx = xx as usize;
-            let yy = yy as usize;
-            if xx != n && yy != m && grid[xx][yy] != 'X' {
-                if grid[xx][yy] == 'P' {
-                    ans += 1;
-                }
-                grid[xx][yy] = 'X';
-                stk.push((xx, yy));
+            let x = x + dx;
+            let y = y + dy;
+            if x < n && y < m && grid[x][y] != b'X' {
+                grid[x][y] = b'X';
+                stack.push((x, y));
             }
         }
     }
-    if ans == 0 {
-        writeln!(out, "TT").ok();
+    let p2 = grid.iter().flatten().filter(|&&x| x == b'P').count();
+    if p1 - p2 == 0 {
+        writeln!(bw, "TT").ok();
     } else {
-        writeln!(out, "{}", ans).ok();
+        writeln!(bw, "{}", p1 - p2).ok();
     }
 }
