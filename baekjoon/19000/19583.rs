@@ -1,14 +1,20 @@
 use std::io::*;
 
-struct Scanner<'a> {
-    it: std::str::SplitWhitespace<'a>,
+struct Scanner {
+    it: std::str::SplitAsciiWhitespace<'static>,
 }
 
-impl<'a> Scanner<'a> {
-    fn new(s: &'a str) -> Scanner<'a> {
-        Scanner {
-            it: s.split_whitespace(),
-        }
+impl Scanner {
+    fn new() -> Self {
+        let mut s = String::new();
+        stdin().read_to_string(&mut s).ok();
+        Self { it: s.leak().split_ascii_whitespace() }
+    }
+    fn read_array<const N: usize>(&mut self) -> [u8; N] {
+        let s = self.it.next().unwrap();
+        let mut a = [0; N];
+        a[..s.len()].copy_from_slice(s.as_bytes());
+        a
     }
     fn raw(&mut self) -> Option<&str> {
         self.it.next()
@@ -16,15 +22,8 @@ impl<'a> Scanner<'a> {
 }
 
 fn main() {
-    let mut s = String::new();
-    stdin().read_to_string(&mut s).unwrap();
-    let mut sc = Scanner::new(&s);
-    let out = stdout();
-    let mut out = BufWriter::new(out.lock());
-    run(&mut sc, &mut out);
-}
-
-fn run<W: Write>(sc: &mut Scanner, out: &mut BufWriter<W>) {
+    let mut sc = Scanner::new();
+    let mut bw = BufWriter::new(stdout().lock());
     let parse_time = |s: &str| s.bytes().fold(0, |acc, x| acc << 6 | x as u32);
     let s = parse_time(sc.raw().unwrap());
     let e = parse_time(sc.raw().unwrap());
@@ -32,12 +31,12 @@ fn run<W: Write>(sc: &mut Scanner, out: &mut BufWriter<W>) {
     let mut check = std::collections::HashMap::new();
     while let Some(t) = sc.raw() {
         let t = parse_time(t);
-        let name = sc.raw().unwrap().to_string();
+        let name = sc.read_array::<20>();
         if t <= s {
             *check.entry(name).or_insert(0) |= 1;
         } else if e <= t && t <= q {
             *check.entry(name).or_insert(0) |= 2;
         }
     }
-    writeln!(out, "{}", check.into_values().filter(|&x| x == 3).count()).ok();
+    writeln!(bw, "{}", check.into_values().filter(|&x| x == 3).count()).ok();
 }
