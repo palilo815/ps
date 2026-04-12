@@ -1,76 +1,56 @@
-use std::io::Write;
+use std::io::*;
 
-#[allow(dead_code)]
-mod scanner {
-    use std::str::FromStr;
-    pub struct Scanner<'a> {
-        it: std::str::SplitWhitespace<'a>,
+struct Scanner {
+    it: std::str::SplitAsciiWhitespace<'static>,
+}
+
+impl Scanner {
+    fn new() -> Self {
+        let mut s = String::new();
+        stdin().read_to_string(&mut s).ok();
+        Self { it: s.leak().split_ascii_whitespace() }
     }
-    impl<'a> Scanner<'a> {
-        pub fn new(s: &'a str) -> Scanner<'a> {
-            Scanner {
-                it: s.split_whitespace(),
-            }
-        }
-        pub fn next<T: FromStr>(&mut self) -> T {
-            self.it.next().unwrap().parse::<T>().ok().unwrap()
-        }
-        pub fn next_bytes(&mut self) -> Vec<u8> {
-            self.it.next().unwrap().bytes().collect()
-        }
-        pub fn next_chars(&mut self) -> Vec<char> {
-            self.it.next().unwrap().chars().collect()
-        }
-        pub fn next_vec<T: FromStr>(&mut self, len: usize) -> Vec<T> {
-            (0..len).map(|_| self.next()).collect()
-        }
+    fn read<T: std::str::FromStr>(&mut self) -> T {
+        self.it.next().unwrap().parse::<T>().ok().unwrap()
     }
 }
 
 fn main() {
-    use std::io::Read;
-    let mut s = String::new();
-    std::io::stdin().read_to_string(&mut s).unwrap();
-    let mut sc = scanner::Scanner::new(&s);
-    let out = std::io::stdout();
-    let mut out = std::io::BufWriter::new(out.lock());
-    run(&mut sc, &mut out);
-}
-
-fn run<W: Write>(sc: &mut scanner::Scanner, out: &mut std::io::BufWriter<W>) {
-    let n = sc.next::<usize>();
+    let mut sc = Scanner::new();
+    let mut bw = BufWriter::new(stdout().lock());
+    let n = sc.read::<usize>();
     let mut st = vec![(0, 0); n];
     let mut ed = vec![(0, 0); n];
     for i in 0..n {
-        let id = sc.next::<u32>() - 1;
-        st[i] = (sc.next::<u32>(), id);
-        ed[i] = (sc.next::<u32>(), id);
+        let id = sc.read::<u32>() - 1;
+        st[i] = (sc.read::<u32>(), id);
+        ed[i] = (sc.read::<u32>(), id);
     }
     st.sort_unstable_by_key(|x| x.0);
     ed.sort_unstable_by_key(|x| x.0);
     let mut ans = vec![-1; n];
-    let mut empty_room = vec![];
-    let mut room_num = 0;
+    let mut room_buffer = vec![];
+    let mut room_count = 0;
     let mut i = 0;
     let mut j = 0;
     while i != n {
         if st[i].0 < ed[j].0 {
             let id = st[i].1 as usize;
-            if let Some(room) = empty_room.pop() {
+            if let Some(room) = room_buffer.pop() {
                 ans[id] = room;
             } else {
-                room_num += 1;
-                ans[id] = room_num;
+                room_count += 1;
+                ans[id] = room_count;
             }
             i += 1;
         } else {
             let id = ed[j].1 as usize;
-            empty_room.push(ans[id]);
+            room_buffer.push(ans[id]);
             j += 1;
         }
     }
-    writeln!(out, "{}", room_num).ok();
+    writeln!(bw, "{room_count}").ok();
     for x in ans {
-        writeln!(out, "{}", x).ok();
+        writeln!(bw, "{x}").ok();
     }
 }
