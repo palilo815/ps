@@ -1,16 +1,15 @@
-while 1:
-    L, N = map(int, input().split())
-    if L == 0:
-        break
-    key = list(map(int, input().split()))
-    ans = 0
-    for _ in range(N):
-        flag = True
-        x = list(map(int, input().split()))
-        for i in range(L):
-            if key[i] < x[i]:
-                flag = False
-                break
-        if flag:
-            ans += 1
-    print(ans)
+def main():
+    while True:
+        _, n = map(int, input().split())
+        if n == 0:
+            break
+        key = list(map(int, input().split()))
+        ans = sum(
+            all(k >= b for k, b in zip(key, map(int, input().split())))
+            for _ in range(n)
+        )
+        print(ans)
+
+
+if __name__ == "__main__":
+    main()
