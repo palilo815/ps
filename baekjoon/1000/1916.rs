@@ -1,45 +1,72 @@
-use std::io::Write;
+use std::io::*;
 
-struct Scanner<'a> {
-    it: std::str::SplitWhitespace<'a>,
+struct Scanner {
+    it: std::str::SplitAsciiWhitespace<'static>,
 }
 
-impl<'a> Scanner<'a> {
-    fn new(s: &'a str) -> Scanner<'a> {
-        Scanner {
-            it: s.split_whitespace(),
-        }
+impl Scanner {
+    fn new() -> Self {
+        let mut buf = Vec::new();
+        stdin().lock().read_to_end(&mut buf).ok();
+        let s = unsafe { std::str::from_utf8_unchecked(Box::leak(buf.into_boxed_slice())) };
+        Self { it: s.split_ascii_whitespace() }
     }
-    fn next<T: std::str::FromStr>(&mut self) -> T {
+    fn read<T: std::str::FromStr>(&mut self) -> T {
         self.it.next().unwrap().parse::<T>().ok().unwrap()
     }
 }
 
-fn run<W: Write>(sc: &mut Scanner, out: &mut std::io::BufWriter<W>) {
-    let n = sc.next::<usize>();
-    let m = sc.next::<usize>();
-    let mut adj = vec![vec![]; n];
-    for _ in 0..m {
-        let u = sc.next::<usize>() - 1;
-        let v = sc.next::<usize>() - 1;
-        let w = sc.next::<u32>();
-        adj[u].push((w, v));
+struct Csr<T> {
+    values: Box<[(usize, T)]>,
+    pref: Box<[usize]>,
+}
+
+impl<T> std::ops::Index<usize> for Csr<T> {
+    type Output = [(usize, T)];
+    fn index(&self, i: usize) -> &Self::Output {
+        &self.values[self.pref[i]..self.pref[i + 1]]
     }
-    let s = sc.next::<usize>() - 1;
-    let t = sc.next::<usize>() - 1;
-    const INF: u32 = 0x3f3f3f3f;
+}
+
+impl<T: Copy + Default> Csr<T> {
+    fn from_directed_edges(n: usize, edges: Vec<(usize, usize, T)>) -> Self {
+        let mut values = vec![(0, T::default()); edges.len()].into_boxed_slice();
+        let mut pref = vec![0; n + 1].into_boxed_slice();
+        for &(u, _, _) in edges.iter() {
+            pref[u] += 1;
+        }
+        for i in 0..n {
+            pref[i + 1] += pref[i];
+        }
+        for (u, v, w) in edges {
+            pref[u] -= 1;
+            values[pref[u]] = (v, w);
+        }
+        Self { values, pref }
+    }
+}
+
+fn main() {
+    let mut sc = Scanner::new();
+    let mut bw = BufWriter::new(stdout().lock());
+    let n = sc.read::<usize>();
+    let m = sc.read::<usize>();
+    let edges = (0..m)
+        .map(|_| (sc.read::<usize>() - 1, sc.read::<usize>() - 1, sc.read::<u32>()))
+        .collect();
+    let csr = Csr::from_directed_edges(n, edges);
+    let s = sc.read::<usize>() - 1;
+    let t = sc.read::<usize>() - 1;
     let mut colour = vec![0; n];
-    let mut par = vec![usize::MAX; n];
-    let mut dist = vec![INF; n];
+    let mut dist = vec![u32::MAX; n];
     dist[s] = 0;
     let mut dq = std::collections::VecDeque::new();
     dq.push_back(s);
     while let Some(u) = dq.pop_front() {
         colour[u] = 2;
-        for &(w, v) in adj[u].iter() {
+        for &(v, w) in csr[u].iter() {
             if dist[v] > dist[u] + w {
                 dist[v] = dist[u] + w;
-                par[v] = u;
                 if colour[v] == 0 {
                     colour[v] = 1;
                     dq.push_back(v);
@@ -50,15 +77,5 @@ fn run<W: Write>(sc: &mut Scanner, out: &mut std::io::BufWriter<W>) {
             }
         }
     }
-    writeln!(out, "{}", dist[t]).ok();
-}
-
-fn main() {
-    use std::io::Read;
-    let mut s = String::new();
-    std::io::stdin().read_to_string(&mut s).unwrap();
-    let mut sc = Scanner::new(&s);
-    let out = std::io::stdout();
-    let mut out = std::io::BufWriter::new(out.lock());
-    run(&mut sc, &mut out);
+    writeln!(bw, "{}", dist[t]).ok();
 }
