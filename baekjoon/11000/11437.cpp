@@ -1,66 +1,69 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-const int max_N = 50000;
+const int mxN = 5e4 + 1;
 
-vector<int> adj[max_N + 1];
-vector<int> Euler_tour;
-int occurrence[max_N + 1];
+vector<int> adj[mxN];
+int t, sz[mxN], par[mxN], top[mxN], in[mxN];
 
-int cnt;
-int Euler_idx[max_N + 1];
-int original_idx[max_N];
+void dfs(int u) {
+    sz[u] = 1;
+    for (int i = 0; i < adj[u].size(); ++i) {
+        int& v = adj[u][i];
+        if (v == par[u]) {
+            swap(v, adj[u].back());
+            adj[u].pop_back();
+            --i;
+            continue;
+        }
 
-int segT[131072 * 2 - 1];
+        par[v] = u;
+        dfs(v);
+        sz[u] += sz[v];
 
-void touring(int u, int p)
-{
-    original_idx[cnt] = u;
-    Euler_idx[u] = cnt;
-    occurrence[u] = Euler_tour.size();
-    ++cnt;
-    Euler_tour.push_back(Euler_idx[u]);
-    for (int v : adj[u]) if (v != p) {
-        touring(v, u);
-        Euler_tour.push_back(Euler_idx[u]);
+        if (sz[v] > sz[adj[u][0]])
+            swap(v, adj[u][0]);
     }
 }
-int build_segT(int l, int r, int idx)
-{
-    if (l == r) return segT[idx] = Euler_tour[l];
-    int m = l + (r - l) / 2;
-    return segT[idx] = min(build_segT(l, m, 2 * idx + 1), build_segT(m + 1, r, 2 * idx + 2));
+void hld(int u) {
+    in[u] = t++;
+    bool heavy = true;
+    for (int& v : adj[u]) {
+        top[v] = heavy ? top[u] : v;
+        hld(v);
+        heavy = false;
+    }
 }
-int query(int ql, int qr, int l, int r, int idx)
-{
-    if (ql <= l && r <= qr) return segT[idx];
-    if (qr < l || r < ql) return INT_MAX;
-    int m = l + (r - l) / 2;
-    return min(query(ql, qr, l, m, 2 * idx + 1), query(ql, qr, m + 1, r, 2 * idx + 2));
+int lca(int u, int v) {
+    while (top[u] != top[v])
+        sz[top[u]] < sz[top[v]] ? u = par[top[u]] : v = par[top[v]];
+    return in[u] < in[v] ? u : v;
 }
-int main()
-{
-    cin.tie(NULL), cout.tie(NULL);
-    ios::sync_with_stdio(false);
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr);
+#ifndef ONLINE_JUDGE
+    freopen("in", "r", stdin);
+    freopen("out", "w", stdout);
+#endif
+    int N;
+    cin >> N;
 
-    int N; cin >> N;
-    for (int i = 0; i < N - 1; ++i) {
-        int u, v; cin >> u >> v;
-        adj[u].push_back(v);
-        adj[v].push_back(u);
+    for (int i = 1, u, v; i < N; ++i) {
+        cin >> u >> v;
+        adj[u].emplace_back(v);
+        adj[v].emplace_back(u);
     }
 
-    Euler_tour.reserve(2 * N - 1);
-    touring(1, -1);
-    build_segT(0, 2 * N - 2, 0);
+    top[1] = 1;
+    dfs(1);
+    hld(1);
 
-    int Q; cin >> Q;
-    while (Q--) {
-        int a, b; cin >> a >> b;
-        int ql = occurrence[a], qr = occurrence[b];
-        if (ql > qr) swap(ql, qr);
-        int q = query(ql, qr, 0, 2 * N - 2, 0);
-        cout << original_idx[q] << '\n';
+    int Q;
+    cin >> Q;
+
+    for (int u, v; Q--;) {
+        cin >> u >> v;
+        cout << lca(u, v) << '\n';
     }
-    return 0;
 }
